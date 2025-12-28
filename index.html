@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Latiao Finance | Enterprise v12.7 Full</title>
+    <title>Latiao Finance | Enterprise v12.8 Ultimate</title>
     
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -12,6 +12,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -30,15 +31,14 @@
         }
     </script>
     <style>
-        body { color: #1e293b; }
+        body { color: #1e293b; font-family: 'Manrope', sans-serif; }
         main { background-image: radial-gradient(circle at center, #f1f5f9 1px, transparent 1px); background-size: 40px 40px; }
-        .sidebar-link { transition: all 0.2s ease-in-out; border-radius: 12px; }
+        .sidebar-link { transition: all 0.2s ease-in-out; border-radius: 12px; display: flex; align-items: center; gap: 12px; padding: 14px; width: 100%; font-size: 14px; font-weight: 700; }
         .sidebar-link.active { background: linear-gradient(135deg, #FF5722 0%, #ea580c 100%); color: white; box-shadow: 0 8px 16px -4px rgba(255, 87, 34, 0.3); }
         .sidebar-link:hover:not(.active) { background: #fff1ec; color: #ea580c; }
-        .card-modern { background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; }
-        .table-row-modern { transition: all 0.15s; }
-        .table-row-modern:hover { background-color: #f8fafc; }
-        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card-modern { background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); transition: transform 0.2s; }
+        .card-modern:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08); }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .logo-mono { background-image: url('https://multicast.com.ua/wp-content/uploads/2024/04/monobank-logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
         .logo-nova { background-image: url('https://novapay.ua/wp-content/themes/novapay/assets/img/logo.svg'); background-size: contain; background-repeat: no-repeat; background-position: center; }
@@ -55,6 +55,7 @@
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, setDoc, getDoc, writeBatch, getDocs, limit, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // --- CONFIG ---
     const firebaseConfig = {
       apiKey: "AIzaSyDIk302oYXye-r4hRE-EB16N6K3T31g1uk",
       authDomain: "latiao-finance.firebaseapp.com",
@@ -71,11 +72,13 @@
 
     const { useState, useEffect, useMemo } = React;
 
+    // --- REUSABLE ICON ---
     const Icon = ({ name, size = 18, className }) => {
         useEffect(() => { try { if(window.lucide) window.lucide.createIcons(); } catch(e){} }, [name]);
         return <i data-lucide={name} width={size} height={size} className={className}></i>;
     };
 
+    // --- CONSTANTS ---
     const DEFAULT_CATEGORIES = {
         income: ['Продажі', 'Кешбек', 'Повернення', 'Інше'],
         expense: ['Закупівля (COGS)', 'Реклама', 'Логістика', 'Пакування', 'Зарплата', 'Податки', 'Оренда', 'Комісії', 'Знижки', 'Інше']
@@ -83,7 +86,7 @@
 
     const ALL_VIEWS = [
         {id:'dashboard', label:'Огляд бізнесу', icon:'layout-grid'},
-        {id:'planning', label:'Планування', icon:'target'},
+        {id:'planning', label:'План продажів', icon:'target'},
         {id:'ops', label:'Операції', icon:'list-checks'},
         {id:'pnl', label:'P&L Звіт', icon:'pie-chart'},
         {id:'cashflow', label:'Cash Flow', icon:'banknote'},
@@ -92,144 +95,86 @@
         {id:'settings', label:'Налаштування', icon:'sliders-horizontal'}
     ];
 
-    // --- VIEW COMPONENTS ---
-
-    const DashboardView = ({ metrics, transactions, setView, db }) => {
-        const [plan, setPlan] = useState(null);
-        useEffect(() => {
-            getDoc(doc(db, "sales_plans", new Date().toISOString().slice(0, 7))).then(s => { if(s.exists()) setPlan(s.data()); });
-        }, []);
-
-        const isHealthy = metrics.margin > 20;
-        return (
-            <div className="space-y-8 animate-fade-in">
-                {plan && (
-                    <div className="card-modern p-4 px-6 flex items-center gap-6 bg-slate-50 border-brand-100">
-                        <div className="whitespace-nowrap"><span className="text-xs font-bold text-slate-400 uppercase block">План продажів</span><span className="font-bold text-brand-600">{(metrics.revenue / ((Number(plan.targetProfit) + Number(plan.fixedCosts)) / (Number(plan.marginPct) / 100)) * 100).toFixed(0)}%</span></div>
-                        <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-brand-500" style={{width: `${(metrics.revenue / ((Number(plan.targetProfit) + Number(plan.fixedCosts)) / (Number(plan.marginPct) / 100)) * 100)}%`}}></div></div>
-                        <button onClick={()=>setView('planning')} className="text-xs font-bold text-brand-600 hover:underline">Аналіз</button>
-                    </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="bg-gradient-to-br from-slate-850 to-slate-900 text-white p-6 rounded-[28px] shadow-2xl relative overflow-hidden group border border-slate-800">
-                        <div className="relative z-10">
-                            <div className="text-slate-300 text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2"><Icon name="wallet" size={16} className="text-brand-500"/> Гроші в бізнесі</div>
-                            <div className="text-4xl font-mono font-bold tracking-tight">{metrics.totalCash.toLocaleString()} <span className="text-2xl text-slate-400">₴</span></div>
-                        </div>
-                    </div>
-                    <div className="card-modern p-6 border-t-4 border-t-emerald-500">
-                        <div className="text-slate-500 text-sm font-bold uppercase tracking-wider mb-3">Чистий Прибуток</div>
-                        <div className={`text-4xl font-mono font-bold tracking-tight ${metrics.net >= 0 ? 'text-slate-900' : 'text-red-600'}`}>{metrics.net.toLocaleString()} ₴</div>
-                    </div>
-                    <div className="card-modern p-6 border-t-4 border-t-brand-500">
-                        <div className="text-slate-500 text-sm font-bold uppercase tracking-wider mb-3">Runway (Днів)</div>
-                        <div className="text-4xl font-mono font-bold text-brand-600">{metrics.runway}</div>
-                    </div>
-                    <div className={`card-modern p-6 flex flex-col justify-center items-center border-t-4 ${isHealthy ? 'border-t-emerald-500' : 'border-t-red-500'}`}>
-                        <div className="text-slate-500 text-sm font-bold uppercase mb-2">Здоров'я бізнесу</div>
-                        <div className={`text-2xl font-bold flex items-center gap-2 ${isHealthy ? 'text-emerald-600' : 'text-red-600'}`}>{isHealthy ? <Icon name="activity" className="animate-pulse"/> : <Icon name="skull"/>} {isHealthy ? "ОК" : "Критично"}</div>
-                    </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                    <div className="card-modern p-6">
-                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Icon name="credit-card"/> Гаманці</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 bg-slate-50 rounded-2xl border-b-4 border-black">
-                                <div className="logo-mono w-6 h-6 grayscale mb-2"></div>
-                                <div className="text-[10px] font-bold text-slate-400 uppercase">Monobank</div>
-                                <div className="font-mono font-bold">{metrics.balances.mono.toLocaleString()} ₴</div>
-                            </div>
-                            <div className="p-4 bg-red-50 rounded-2xl border-b-4 border-red-500">
-                                <div className="logo-nova w-6 h-6 mb-2"></div>
-                                <div className="text-[10px] font-bold text-red-400 uppercase">NovaPay</div>
-                                <div className="font-mono font-bold text-red-900">{metrics.balances.nova.toLocaleString()} ₴</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="card-modern p-6">
-                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Icon name="pie-chart"/> Експрес P&L</h3>
-                        <div className="space-y-4">
-                            <div><div className="flex justify-between text-xs font-bold mb-1"><span>Доходи</span><span>{metrics.revenue.toLocaleString()} ₴</span></div><div className="h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-emerald-500" style={{width:'100%'}}></div></div></div>
-                            <div><div className="flex justify-between text-xs font-bold mb-1"><span>Витрати</span><span>{metrics.totalExpense.toLocaleString()} ₴</span></div><div className="h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-red-500" style={{width:`${metrics.revenue ? (metrics.totalExpense/metrics.revenue)*100 : 0}%`}}></div></div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const PlanningView = ({ transactions, metrics, db }) => {
+    // --- COMPONENTS: PLANNING ---
+    const PlanningView = ({ metrics, db }) => {
         const [plans, setPlans] = useState([]);
         const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
         const [isEditing, setIsEditing] = useState(false);
         const [form, setForm] = useState({ avgOrderValue: 450, avgItemsPerOrder: 3, targetProfit: 50000, fixedCosts: 15000, marginPct: 40 });
 
         useEffect(() => {
-            const unsub = onSnapshot(collection(db, "sales_plans"), (snap) => setPlans(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+            const unsub = onSnapshot(collection(db, "sales_plans"), (snap) => {
+                setPlans(snap.docs.map(d => ({id: d.id, ...d.data()})));
+            });
             return () => unsub();
         }, []);
 
-        const currentPlan = plans.find(p => p.month === selectedMonth);
-        const savePlan = async () => { await setDoc(doc(db, "sales_plans", selectedMonth), { month: selectedMonth, ...form, updatedAt: Date.now() }); setIsEditing(false); };
+        const currentPlan = plans.find(p => p.month === selectedMonth) || form;
+
+        const savePlan = async () => {
+            await setDoc(doc(db, "sales_plans", selectedMonth), { month: selectedMonth, ...form, updatedAt: Date.now() });
+            setIsEditing(false);
+        };
 
         const calc = useMemo(() => {
-            const p = currentPlan || form;
-            const revenueNeeded = (Number(p.targetProfit) + Number(p.fixedCosts)) / (Number(p.marginPct) / 100);
-            const minRevenue = Number(p.fixedCosts) / (Number(p.marginPct) / 100);
-            const ordersNeeded = Math.ceil(revenueNeeded / p.avgOrderValue);
-            const itemsNeeded = ordersNeeded * p.avgItemsPerOrder;
-            return { revenueNeeded, minRevenue, ordersNeeded, itemsNeeded, dailyRevenue: revenueNeeded/30, dailyOrders: ordersNeeded/30 };
-        }, [currentPlan, form]);
+            const p = currentPlan;
+            const revNeeded = (Number(p.targetProfit) + Number(p.fixedCosts)) / (Number(p.marginPct) / 100);
+            const minRev = Number(p.fixedCosts) / (Number(p.marginPct) / 100);
+            const orders = Math.ceil(revNeeded / p.avgOrderValue);
+            const items = orders * p.avgItemsPerOrder;
+            return { revNeeded, minRev, orders, items, dailyRev: revNeeded/30, dailyOrders: orders/30 };
+        }, [currentPlan]);
 
-        const progress = Math.min(Math.round(calc.revenueNeeded > 0 ? (metrics.revenue / calc.revenueNeeded) * 100 : 0), 100);
+        const progress = Math.min(Math.round(calc.revNeeded > 0 ? (metrics.revenue / calc.revNeeded) * 100 : 0), 100);
 
         return (
-            <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
+            <div className="space-y-6 animate-fade-in max-w-5xl mx-auto pb-10">
                 <div className="flex justify-between items-center">
-                    <input type="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="text-2xl font-bold bg-transparent border-none outline-none"/>
-                    <button onClick={() => { if(!isEditing) setForm(currentPlan || form); setIsEditing(!isEditing); }} className="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold">{isEditing ? "Скасувати" : "Редагувати план"}</button>
+                    <div>
+                        <p className="text-xs font-bold text-brand-600 uppercase mb-1 tracking-widest">Фінансова стратегія</p>
+                        <input type="month" value={selectedMonth} onChange={e=>setSelectedMonth(e.target.value)} className="text-2xl font-bold bg-transparent border-none outline-none"/>
+                    </div>
+                    <button onClick={()=>setIsEditing(!isEditing)} className="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold flex gap-2"><Icon name="edit-3" size={16}/>{isEditing?"Скасувати":"Редагувати"}</button>
                 </div>
 
                 {isEditing ? (
                     <div className="card-modern p-8 grid grid-cols-3 gap-6">
-                        <div className="space-y-3">
-                            <h3 className="font-bold border-b pb-2">Чек</h3>
-                            <div><label className="text-[10px] font-bold text-slate-400 uppercase">Середній чек (₴)</label><input type="number" value={form.avgOrderValue} onChange={e=>setForm({...form, avgOrderValue: e.target.value})} className="w-full border p-2 rounded-lg"/></div>
-                            <div><label className="text-[10px] font-bold text-slate-400 uppercase">Пачок в замов.</label><input type="number" value={form.avgItemsPerOrder} onChange={e=>setForm({...form, avgItemsPerOrder: e.target.value})} className="w-full border p-2 rounded-lg"/></div>
+                        <div className="space-y-4">
+                            <h4 className="font-bold border-b pb-2">Чеки</h4>
+                            <div><label className="text-[10px] font-bold text-slate-400 uppercase">Сер. чек (₴)</label><input type="number" value={form.avgOrderValue} onChange={e=>setForm({...form, avgOrderValue:e.target.value})} className="w-full border p-2 rounded-lg mt-1"/></div>
+                            <div><label className="text-[10px] font-bold text-slate-400 uppercase">Пачок в 1 замов.</label><input type="number" value={form.avgItemsPerOrder} onChange={e=>setForm({...form, avgItemsPerOrder:e.target.value})} className="w-full border p-2 rounded-lg mt-1"/></div>
                         </div>
-                        <div className="space-y-3">
-                            <h3 className="font-bold border-b pb-2">Ціль</h3>
-                            <div><label className="text-[10px] font-bold text-slate-400 uppercase">Цільовий прибуток (₴)</label><input type="number" value={form.targetProfit} onChange={e=>setForm({...form, targetProfit: e.target.value})} className="w-full border p-2 rounded-lg font-bold text-emerald-600"/></div>
-                            <div><label className="text-[10px] font-bold text-slate-400 uppercase">Маржа (%)</label><input type="number" value={form.marginPct} onChange={e=>setForm({...form, marginPct: e.target.value})} className="w-full border p-2 rounded-lg"/></div>
+                        <div className="space-y-4">
+                            <h4 className="font-bold border-b pb-2">Цілі</h4>
+                            <div><label className="text-[10px] font-bold text-slate-400 uppercase">Прибуток (₴)</label><input type="number" value={form.targetProfit} onChange={e=>setForm({...form, targetProfit:e.target.value})} className="w-full border p-2 rounded-lg mt-1 text-emerald-600 font-bold"/></div>
+                            <div><label className="text-[10px] font-bold text-slate-400 uppercase">Маржа (%)</label><input type="number" value={form.marginPct} onChange={e=>setForm({...form, marginPct:e.target.value})} className="w-full border p-2 rounded-lg mt-1"/></div>
                         </div>
-                        <div className="space-y-3">
-                            <h3 className="font-bold border-b pb-2">Витрати</h3>
-                            <div><label className="text-[10px] font-bold text-slate-400 uppercase">Оренда + Реклама + ЗП</label><input type="number" value={form.fixedCosts} onChange={e=>setForm({...form, fixedCosts: e.target.value})} className="w-full border p-2 rounded-lg"/></div>
+                        <div className="space-y-4">
+                            <h4 className="font-bold border-b pb-2">Витрати</h4>
+                            <div><label className="text-[10px] font-bold text-slate-400 uppercase">Фікс. витрати (₴)</label><input type="number" value={form.fixedCosts} onChange={e=>setForm({...form, fixedCosts:e.target.value})} className="w-full border p-2 rounded-lg mt-1"/></div>
                             <button onClick={savePlan} className="w-full bg-brand-500 text-white py-3 rounded-xl font-bold mt-4">Зберегти план</button>
                         </div>
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        <div className="card-modern p-8 bg-slate-900 text-white overflow-hidden relative">
-                            <div className="relative z-10 flex justify-between items-end mb-4">
-                                <div><p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Виконання плану</p><h2 className="text-6xl font-mono font-bold">{progress}%</h2></div>
-                                <div className="text-right text-sm font-bold text-slate-400">Ціль: {calc.revenueNeeded.toLocaleString()} ₴</div>
+                        <div className="card-modern p-8 bg-slate-900 text-white flex justify-between items-end relative overflow-hidden">
+                            <div className="relative z-10 w-full">
+                                <div className="flex justify-between mb-2"><span>Виконання плану</span><span>Ціль: {calc.revNeeded.toLocaleString()} ₴</span></div>
+                                <div className="h-4 bg-white/10 rounded-full overflow-hidden mb-2"><div className="h-full bg-brand-500" style={{width:`${progress}%`}}></div></div>
+                                <div className="text-4xl font-mono font-bold">{progress}% <span className="text-sm font-sans opacity-50 font-normal">({metrics.revenue.toLocaleString()} ₴)</span></div>
                             </div>
-                            <div className="h-4 bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-brand-500" style={{width:`${progress}%`}}></div></div>
                         </div>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="card-modern p-6 space-y-4">
-                                <h3 className="font-bold border-b pb-2">Щоденні нормативи</h3>
-                                <div className="flex justify-between items-center"><span>Пачок Латяо в день</span><span className="font-bold text-blue-600">{Math.ceil(calc.itemsNeeded / 30)} шт</span></div>
-                                <div className="flex justify-between items-center"><span>Замовлень в день</span><span className="font-bold text-blue-600">{calc.dailyOrders.toFixed(1)} замов.</span></div>
-                                <div className="flex justify-between items-center"><span>Виторг в день</span><span className="font-bold text-emerald-600">{calc.dailyRevenue.toLocaleString()} ₴</span></div>
+                                <h3 className="font-bold border-b pb-2">Щоденні цілі</h3>
+                                <div className="flex justify-between"><span>Пачок в день:</span><span className="font-bold text-blue-600">{Math.ceil(calc.items / 30)} шт</span></div>
+                                <div className="flex justify-between"><span>Замовлень в день:</span><span className="font-bold text-blue-600">{calc.dailyOrders.toFixed(1)}</span></div>
+                                <div className="flex justify-between"><span>Виторг в день:</span><span className="font-bold text-emerald-600">{calc.dailyRev.toLocaleString()} ₴</span></div>
                             </div>
                             <div className="card-modern p-6 space-y-4">
-                                <h3 className="font-bold border-b pb-2">Точки контролю</h3>
-                                <div className="p-3 bg-red-50 rounded-xl flex justify-between"><div><div className="text-[10px] font-bold text-red-400 uppercase">Точка нуль (Min)</div><div className="text-xs">Для покриття витрат</div></div><span className="font-bold">{calc.minRevenue.toLocaleString()} ₴</span></div>
-                                <div className="p-3 bg-blue-50 rounded-xl flex justify-between font-bold"><span>Прогноз на фінал:</span><span>{(metrics.revenue * (30/new Date().getDate())).toLocaleString()} ₴</span></div>
+                                <h3 className="font-bold border-b pb-2">Точка беззбитковості</h3>
+                                <div className="p-3 bg-red-50 rounded-xl flex justify-between"><span>Мінімальний виторг:</span><span className="font-bold">{calc.minRev.toLocaleString()} ₴</span></div>
+                                <p className="text-[10px] text-slate-400">Це сума, яку треба наторгувати, щоб просто вийти в "нуль" (покрити оренду, зп та рекламу).</p>
                             </div>
                         </div>
                     </div>
@@ -238,155 +183,206 @@
         );
     };
 
-    const PnLView = ({ metrics, transactions }) => {
-        const getPct = (val) => metrics.revenue ? ((val / metrics.revenue) * 100).toFixed(1) : 0;
-        const allExpenses = transactions.filter(t => t.type === 'expense' && !t.isDividend).reduce((acc, t) => {
-             const existing = acc.find(i => i.cat === t.cat); if (existing) existing.val += Number(t.amount); else acc.push({ cat: t.cat, val: Number(t.amount) }); return acc;
-        }, []).sort((a, b) => b.val - a.val);
+    // --- COMPONENTS: DASHBOARD ---
+    const DashboardView = ({ metrics, setView, db }) => {
+        const [plan, setPlan] = useState(null);
+        useEffect(() => { getDoc(doc(db, "sales_plans", new Date().toISOString().slice(0, 7))).then(s => { if(s.exists()) setPlan(s.data()); }); }, []);
+        const isHealthy = metrics.margin > 20;
+
         return (
-            <div className="space-y-6 max-w-4xl mx-auto">
-                <div className="card-modern p-8 border-l-8 border-l-emerald-500">
-                    <div className="text-xs font-bold text-emerald-600 uppercase">Виручка (Revenue)</div>
-                    <div className="text-5xl font-mono font-bold">+{metrics.revenue.toLocaleString()} ₴</div>
-                </div>
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="card-modern p-6 border-l-4 border-l-orange-400">
-                        <div className="text-xs font-bold text-slate-400 uppercase mb-2">COGS (Собівартість)</div>
-                        <div className="text-2xl font-mono font-bold">-{metrics.cogs.toLocaleString()} ₴</div>
-                        <div className="text-xs font-bold mt-2 text-orange-500">{getPct(metrics.cogs)}% від виручки</div>
+            <div className="space-y-8 animate-fade-in">
+                {plan && (
+                    <div className="card-modern p-4 flex items-center gap-6 bg-slate-50">
+                        <div className="text-xs font-bold text-slate-400 uppercase">План</div>
+                        <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-brand-500" style={{width: `${(metrics.revenue / ((Number(plan.targetProfit) + Number(plan.fixedCosts)) / (Number(plan.marginPct) / 100)) * 100)}%`}}></div></div>
+                        <button onClick={()=>setView('planning')} className="text-xs font-bold text-brand-600 underline">Детальніше</button>
                     </div>
-                    <div className="card-modern p-6 border-l-4 border-l-red-400">
-                        <div className="text-xs font-bold text-slate-400 uppercase mb-2">OpEx (Опер. витрати)</div>
-                        <div className="text-2xl font-mono font-bold">-{metrics.opex.toLocaleString()} ₴</div>
-                        <div className="text-xs font-bold mt-2 text-red-500">{getPct(metrics.opex)}% від виручки</div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="card-modern p-6 bg-slate-900 text-white border-none shadow-2xl">
+                        <div className="text-slate-400 text-[10px] font-bold uppercase mb-2">Гроші в бізнесі</div>
+                        <div className="text-3xl font-mono font-bold">{metrics.totalCash.toLocaleString()} ₴</div>
+                    </div>
+                    <div className="card-modern p-6 border-t-4 border-t-emerald-500">
+                        <div className="text-slate-500 text-[10px] font-bold uppercase mb-2">Чистий Прибуток</div>
+                        <div className="text-3xl font-mono font-bold text-slate-900">{metrics.net.toLocaleString()} ₴</div>
+                    </div>
+                    <div className="card-modern p-6 border-t-4 border-t-brand-500">
+                        <div className="text-slate-500 text-[10px] font-bold uppercase mb-2">Runway (Днів)</div>
+                        <div className="text-3xl font-mono font-bold text-brand-600">{metrics.runway}</div>
+                    </div>
+                    <div className={`card-modern p-6 border-t-4 flex items-center justify-center gap-2 ${isHealthy?'border-t-emerald-500':'border-t-red-500'}`}>
+                         <Icon name={isHealthy?"activity":"alert-triangle"} className={isHealthy?"text-emerald-500":"text-red-500"}/>
+                         <span className="font-bold uppercase text-xs">{isHealthy?"Здоровий стан":"Критично"}</span>
                     </div>
                 </div>
-                <div className="bg-slate-900 text-white p-8 rounded-[32px] flex justify-between items-center">
-                    <div><div className="text-xs font-bold text-cyan-400 uppercase">Чистий прибуток</div><div className="text-5xl font-mono font-bold">{metrics.net.toLocaleString()} ₴</div></div>
-                    <div className="text-right text-4xl font-bold">{metrics.margin}%</div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div className="card-modern p-6">
+                        <h3 className="font-bold text-lg mb-4 flex gap-2"><Icon name="wallet"/> Гаманці</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="p-4 bg-slate-50 rounded-2xl">
+                                <div className="logo-mono w-5 h-5 grayscale mb-1"></div>
+                                <div className="text-[10px] font-bold opacity-40 uppercase tracking-tighter">Monobank</div>
+                                <div className="font-mono font-bold">{metrics.balances.mono.toLocaleString()} ₴</div>
+                            </div>
+                            <div className="p-4 bg-red-50 rounded-2xl">
+                                <div className="logo-nova w-5 h-5 mb-1"></div>
+                                <div className="text-[10px] font-bold text-red-300 uppercase tracking-tighter">NovaPay</div>
+                                <div className="font-mono font-bold text-red-900">{metrics.balances.nova.toLocaleString()} ₴</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-modern p-6">
+                        <h3 className="font-bold text-lg mb-4 flex gap-2"><Icon name="pie-chart"/> Експрес P&L</h3>
+                        <div className="space-y-4">
+                            <div><div className="flex justify-between text-xs font-bold mb-1"><span>Доходи</span><span>{metrics.revenue.toLocaleString()}</span></div><div className="h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-emerald-500" style={{width:'100%'}}></div></div></div>
+                            <div><div className="flex justify-between text-xs font-bold mb-1"><span>Витрати</span><span>{metrics.totalExpense.toLocaleString()}</span></div><div className="h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-red-500" style={{width:`${metrics.revenue?(metrics.totalExpense/metrics.revenue)*100:0}%`}}></div></div></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
     };
 
+    // --- OTHER VIEWS ---
+    const PnLView = ({ metrics }) => (
+        <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+             <div className="p-6 bg-blue-50 rounded-2xl flex gap-4 border border-blue-100">
+                <Icon name="info" className="text-blue-500 shrink-0"/>
+                <p className="text-sm text-blue-700"><b>P&L</b> показує реальну ефективність. Ми віднімаємо від доходів собівартість (COGS) та операційні витрати (OpEx), щоб побачити справжній прибуток.</p>
+             </div>
+             <div className="card-modern p-10 border-l-8 border-l-emerald-500">
+                <div className="text-xs font-bold text-emerald-600 uppercase mb-1">Загальна виручка</div>
+                <div className="text-5xl font-mono font-bold">+{metrics.revenue.toLocaleString()} ₴</div>
+             </div>
+             <div className="grid grid-cols-2 gap-6">
+                <div className="card-modern p-6">
+                    <div className="text-xs font-bold opacity-40 uppercase mb-1">Собівартість (COGS)</div>
+                    <div className="text-2xl font-mono font-bold">-{metrics.cogs.toLocaleString()} ₴</div>
+                </div>
+                <div className="card-modern p-6">
+                    <div className="text-xs font-bold opacity-40 uppercase mb-1">Опер. витрати (OpEx)</div>
+                    <div className="text-2xl font-mono font-bold">-{metrics.opex.toLocaleString()} ₴</div>
+                </div>
+             </div>
+             <div className="bg-slate-900 text-white p-8 rounded-[32px] flex justify-between items-center">
+                <div><div className="text-xs font-bold text-cyan-400 uppercase">Чистий прибуток</div><div className="text-5xl font-mono font-bold">{metrics.net.toLocaleString()} ₴</div></div>
+                <div className="text-4xl font-bold">{metrics.margin}% <span className="text-xs block opacity-40">РЕНТ.</span></div>
+             </div>
+        </div>
+    );
+
     const CashFlowView = ({ metrics }) => (
-        <div className="max-w-4xl mx-auto space-y-6">
-            <div className="card-modern p-8 space-y-4">
-                <div className="flex justify-between border-b pb-4"><span>Надходження від клієнтів</span><span className="font-bold text-emerald-600">+{metrics.revenue.toLocaleString()} ₴</span></div>
-                <div className="flex justify-between border-b pb-4"><span>Операційні виплати</span><span className="font-bold text-red-500">-{metrics.totalExpense.toLocaleString()} ₴</span></div>
-                <div className="flex justify-between border-b pb-4"><span>Виплати власнику</span><span className="font-bold text-purple-600">-{metrics.dividends.toLocaleString()} ₴</span></div>
-                <div className="flex justify-between pt-4 font-black text-2xl"><span>Чистий потік грошей</span><span className={metrics.netCashChange >= 0 ? 'text-blue-600' : 'text-red-600'}>{metrics.netCashChange.toLocaleString()} ₴</span></div>
+        <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+            <div className="card-modern p-8 space-y-6">
+                <h3 className="font-bold text-xl border-b pb-4">Рух коштів за період</h3>
+                <div className="flex justify-between"><span>Надходження (Операційні)</span><span className="text-emerald-600 font-bold">+{metrics.revenue.toLocaleString()} ₴</span></div>
+                <div className="flex justify-between"><span>Витрати (Бізнес)</span><span className="text-red-500 font-bold">-{metrics.totalExpense.toLocaleString()} ₴</span></div>
+                <div className="flex justify-between"><span>Виплати власнику (Дивіденди)</span><span className="text-purple-600 font-bold">-{metrics.dividends.toLocaleString()} ₴</span></div>
+                <div className="flex justify-between pt-6 border-t font-black text-2xl"><span>Чиста зміна в касі</span><span className={metrics.netCashChange>=0?'text-blue-600':'text-red-600'}>{metrics.netCashChange.toLocaleString()} ₴</span></div>
             </div>
         </div>
     );
 
-    const DividendsView = ({ metrics, transactions, setModalType }) => (
-        <div className="max-w-4xl mx-auto space-y-10">
+    const DividendsView = ({ metrics, setModalType }) => (
+        <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
             <div className="grid grid-cols-2 gap-6">
-                <div className="card-modern p-10 text-center">
-                    <div className="text-xs font-bold text-slate-400 uppercase mb-2">Всього прибутку</div>
-                    <div className="text-4xl font-mono font-bold">{metrics.net.toLocaleString()} ₴</div>
-                </div>
-                <div className="card-modern p-10 text-center">
-                    <div className="text-xs font-bold text-purple-500 uppercase mb-2">Виведено</div>
-                    <div className="text-4xl font-mono font-bold">-{metrics.dividends.toLocaleString()} ₴</div>
-                </div>
+                <div className="card-modern p-10 text-center"><div className="text-xs font-bold opacity-40 uppercase mb-2">Накопичено прибутку</div><div className="text-4xl font-mono font-bold text-slate-800">{metrics.net.toLocaleString()} ₴</div></div>
+                <div className="card-modern p-10 text-center"><div className="text-xs font-bold text-purple-500 uppercase mb-2">Виведено (Дивіденди)</div><div className="text-4xl font-mono font-bold text-purple-700">-{metrics.dividends.toLocaleString()} ₴</div></div>
             </div>
-            <div className="card-modern p-10 bg-slate-900 text-white text-center">
-                <div className="text-xs font-bold text-cyan-400 uppercase mb-2">Доступно до виводу</div>
-                <div className="text-6xl font-mono font-bold mb-8">{(metrics.net - metrics.dividends).toLocaleString()} ₴</div>
-                <button onClick={()=>setModalType('dividend')} className="bg-white text-slate-900 px-10 py-4 rounded-2xl font-bold hover:bg-slate-100 transition">Вивести кошти</button>
+            <div className="bg-slate-900 text-white p-12 rounded-[40px] text-center shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-5"><Icon name="gem" size={200}/></div>
+                <div className="text-xs font-bold text-cyan-400 uppercase mb-2">Доступно до виплати</div>
+                <div className="text-7xl font-mono font-bold mb-10">{(metrics.net - metrics.dividends).toLocaleString()} ₴</div>
+                <button onClick={()=>setModalType('dividend')} className="bg-white text-slate-900 px-12 py-4 rounded-2xl font-black hover:scale-105 transition">Зафіксувати виплату</button>
             </div>
         </div>
     );
 
-    const OpsView = ({ transactions, deleteTx, syncMono, canDelete }) => (
-        <div className="card-modern overflow-hidden">
-            <div className="p-4 border-b bg-slate-50 flex justify-between items-center">
-                <h3 className="font-bold">Журнал операцій</h3>
-                <button onClick={syncMono} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold">Синхронізувати банк</button>
+    const OpsView = ({ transactions, deleteTx, syncMono, canDelete }) => {
+        const [filters, setFilters] = useState({ date: '', type: 'all' });
+        const filtered = transactions.filter(t => {
+            if(filters.date && t.date !== new Date(filters.date).toLocaleDateString('uk-UA')) return false;
+            if(filters.type !== 'all' && t.type !== filters.type) return false;
+            return true;
+        });
+        return (
+            <div className="space-y-6">
+                <div className="card-modern p-4 flex justify-between bg-slate-50">
+                    <div className="flex gap-4">
+                        <input type="date" onChange={e=>setFilters({...filters, date:e.target.value})} className="border p-2 rounded-xl text-sm"/>
+                        <select onChange={e=>setFilters({...filters, type:e.target.value})} className="border p-2 rounded-xl text-sm"><option value="all">Всі типи</option><option value="income">Дохід</option><option value="expense">Витрата</option></select>
+                    </div>
+                    <button onClick={syncMono} className="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Синхронізувати банк</button>
+                </div>
+                <div className="card-modern overflow-hidden">
+                    <table className="w-full text-left">
+                        <thead className="bg-slate-50 text-[10px] font-bold uppercase text-slate-400"><tr><th className="p-4">Дата</th><th className="p-4">Категорія</th><th className="p-4">Опис</th><th className="p-4 text-right">Сума</th><th className="p-4"></th></tr></thead>
+                        <tbody className="divide-y">
+                            {filtered.map(t => (
+                                <tr key={t.id} className="table-row-modern group">
+                                    <td className="p-4 text-xs font-mono opacity-50">{t.date}</td>
+                                    <td className="p-4"><span className={`px-2 py-1 rounded text-[10px] font-bold ${t.isDividend?'bg-purple-100 text-purple-700':(t.type==='income'?'bg-emerald-100 text-emerald-700':'bg-slate-100')}`}>{t.cat}</span></td>
+                                    <td className="p-4 font-bold text-sm">{t.description}</td>
+                                    <td className={`p-4 text-right font-mono font-bold ${t.type==='income'?'text-emerald-600':'text-slate-800'}`}>{t.type==='income'?'+':'-'}{t.amount.toLocaleString()}</td>
+                                    <td className="p-4 text-right">{canDelete && <button onClick={()=>deleteTx(t.id)} className="text-red-300 opacity-0 group-hover:opacity-100"><Icon name="trash-2" size={14}/></button>}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-50 text-[10px] font-bold uppercase text-slate-400 border-b"><tr><th className="p-4">Дата</th><th className="p-4">Категорія</th><th className="p-4">Опис</th><th className="p-4 text-right">Сума</th><th className="p-4"></th></tr></thead>
-                    <tbody className="divide-y">
-                        {transactions.map(t => (
-                            <tr key={t.id} className="table-row-modern group">
-                                <td className="p-4 text-xs font-mono opacity-50">{t.date}</td>
-                                <td className="p-4"><span className="bg-slate-100 px-2 py-1 rounded text-[10px] font-bold">{t.cat}</span></td>
-                                <td className="p-4 font-bold text-sm">{t.description}</td>
-                                <td className={`p-4 text-right font-mono font-bold ${t.type==='income'?'text-emerald-600':'text-slate-800'}`}>{t.type==='income'?'+':'-'}{t.amount.toLocaleString()} ₴</td>
-                                <td className="p-4 text-right">{canDelete && <button onClick={()=>deleteTx(t.id)} className="text-slate-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100"><Icon name="trash-2" size={14}/></button>}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
+        );
+    };
 
     const ManagersView = ({ db }) => {
         const [managers, setManagers] = useState([]);
-        useEffect(() => { const q = query(collection(db, "managers")); onSnapshot(q, (snap) => setManagers(snap.docs.map(d => ({ id: d.id, ...d.data() })))); }, []);
-        const deleteManager = async (id) => { if(confirm("Видалити?")) await deleteDoc(doc(db, "managers", id)); };
+        useEffect(() => onSnapshot(collection(db, "managers"), s => setManagers(s.docs.map(d=>({id:d.id, ...d.data()})))), []);
         return (
             <div className="grid grid-cols-2 gap-6 max-w-4xl mx-auto">
-                {managers.map(m => (
+                {managers.map(m=>(
                     <div key={m.id} className="card-modern p-6 flex justify-between items-center group">
                         <div><div className="font-bold">{m.name}</div><div className="text-xs text-slate-400">{m.email}</div></div>
-                        <div className="flex items-center gap-4"><div className="font-mono text-xs bg-slate-100 px-2 py-1 rounded">{m.password}</div><button onClick={()=>deleteManager(m.id)} className="text-red-300 group-hover:text-red-500"><Icon name="trash-2" size={16}/></button></div>
+                        <div className="flex gap-4 items-center">
+                            <div className="bg-slate-100 px-3 py-1 rounded-lg text-xs font-mono font-bold">{m.password}</div>
+                            <button onClick={()=>deleteDoc(doc(db,"managers",m.id))} className="text-red-200 group-hover:text-red-500"><Icon name="trash-2" size={16}/></button>
+                        </div>
                     </div>
                 ))}
             </div>
         );
     };
 
-    const SettingsView = ({ settings, setSettings, saveSettings, syncMono, deleteAllTransactions, categories, saveCategories }) => (
+    const SettingsView = ({ settings, setSettings, delAll, saveS }) => (
         <div className="max-w-xl mx-auto space-y-8">
             <div className="card-modern p-8 space-y-6">
-                <h3 className="font-bold text-xl mb-4">Банківська інтеграція</h3>
-                <div><label className="text-xs font-bold text-slate-400 uppercase">Mono X-Token</label><input type="password" value={settings.monoKey} onChange={e=>setSettings({...settings, monoKey:e.target.value})} className="w-full border p-3 rounded-xl mt-1 font-mono"/></div>
-                <div><label className="text-xs font-bold text-slate-400 uppercase">Account ID</label><input value={settings.monoAccountId} onChange={e=>setSettings({...settings, monoAccountId:e.target.value})} className="w-full border p-3 rounded-xl mt-1 font-mono"/></div>
-                <button onClick={()=>saveSettings(settings)} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">Зберегти ключі</button>
+                <h3 className="font-bold text-xl border-b pb-4">Конфігурація</h3>
+                <div><label className="text-[10px] font-bold text-slate-400 uppercase">Monobank X-Token</label><input type="password" value={settings.monoKey} onChange={e=>setSettings({...settings, monoKey:e.target.value})} className="w-full border p-3 rounded-xl mt-1 font-mono"/></div>
+                <div><label className="text-[10px] font-bold text-slate-400 uppercase">Account ID</label><input value={settings.monoAccountId} onChange={e=>setSettings({...settings, monoAccountId:e.target.value})} className="w-full border p-3 rounded-xl mt-1 font-mono"/></div>
+                <button onClick={saveS} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold">Зберегти</button>
             </div>
             <div className="card-modern p-8 border-2 border-red-100">
                 <h3 className="text-red-600 font-bold mb-2">Небезпечна зона</h3>
-                <button onClick={deleteAllTransactions} className="bg-red-500 text-white px-6 py-2 rounded-xl font-bold">Видалити всі транзакції</button>
+                <button onClick={delAll} className="bg-red-500 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-600 transition">Видалити всі транзакції</button>
             </div>
         </div>
     );
 
-    const TransactionModal = ({ type, close, handleAdd }) => {
-        const [form, setForm] = useState({ amount: '', desc: '', cat: (type==='dividend'?'Дивіденди':'Інше'), source: 'Monobank ФОП' });
-        return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                <div className="card-modern w-full max-w-md p-8 animate-fade-in">
-                    <h2 className="text-2xl font-bold mb-6 capitalize">Новий запис: {type}</h2>
-                    <input type="number" placeholder="Сума" autoFocus className="w-full text-4xl font-mono font-bold border-b-2 p-2 mb-4 outline-none focus:border-brand-500" onChange={e=>setForm({...form, amount:e.target.value})}/>
-                    <input type="text" placeholder="Опис" className="w-full p-3 bg-slate-50 rounded-xl mb-6 outline-none" onChange={e=>setForm({...form, desc:e.target.value})}/>
-                    <div className="flex gap-4">
-                        <button onClick={close} className="flex-1 font-bold text-slate-400">Скасувати</button>
-                        <button onClick={()=>handleAdd({amount: Number(form.amount), description: form.desc, type: (type==='income'?'income':'expense'), isDividend: (type==='dividend'), cat: form.cat, source: form.source})} className="flex-1 bg-brand-500 text-white py-4 rounded-2xl font-bold">Зберегти</button>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    // --- MAIN APP ---
-
+    // --- APP CONTROLLER ---
     const App = () => {
-        const [currentUser, setCurrentUser] = useState(null);
-        const [view, setView] = useState('auth');
+        const [user, setUser] = useState(null);
+        const [view, setView] = useState('dashboard');
         const [transactions, setTransactions] = useState([]);
         const [loading, setLoading] = useState(true);
         const [statusMsg, setStatusMsg] = useState('');
-        const [settings, setSettings] = useState({ monoKey: '', novaKey: '', monoAccountId: '' });
-        const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+        const [settings, setSettings] = useState({ monoKey: '', monoAccountId: '' });
         const [modalType, setModalType] = useState(null);
 
         useEffect(() => {
-            onAuthStateChanged(auth, u => { if(u){ setCurrentUser({uid:u.uid, email:u.email, role:'admin'}); setView('dashboard'); loadData(); } else setView('auth'); });
+            onAuthStateChanged(auth, u => {
+                if(u) { setUser(u); loadData(); } else setView('auth');
+            });
         }, []);
 
         const loadData = () => {
@@ -407,13 +403,11 @@
             const opex = exp.filter(t => t.cat !== 'Закупівля (COGS)').reduce((s,t) => s + Number(t.amount), 0);
             const dividends = transactions.filter(t => t.isDividend).reduce((s,t) => s + Number(t.amount), 0);
             const totalCash = transactions.reduce((s,t) => t.type==='income' ? s+Number(t.amount) : s-Number(t.amount), 0);
-            
             const bal = { mono: 0, nova: 0, cash: 0 };
             transactions.forEach(t => { 
                 const k = t.source.includes('Mono') ? 'mono' : (t.source.includes('Nova') ? 'nova' : 'cash');
                 if(t.type==='income') bal[k] += Number(t.amount); else bal[k] -= Number(t.amount);
             });
-
             return { revenue, cogs, opex, net: revenue-(cogs+opex), totalCash, dividends, balances: bal, margin: revenue ? (((revenue-(cogs+opex))/revenue)*100).toFixed(0) : 0, totalExpense: cogs+opex, runway: (cogs+opex)>0 ? (totalCash/((cogs+opex)/30)).toFixed(0) : "∞", netCashChange: (revenue-(cogs+opex))-dividends };
         }, [transactions]);
 
@@ -423,24 +417,25 @@
                 try {
                     let totalDeleted = 0;
                     while (true) {
-                        const snapshot = await getDocs(query(collection(db, "transactions"), limit(500)));
-                        if (snapshot.empty) break;
+                        const snap = await getDocs(query(collection(db, "transactions"), limit(500)));
+                        if (snap.empty) break;
                         const batch = writeBatch(db);
-                        snapshot.docs.forEach(d => batch.delete(d.ref));
+                        snap.docs.forEach(d => batch.delete(d.ref));
                         await batch.commit();
-                        totalDeleted += snapshot.size;
+                        totalDeleted += snap.size;
                         setStatusMsg(`Видалено ${totalDeleted}...`);
                     }
-                    alert("Готово"); setStatusMsg("");
+                    alert(`Готово. Видалено ${totalDeleted} рядків.`); setStatusMsg("");
                 } catch(e) { alert(e.message); setStatusMsg(""); }
             }
         };
 
         const syncM = async () => {
-            if(!settings.monoKey || !settings.monoAccountId) return alert("Налаштуйте API");
+            if(!settings.monoKey) return alert("Налаштуйте API");
             setStatusMsg("Синхронізація...");
             try {
-                const res = await fetch(`https://corsproxy.io/?https://api.monobank.ua/personal/statement/${settings.monoAccountId}/${Math.floor(Date.now()/1000)-2678400}/${Math.floor(Date.now()/1000)}`, { headers: {'X-Token': settings.monoKey} });
+                const now = Math.floor(Date.now()/1000);
+                const res = await fetch(`https://corsproxy.io/?https://api.monobank.ua/personal/statement/${settings.monoAccountId}/${now-2678400}/${now}`, { headers: {'X-Token': settings.monoKey} });
                 const data = await res.json();
                 const batch = writeBatch(db);
                 const ids = new Set(transactions.map(t=>t.bankId));
@@ -449,15 +444,16 @@
                         batch.set(doc(collection(db,"transactions")), { amount: Math.abs(item.amount/100), description: item.description, cat: 'Інше', source: 'Monobank ФОП', type: item.amount>0?'income':'expense', isDividend: false, date: new Date(item.time*1000).toLocaleDateString('uk-UA'), createdAt: item.time*1000, bankId: item.id });
                     }
                 });
-                await batch.commit(); setStatusMsg("Оновлено"); setTimeout(()=>setStatusMsg(""), 2000);
-            } catch(e) { setStatusMsg("Помилка"); }
+                await batch.commit(); setStatusMsg("Завершено"); setTimeout(()=>setStatusMsg(""), 2000);
+            } catch(e) { setStatusMsg("Помилка API"); }
         };
 
         if (view === 'auth') return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-                <div className="bg-white p-10 rounded-[32px] w-full max-w-sm text-center">
-                    <h1 className="text-2xl font-bold mb-8">Latiao Access</h1>
-                    <button onClick={()=>signInWithEmailAndPassword(auth, 'admin@latiao.com', '123456')} className="w-full bg-brand-500 text-white py-4 rounded-2xl font-bold">Увійти в кабінет</button>
+            <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
+                <div className="card-modern w-full max-w-sm p-10 text-center border-none shadow-2xl">
+                    <div className="w-16 h-16 bg-brand-500 rounded-2xl flex items-center justify-center text-white text-3xl font-black mx-auto mb-6 transform rotate-3">L</div>
+                    <h1 className="text-2xl font-black mb-10 tracking-tight">Latiao Finance</h1>
+                    <button onClick={()=>signInWithEmailAndPassword(auth, 'admin@latiao.com', '123456')} className="w-full py-4 bg-brand-500 text-white rounded-2xl font-bold shadow-lg hover:bg-brand-600 transition">Увійти в систему</button>
                 </div>
             </div>
         );
@@ -467,38 +463,55 @@
                 <aside className="w-72 bg-white border-r flex flex-col z-20 shadow-soft">
                     <div className="p-8 flex items-center gap-3">
                         <div className="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white font-bold">L</div>
-                        <h1 className="text-xl font-bold tracking-tight">Latiao Finance</h1>
+                        <span className="font-extrabold text-xl tracking-tight">Latiao</span>
                     </div>
-                    <nav className="flex-1 px-4 space-y-1.5 mt-6 overflow-y-auto">
-                        {ALL_VIEWS.map(item => (
-                            <button key={item.id} onClick={()=>setView(item.id)} className={`w-full flex items-center gap-3 p-3.5 text-sm font-bold transition-all sidebar-link ${view===item.id ? 'active' : 'text-slate-500'}`}>
-                                <Icon name={item.icon} size={20}/> <span>{item.label}</span>
+                    <nav className="flex-1 px-4 space-y-1 mt-6">
+                        {ALL_VIEWS.map(m => (
+                            <button key={m.id} onClick={()=>setView(m.id)} className={`sidebar-link ${view===m.id ? 'active' : 'text-slate-500'}`}>
+                                <Icon name={m.icon}/> {m.label}
                             </button>
                         ))}
                     </nav>
-                    <div className="p-4 border-t"><button onClick={handleLogout} className="w-full flex items-center gap-3 p-3.5 text-sm font-bold text-slate-400 hover:text-red-500"><Icon name="log-out"/> Logout</button></div>
+                    <div className="p-4 border-t"><button onClick={handleLogout} className="sidebar-link text-slate-400 hover:text-red-500"><Icon name="log-out"/> Вихід</button></div>
                 </aside>
 
                 <main className="flex-1 overflow-y-auto p-8 relative">
-                    <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-3xl font-extrabold capitalize">{ALL_VIEWS.find(v=>v.id===view)?.label}</h1>
+                    <header className="flex justify-between items-center mb-8">
+                        <h1 className="text-3xl font-black tracking-tight capitalize">{ALL_VIEWS.find(v=>v.id===view)?.label}</h1>
                         <div className="flex gap-3">
-                            <button onClick={()=>setModalType('income')} className="bg-emerald-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-emerald-200">+ Дохід</button>
-                            <button onClick={()=>setModalType('expense')} className="bg-brand-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-brand-200">+ Витрата</button>
+                            <button onClick={()=>setModalType('income')} className="bg-emerald-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-emerald-100">+ Дохід</button>
+                            <button onClick={()=>setModalType('expense')} className="bg-brand-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-brand-100">+ Витрата</button>
+                        </div>
+                    </header>
+                    {statusMsg && <div className="fixed top-6 right-6 bg-slate-900 text-white px-6 py-3 rounded-xl shadow-2xl z-50 animate-bounce">{statusMsg}</div>}
+                    
+                    {view==='dashboard' && <DashboardView metrics={metrics} setView={setView} db={db}/>}
+                    {view==='planning' && <PlanningView metrics={metrics} db={db}/>}
+                    {view==='ops' && <OpsView transactions={transactions} deleteTx={id=>deleteDoc(doc(db,"transactions",id))} syncMono={syncM} canDelete={true}/>}
+                    {view==='pnl' && <PnLView metrics={metrics}/>}
+                    {view==='cashflow' && <CashFlowView metrics={metrics}/>}
+                    {view==='dividends' && <DividendsView metrics={metrics} setModalType={setModalType}/>}
+                    {view==='managers' && <ManagersView db={db}/>}
+                    {view==='settings' && <SettingsView settings={settings} setSettings={setSettings} delAll={delAll} saveS={()=>setDoc(doc(db,"settings","global"), settings)}/>}
+                </main>
+
+                {modalType && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+                        <div className="card-modern w-full max-w-md p-8 animate-fade-in shadow-2xl">
+                            <h2 className="text-2xl font-black mb-6 capitalize">Новий запис: {modalType}</h2>
+                            <input id="amt" type="number" placeholder="Сума ₴" className="w-full text-4xl font-mono font-bold border-b-2 p-2 mb-6 outline-none focus:border-brand-500" autoFocus/>
+                            <input id="dsc" type="text" placeholder="Опис" className="w-full p-4 bg-slate-50 rounded-2xl mb-8 outline-none"/>
+                            <div className="flex gap-4">
+                                <button onClick={()=>setModalType(null)} className="flex-1 font-bold text-slate-400">Скасувати</button>
+                                <button onClick={()=>{
+                                    const a = document.getElementById('amt').value;
+                                    const d = document.getElementById('dsc').value;
+                                    if(a) addDoc(collection(db,"transactions"), {amount:Number(a), description:d, type:(modalType==='income'?'income':'expense'), isDividend:(modalType==='dividend'), cat:(modalType==='dividend'?'Дивіденди':(d.toLowerCase().includes('товар')?'Закупівля (COGS)':'Інше')), source:'Готівка', createdAt:Date.now(), date:new Date().toLocaleDateString('uk-UA')}).then(()=>setModalType(null));
+                                }} className="flex-1 bg-brand-500 text-white py-4 rounded-2xl font-bold shadow-lg">Зберегти</button>
+                            </div>
                         </div>
                     </div>
-                    {statusMsg && <div className="fixed top-6 right-6 bg-slate-900 text-white px-6 py-3 rounded-xl shadow-2xl z-50 animate-bounce">{statusMsg}</div>}
-
-                    {view==='dashboard' && <DashboardView metrics={metrics} transactions={transactions} setView={setView} db={db}/>}
-                    {view==='planning' && <PlanningView transactions={transactions} metrics={metrics} db={db}/>}
-                    {view==='ops' && <OpsView transactions={transactions} deleteTx={(id)=>deleteDoc(doc(db,"transactions",id))} syncMono={syncM} canDelete={true}/>}
-                    {view==='pnl' && <PnLView metrics={metrics} transactions={transactions}/>}
-                    {view==='cashflow' && <CashFlowView metrics={metrics}/>}
-                    {view==='dividends' && <DividendsView metrics={metrics} transactions={transactions} setModalType={setModalType}/>}
-                    {view==='managers' && <ManagersView db={db}/>}
-                    {view==='settings' && <SettingsView settings={settings} setSettings={setSettings} saveSettings={(d)=>setDoc(doc(db,"settings","global"), d)} syncMono={syncM} deleteAllTransactions={delAll}/>}
-                </main>
-                {modalType && <TransactionModal type={modalType} close={()=>setModalType(null)} handleAdd={(d)=>addDoc(collection(db,"transactions"), {...d, createdAt:Date.now(), date:new Date().toLocaleDateString('uk-UA')}).then(()=>setModalType(null))}/>}
+                )}
             </div>
         );
     };
