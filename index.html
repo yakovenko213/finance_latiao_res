@@ -2,11 +2,11 @@
 <html lang="uk" class="bg-slate-50/50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Latiao Finance | Enterprise v12.8</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Latiao Finance | Enterprise v13.0 Optimized</title>
     
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -21,24 +21,56 @@
                         brand: { 50: '#fff1ec', 100: '#ffe4d9', 500: '#FF5722', 600: '#ea580c', 700: '#c2410c' },
                         slate: { 850: '#172033' }
                     },
-                    boxShadow: { 'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)' }
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03)',
+                        'glow-brand': '0 0 20px -5px rgba(255, 87, 34, 0.4)'
+                    }
                 }
             }
         }
     </script>
     <style>
-        body { color: #1e293b; }
-        main { background-image: radial-gradient(circle at center, #f1f5f9 1px, transparent 1px); background-size: 40px 40px; }
-        .sidebar-link.active { background: linear-gradient(135deg, #FF5722 0%, #ea580c 100%); color: white; border-radius: 16px; }
-        .card-modern { background: white; border-radius: 24px; border: 1px solid #e2e8f0; }
-        .table-row-modern:hover { background-color: #f8fafc; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .logo-mono { background-image: url('https://multicast.com.ua/wp-content/uploads/2024/04/monobank-logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
-        .logo-nova { background-image: url('https://novapay.ua/wp-content/themes/novapay/assets/img/logo.svg'); background-size: contain; background-repeat: no-repeat; background-position: center; }
+        /* Hardware Acceleration */
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { color: #1e293b; overflow-x: hidden; }
+        
+        main { 
+            background-image: radial-gradient(circle at center, #f1f5f9 1px, transparent 1px); 
+            background-size: 40px 40px; 
+            will-change: transform;
+        }
+        
+        .sidebar-link { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-link.active { 
+            background: linear-gradient(135deg, #FF5722 0%, #ea580c 100%); 
+            color: white; 
+            box-shadow: 0 8px 16px -4px rgba(255, 87, 34, 0.3); 
+            border-radius: 16px; 
+        }
+        
+        .card-modern { 
+            background: white; border-radius: 24px; border: 1px solid #e2e8f0; 
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); 
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            backface-visibility: hidden;
+        }
+        .card-modern:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -5px rgba(0, 0, 0, 0.1); }
+
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        .logo-mono { background: url('https://multicast.com.ua/wp-content/uploads/2024/04/monobank-logo.png') center/contain no-repeat; }
+        .logo-nova { background: url('https://novapay.ua/wp-content/themes/novapay/assets/img/logo.svg') center/contain no-repeat; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body>
+
 <div id="root"></div>
 
 <script type="text/babel" data-type="module">
@@ -58,152 +90,323 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    setPersistence(auth, browserLocalPersistence).catch(console.error);
+    setPersistence(auth, browserLocalPersistence);
 
-    const { useState, useEffect, useMemo } = React;
+    const { useState, useEffect, useMemo, memo } = React;
 
-    const Icon = ({ name, size = 18, className }) => {
-        useEffect(() => { if(window.lucide) window.lucide.createIcons(); }, [name]);
-        return <i data-lucide={name} width={size} height={size} className={className}></i>;
-    };
+    // Optimized Icon Component
+    const Icon = memo(({ name, size = 18, className }) => {
+        useEffect(() => { window.lucide && window.lucide.createIcons(); }, [name]);
+        return <i data-lucide={name} style={{width: size, height: size}} className={className}></i>;
+    });
 
-    const DEFAULT_CATEGORIES = {
-        income: ['Продажі', 'Кешбек', 'Повернення', 'Інше'],
-        expense: ['Закупівля (COGS)', 'Реклама', 'Логістика', 'Пакування', 'Зарплата', 'Податки', 'Оренда', 'Комісії', 'Знижки', 'Інше']
-    };
-
-    // --- VIEW COMPONENTS ---
-    const DashboardView = ({ metrics, transactions, setView }) => (
-        <div className="space-y-8 animate-fade-in">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="bg-slate-850 text-white p-6 rounded-[28px] border border-slate-800">
-                    <div className="text-slate-400 text-sm font-bold uppercase mb-3 flex items-center gap-2"><Icon name="wallet" className="text-brand-500"/> Каса</div>
-                    <div className="text-4xl font-mono font-bold">{metrics.totalCash.toLocaleString()} ₴</div>
-                </div>
-                <div className="card-modern p-6 border-t-4 border-t-emerald-500">
-                    <div className="text-slate-500 text-sm font-bold uppercase mb-3">Прибуток</div>
-                    <div className={`text-4xl font-mono font-bold ${metrics.net >= 0 ? 'text-slate-900' : 'text-red-600'}`}>{metrics.net.toLocaleString()} ₴</div>
-                </div>
-                <div className="card-modern p-6 border-t-4 border-t-brand-500">
-                    <div className="text-slate-500 text-sm font-bold uppercase mb-3">Runway</div>
-                    <div className="text-4xl font-mono font-bold text-brand-600">{metrics.runway} днів</div>
-                </div>
-                <div className={`card-modern p-6 flex items-center justify-center text-center ${metrics.margin > 20 ? 'bg-emerald-50' : 'bg-red-50'}`}>
-                    <div className="text-xl font-bold">Рентабельність: {metrics.margin}%</div>
-                </div>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-                <div className="card-modern p-6">
-                    <h3 className="font-bold mb-4">Гаманці</h3>
-                    <div className="space-y-3">
-                        <div className="flex justify-between p-3 bg-slate-50 rounded-xl"><span>Monobank</span><b>{metrics.balances.mono.toLocaleString()} ₴</b></div>
-                        <div className="flex justify-between p-3 bg-slate-50 rounded-xl"><span>NovaPay</span><b>{metrics.balances.nova.toLocaleString()} ₴</b></div>
-                        <div className="flex justify-between p-3 bg-slate-50 rounded-xl"><span>Готівка</span><b>{metrics.balances.cash.toLocaleString()} ₴</b></div>
-                    </div>
-                </div>
-                <div className="card-modern p-6 flex flex-col justify-between">
-                    <h3 className="font-bold mb-4">Експрес P&L</h3>
-                    <div className="space-y-4">
-                        <div><div className="flex justify-between text-xs mb-1"><span>Доходи</span><span>{metrics.revenue.toLocaleString()}</span></div><div className="h-2 bg-slate-100 rounded-full"><div className="h-full bg-emerald-500 rounded-full" style={{width:'100%'}}></div></div></div>
-                        <div><div className="flex justify-between text-xs mb-1"><span>Витрати</span><span>{metrics.totalExpense.toLocaleString()}</span></div><div className="h-2 bg-slate-100 rounded-full"><div className="h-full bg-red-500 rounded-full" style={{width:`${metrics.revenue ? (metrics.totalExpense/metrics.revenue)*100 : 0}%`}}></div></div></div>
-                    </div>
-                    <button onClick={()=>setView('pnl')} className="mt-4 text-blue-600 font-bold text-sm">Більше деталей →</button>
-                </div>
-            </div>
-        </div>
+    // --- REUSABLE COMPONENTS ---
+    const Card = ({ children, className = "" }) => (
+        <div className={`card-modern p-6 ${className}`}>{children}</div>
     );
 
-    const OpsView = ({ transactions, deleteTx, syncMono, canDelete }) => {
-        const [currentPage, setCurrentPage] = useState(1);
-        const [filters, setFilters] = useState({ type: 'all', source: 'all' });
-        const itemsPerPage = 15;
+    // --- VIEWS ---
 
-        const filtered = useMemo(() => {
-            return transactions.filter(t => {
-                if (filters.type !== 'all' && t.type !== filters.type) return false;
-                if (filters.source !== 'all') {
-                    if (filters.source === 'mono' && !t.source?.includes('Mono')) return false;
-                    if (filters.source === 'cash' && !t.source?.includes('Готівка')) return false;
-                }
-                return true;
-            });
-        }, [transactions, filters]);
-
-        const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
-        const paginated = filtered.slice((currentPage-1)*itemsPerPage, currentPage*itemsPerPage);
-
+    const DashboardView = ({ metrics, transactions, setView }) => {
+        const isHealthy = metrics.margin > 20;
+        
         return (
-            <div className="space-y-6">
-                <div className="flex gap-4 p-4 bg-white rounded-2xl shadow-sm border border-slate-100">
-                    <select value={filters.type} onChange={e=>setFilters({...filters, type:e.target.value})} className="border p-2 rounded-lg text-sm outline-none">
-                        <option value="all">Всі типи</option><option value="income">Доходи</option><option value="expense">Витрати</option>
-                    </select>
-                    <select value={filters.source} onChange={e=>setFilters({...filters, source:e.target.value})} className="border p-2 rounded-lg text-sm outline-none">
-                        <option value="all">Всі рахунки</option><option value="mono">Monobank</option><option value="cash">Готівка</option>
-                    </select>
-                    <button onClick={syncMono} className="ml-auto bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold">Синхронізація</button>
+            <div className="space-y-8 animate-fade-in">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="bg-slate-850 text-white p-6 rounded-[28px] shadow-xl relative overflow-hidden group border border-slate-800">
+                        <div className="absolute right-[-20px] top-[-20px] opacity-10 group-hover:scale-110 transition-transform"><Icon name="wallet" size={140}/></div>
+                        <div className="relative z-10">
+                            <div className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Гроші в касі</div>
+                            <div className="text-3xl font-mono font-bold tracking-tight">{metrics.totalCash.toLocaleString()} ₴</div>
+                        </div>
+                    </div>
+
+                    <Card className="border-t-4 border-t-emerald-500">
+                        <div className="text-slate-500 text-xs font-bold uppercase mb-2">Прибуток</div>
+                        <div className={`text-3xl font-mono font-bold ${metrics.net >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
+                            {metrics.net.toLocaleString()} ₴
+                        </div>
+                        <div className="mt-3 text-xs font-bold bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full inline-block">Маржа: {metrics.margin}%</div>
+                    </Card>
+
+                    <Card className="border-t-4 border-t-brand-500">
+                        <div className="text-slate-500 text-xs font-bold uppercase mb-2">Запас ходу</div>
+                        <div className="text-3xl font-mono font-bold text-brand-600">{metrics.runway} днів</div>
+                    </Card>
+
+                    <Card className={`flex flex-col justify-center items-center ${isHealthy ? 'bg-emerald-50/30' : 'bg-red-50/30'}`}>
+                        <div className="text-slate-500 text-xs font-bold uppercase mb-2">Статус</div>
+                        <div className={`text-xl font-bold flex items-center gap-2 ${isHealthy ? 'text-emerald-600' : 'text-red-600'}`}>
+                            <Icon name={isHealthy ? "check-circle" : "alert-circle"}/> {isHealthy ? "Чудово" : "Ризик"}
+                        </div>
+                    </Card>
                 </div>
-                
-                <div className="card-modern overflow-hidden">
-                    <table className="w-full text-left">
-                        <thead className="bg-slate-50 text-xs uppercase text-slate-400">
-                            <tr><th className="p-4">Дата</th><th className="p-4">Опис</th><th className="p-4">Категорія</th><th className="p-4 text-right">Сума</th><th className="p-4"></th></tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {paginated.map(t => (
-                                <tr key={t.id} className="table-row-modern text-sm">
-                                    <td className="p-4 font-mono">{t.date}</td>
-                                    <td className="p-4 font-bold">{t.description}</td>
-                                    <td className="p-4"><span className="bg-slate-100 px-2 py-1 rounded text-xs">{t.cat}</span></td>
-                                    <td className={`p-4 text-right font-bold ${t.type==='income'?'text-emerald-600':'text-slate-800'}`}>
-                                        {t.type==='income'?'+':'-'}{t.amount.toLocaleString()} ₴
-                                    </td>
-                                    <td className="p-4 text-right">
-                                        {canDelete && <button onClick={()=>deleteTx(t.id)} className="text-red-300 hover:text-red-600"><Icon name="trash-2" size={16}/></button>}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    
-                    {totalPages > 1 && (
-                        <div className="p-4 border-t flex justify-between items-center bg-slate-50/50">
-                            <span className="text-xs text-slate-500">Стор. {currentPage} з {totalPages}</span>
-                            <div className="flex gap-2">
-                                <button disabled={currentPage===1} onClick={()=>setCurrentPage(c=>c-1)} className="px-3 py-1 border rounded bg-white disabled:opacity-50">Назад</button>
-                                <button disabled={currentPage===totalPages} onClick={()=>setCurrentPage(c=>c+1)} className="px-3 py-1 border rounded bg-white disabled:opacity-50">Далі</button>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                    <Card>
+                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Icon name="credit-card"/> Розподіл</h3>
+                        <div className="space-y-3">
+                            <div className="flex justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <span className="font-bold text-sm text-slate-600 flex items-center gap-2"><div className="w-5 h-5 logo-mono"></div> Monobank</span>
+                                <span className="font-mono font-bold">{metrics.balances.mono.toLocaleString()} ₴</span>
+                            </div>
+                            <div className="flex justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <span className="font-bold text-sm text-slate-600 flex items-center gap-2"><div className="w-5 h-5 logo-nova"></div> NovaPay</span>
+                                <span className="font-mono font-bold">{metrics.balances.nova.toLocaleString()} ₴</span>
+                            </div>
+                            <div className="flex justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <span className="font-bold text-sm text-slate-600 flex items-center gap-2"><Icon name="banknote" size={16} className="text-emerald-500"/> Готівка</span>
+                                <span className="font-mono font-bold">{metrics.balances.cash.toLocaleString()} ₴</span>
                             </div>
                         </div>
-                    )}
+                    </Card>
+
+                    <Card className="flex flex-col justify-between">
+                        <h3 className="font-bold text-lg flex items-center gap-2"><Icon name="pie-chart"/> Ефективність</h3>
+                        <div className="flex-1 flex items-center justify-center">
+                            <div className="text-center">
+                                <div className="text-5xl font-extrabold text-slate-900">{metrics.margin}%</div>
+                                <div className="text-xs font-bold text-slate-400 uppercase mt-2">Рентабельність</div>
+                            </div>
+                        </div>
+                        <button onClick={() => setView('pnl')} className="w-full py-3 bg-slate-100 rounded-xl text-sm font-bold text-slate-600 hover:bg-brand-50 hover:text-brand-600 transition-colors">Повний P&L звіт</button>
+                    </Card>
                 </div>
             </div>
         );
     };
 
-    // --- MAIN APP ---
+    const PnLView = ({ metrics, transactions }) => {
+        const getPct = (val) => metrics.revenue ? ((val / metrics.revenue) * 100).toFixed(1) : 0;
+        const allExpenses = useMemo(() => transactions.filter(t => t.type === 'expense' && !t.isDividend).reduce((acc, t) => {
+            const existing = acc.find(i => i.cat === t.cat);
+            if (existing) existing.val += Number(t.amount);
+            else acc.push({ cat: t.cat, val: Number(t.amount) });
+            return acc;
+        }, []).sort((a, b) => b.val - a.val), [transactions]);
+
+        return (
+            <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
+                <Card className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-none">
+                    <div className="text-emerald-100 text-xs font-bold uppercase tracking-widest mb-1">Виручка (Revenue)</div>
+                    <div className="text-5xl font-mono font-bold">+{metrics.revenue.toLocaleString()} ₴</div>
+                </Card>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                    <Card><div className="text-xs font-bold text-slate-400 uppercase mb-1">Собівартість</div><div className="text-2xl font-mono font-bold text-orange-600">-{metrics.cogs.toLocaleString()} ₴</div></Card>
+                    <Card><div className="text-xs font-bold text-slate-400 uppercase mb-1">Операційні</div><div className="text-2xl font-mono font-bold text-red-600">-{metrics.opex.toLocaleString()} ₴</div></Card>
+                </div>
+
+                <Card>
+                    <h3 className="font-bold mb-6 flex items-center gap-2"><Icon name="list"/> Розподіл витрат</h3>
+                    <div className="space-y-4">
+                        {allExpenses.map(item => (
+                            <div key={item.cat} className="space-y-2">
+                                <div className="flex justify-between text-sm font-bold">
+                                    <span className="text-slate-600">{item.cat}</span>
+                                    <span className="font-mono">{item.val.toLocaleString()} ₴</span>
+                                </div>
+                                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-brand-500" style={{width: `${getPct(item.val)}%`}}></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+
+                <div className="bg-slate-900 text-white p-8 rounded-[32px] flex justify-between items-center shadow-xl">
+                    <div>
+                        <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Чистий прибуток</div>
+                        <div className={`text-5xl font-mono font-bold ${metrics.net >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {metrics.net.toLocaleString()} ₴
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <div className="text-3xl font-bold">{getPct(metrics.net)}%</div>
+                        <div className="text-xs font-bold text-slate-400 uppercase">Ефективність</div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const OpsView = ({ transactions, deleteTx, syncMono, canDelete }) => {
+        const [isSyncing, setIsSyncing] = useState(false);
+        const handleSync = async () => { setIsSyncing(true); await syncMono(); setIsSyncing(false); };
+
+        return (
+            <div className="space-y-6 animate-fade-in">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-slate-400 font-bold uppercase text-xs tracking-widest">Всі транзакції ({transactions.length})</h3>
+                    <button onClick={handleSync} disabled={isSyncing} className="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-brand-500 transition-all">
+                        <Icon name="refresh-cw" size={14} className={isSyncing ? "animate-spin" : ""}/> Синхронізувати
+                    </button>
+                </div>
+                <Card className="p-0 overflow-hidden">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b">
+                            <tr>
+                                <th className="p-4">Дата</th>
+                                <th className="p-4">Опис</th>
+                                <th className="p-4">Категорія</th>
+                                <th className="p-4 text-right">Сума</th>
+                                <th className="p-4 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {transactions.map(t => (
+                                <tr key={t.id} className="table-row-modern group">
+                                    <td className="p-4 text-xs font-mono text-slate-400">{t.date}</td>
+                                    <td className="p-4 font-bold text-sm text-slate-700">{t.description}</td>
+                                    <td className="p-4">
+                                        <span className="text-[10px] font-extrabold bg-slate-100 px-2 py-1 rounded text-slate-500 uppercase">{t.cat}</span>
+                                    </td>
+                                    <td className={`p-4 text-right font-mono font-bold ${t.type==='income'?'text-emerald-600':'text-slate-900'}`}>
+                                        {t.type==='income'?'+':'-'}{t.amount.toLocaleString()} ₴
+                                    </td>
+                                    <td className="p-4">
+                                        {canDelete && (
+                                            <button onClick={() => deleteTx(t.id)} className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Icon name="trash-2" size={16}/>
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </Card>
+            </div>
+        );
+    };
+
+    const CashFlowView = ({ metrics }) => (
+        <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+            <Card className="border-l-8 border-l-blue-500">
+                <h3 className="font-bold text-lg mb-4">Операційна діяльність</h3>
+                <div className="space-y-3">
+                    <div className="flex justify-between text-slate-600"><span>Надходження</span><span className="font-mono font-bold text-emerald-600">+{metrics.revenue.toLocaleString()}</span></div>
+                    <div className="flex justify-between text-slate-600"><span>Витрати</span><span className="font-mono font-bold text-red-600">-{metrics.totalExpense.toLocaleString()}</span></div>
+                    <div className="border-t pt-2 flex justify-between font-bold text-lg"><span>Чистий потік</span><span>{metrics.operationalCashFlow.toLocaleString()} ₴</span></div>
+                </div>
+            </Card>
+            <div className="bg-slate-900 text-white p-6 rounded-[28px] flex justify-between items-center">
+                <div><h3 className="text-lg font-bold">Net Cash Change</h3><p className="text-xs text-slate-400">Зміна готівки за період</p></div>
+                <div className={`text-3xl font-mono font-bold ${metrics.netCashChange >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {metrics.netCashChange.toLocaleString()} ₴
+                </div>
+            </div>
+        </div>
+    );
+
+    const DividendsView = ({ metrics, transactions, setModalType }) => {
+        const available = metrics.net - metrics.dividends;
+        return (
+            <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+                <Card className="text-center p-10 bg-gradient-to-b from-indigo-50 to-white">
+                    <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">Доступно до виводу</div>
+                    <div className="text-5xl font-mono font-bold text-indigo-900 mb-8">{available.toLocaleString()} ₴</div>
+                    <button onClick={() => setModalType('dividend')} className="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition-all active:scale-95">Зафіксувати виплату</button>
+                </Card>
+                <Card>
+                    <h3 className="font-bold mb-4">Історія дивідендів</h3>
+                    <div className="divide-y">
+                        {transactions.filter(t => t.isDividend).map(t => (
+                            <div key={t.id} className="py-3 flex justify-between items-center">
+                                <div><div className="font-bold text-sm">{t.date}</div><div className="text-xs text-slate-400">Виплата власнику</div></div>
+                                <div className="font-mono font-bold text-indigo-600">-{t.amount.toLocaleString()} ₴</div>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+            </div>
+        );
+    };
+
+    // --- MODALS ---
+
+    const TransactionModal = ({ type, close, categories }) => {
+        const [form, setForm] = useState({ amount: '', desc: '', cat: 'Інше', source: 'Monobank ФОП' });
+        const cats = type === 'income' ? categories.income : categories.expense;
+        
+        const submit = async () => {
+            if(!form.amount) return;
+            const isDiv = type === 'dividend';
+            let cat = isDiv ? 'Дивіденди' : form.cat;
+            
+            await addDoc(collection(db, "transactions"), {
+                amount: Number(form.amount),
+                description: form.desc || (isDiv ? 'Виплата дивідендів' : ''),
+                cat,
+                source: form.source,
+                type: (type === 'dividend' || type === 'expense') ? 'expense' : 'income',
+                isDividend: isDiv,
+                date: new Date().toLocaleDateString('uk-UA'),
+                createdAt: Date.now()
+            });
+            close();
+        };
+
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={close}></div>
+                <div className="card-modern w-full max-w-lg p-8 shadow-2xl animate-fade-in relative z-10">
+                    <div className="flex justify-between items-center mb-8">
+                        <h3 className="font-bold text-2xl">Нова операція</h3>
+                        <button onClick={close} className="p-2 hover:bg-slate-100 rounded-full transition"><Icon name="x"/></button>
+                    </div>
+                    <div className="space-y-6">
+                        <div>
+                            <label className="text-[10px] font-bold uppercase text-slate-400 mb-2 block">Сума (₴)</label>
+                            <input type="number" value={form.amount} onChange={e=>setForm({...form, amount:e.target.value})} className="w-full text-5xl font-mono font-bold border-b-2 py-2 outline-none focus:border-brand-500" placeholder="0" autoFocus />
+                        </div>
+                        {type !== 'dividend' && (
+                            <>
+                                <input placeholder="Назва операції..." value={form.desc} onChange={e=>setForm({...form, desc:e.target.value})} className="w-full border p-4 rounded-xl outline-none focus:ring-2 ring-brand-500/20" />
+                                <select value={form.cat} onChange={e=>setForm({...form, cat:e.target.value})} className="w-full border p-4 rounded-xl outline-none">
+                                    {cats.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </>
+                        )}
+                        <select value={form.source} onChange={e=>setForm({...form, source:e.target.value})} className="w-full border p-4 rounded-xl outline-none">
+                            {['Monobank ФОП', 'NovaPay', 'Готівка'].map(a => <option key={a} value={a}>{a}</option>)}
+                        </select>
+                        <button onClick={submit} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-brand-600 transition-all shadow-xl active:scale-95">Підтвердити</button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    // --- MAIN APP COMPONENT ---
+
     const App = () => {
-        const [user, setUser] = useState(null);
-        const [view, setView] = useState('loading');
+        const [currentUser, setCurrentUser] = useState(null);
+        const [view, setView] = useState('auth');
         const [transactions, setTransactions] = useState([]);
         const [loading, setLoading] = useState(true);
+        const [statusMsg, setStatusMsg] = useState('');
         const [settings, setSettings] = useState({ monoKey: '', monoAccountId: '' });
         const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+        const [email, setEmail] = useState('');
+        const [pass, setPass] = useState('');
         const [modalType, setModalType] = useState(null);
 
+        // Firebase Auth Logic
         useEffect(() => {
-            const unsub = onAuthStateChanged(auth, (u) => {
+            const unsub = onAuthStateChanged(auth, async (u) => {
                 if (u) {
-                    setUser(u);
+                    setCurrentUser({ uid: u.uid, email: u.email, role: 'admin', permissions: ['all'] });
                     setView('dashboard');
-                    loadInitialData();
+                    loadData();
                 } else {
                     const stored = localStorage.getItem('latiao_user');
                     if (stored) {
-                        setUser(JSON.parse(stored));
+                        setCurrentUser(JSON.parse(stored));
                         setView('dashboard');
-                        loadInitialData();
+                        loadData();
                     } else {
+                        setCurrentUser(null);
                         setView('auth');
                         setLoading(false);
                     }
@@ -212,26 +415,22 @@
             return () => unsub();
         }, []);
 
-        const loadInitialData = async () => {
+        const loadData = async () => {
             setLoading(true);
             try {
-                // Завантаження налаштувань
                 const sSnap = await getDoc(doc(db, "settings", "global"));
                 if (sSnap.exists()) setSettings(sSnap.data());
-
+                
                 const cSnap = await getDoc(doc(db, "settings", "categories"));
                 if (cSnap.exists()) setCategories(cSnap.data());
 
-                // Слухач транзакцій
-                const q = query(collection(db, "transactions"));
+                const q = query(collection(db, "transactions"), orderBy("createdAt", "desc"));
                 onSnapshot(q, (snap) => {
-                    const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                    list.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
-                    setTransactions(list);
+                    setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
                     setLoading(false);
                 });
             } catch (e) {
-                console.error("Помилка завантаження:", e);
+                console.error(e);
                 setLoading(false);
             }
         };
@@ -239,128 +438,171 @@
         const metrics = useMemo(() => {
             const inc = transactions.filter(t => t.type === 'income' && !t.isDividend);
             const exp = transactions.filter(t => t.type === 'expense' && !t.isDividend);
-            const rev = inc.reduce((s,t) => s + (Number(t.amount)||0), 0);
-            const totalExp = exp.reduce((s,t) => s + (Number(t.amount)||0), 0);
-            const cash = transactions.reduce((s,t) => t.type==='income' ? s+(Number(t.amount)||0) : s-(Number(t.amount)||0), 0);
-            const div = transactions.filter(t => t.isDividend).reduce((s,t) => s+(Number(t.amount)||0), 0);
-            const net = rev - totalExp;
             
-            const bal = { mono: 0, nova: 0, cash: 0 };
+            const revenue = inc.reduce((s, t) => s + Number(t.amount), 0);
+            const cogs = exp.filter(t => t.cat === 'Закупівля (COGS)').reduce((s, t) => s + Number(t.amount), 0);
+            const opex = exp.filter(t => t.cat !== 'Закупівля (COGS)').reduce((s, t) => s + Number(t.amount), 0);
+            const totalExpense = cogs + opex;
+            const net = revenue - totalExpense;
+            const totalCash = transactions.reduce((s, t) => t.type === 'income' ? s + Number(t.amount) : s - Number(t.amount), 0);
+            const dividends = transactions.filter(t => t.isDividend).reduce((s, t) => s + Number(t.amount), 0);
+            
+            const balances = { mono: 0, nova: 0, cash: 0 };
             transactions.forEach(t => {
-                const s = (t.source || '').toLowerCase();
-                const key = s.includes('mono') ? 'mono' : (s.includes('nova') ? 'nova' : 'cash');
-                bal[key] += (t.type==='income' ? Number(t.amount) : -Number(t.amount));
+                const key = t.source.includes('Mono') ? 'mono' : t.source.includes('Nova') ? 'nova' : 'cash';
+                balances[key] += (t.type === 'income' ? Number(t.amount) : -Number(t.amount));
             });
 
             return { 
-                revenue: rev, totalExpense: totalExp, net, totalCash: cash, 
-                dividends: div, balances: bal, 
-                margin: rev ? Math.round((net/rev)*100) : 0,
-                runway: totalExp > 0 ? Math.round(cash / (totalExp / 30)) : "∞"
+                revenue, cogs, opex, net, totalCash, dividends, balances, 
+                margin: revenue ? Math.round((net / revenue) * 100) : 0,
+                totalExpense,
+                runway: totalExpense > 0 ? Math.round(totalCash / (totalExpense / 30)) : "∞",
+                operationalCashFlow: revenue - totalExpense,
+                netCashChange: (revenue - totalExpense) - dividends
             };
         }, [transactions]);
 
-        const login = async (e) => {
+        const handleLogin = async (e) => {
             e.preventDefault();
-            const email = e.target.email.value;
-            const pass = e.target.pass.value;
             setLoading(true);
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
-            } catch (err) {
-                // Перевірка менеджерів у БД
+            } catch (authErr) {
                 const q = query(collection(db, "managers"), where("email", "==", email), where("password", "==", pass));
-                const snap = await getDocs(q);
-                if (!snap.empty) {
-                    const u = { id: snap.docs[0].id, ...snap.docs[0].data(), role: 'manager' };
-                    localStorage.setItem('latiao_user', JSON.stringify(u));
-                    setUser(u);
+                const snapshot = await getDocs(q);
+                if (!snapshot.empty) {
+                    const data = snapshot.docs[0].data();
+                    const user = { uid: snapshot.docs[0].id, ...data, role: 'manager' };
+                    localStorage.setItem('latiao_user', JSON.stringify(user));
+                    setCurrentUser(user);
                     setView('dashboard');
-                    loadInitialData();
+                    loadData();
                 } else {
-                    alert("Невірні дані");
+                    alert("Невірний логін або пароль");
+                    setLoading(false);
                 }
-                setLoading(false);
             }
         };
 
-        if (view === 'loading') return <div className="h-screen flex items-center justify-center font-bold">Latiao Завантаження...</div>;
+        const syncM = async () => {
+            if(!settings.monoKey || !settings.monoAccountId) return alert("Налаштуйте Mono API");
+            setStatusMsg("З'єднуємось з банком...");
+            try {
+                const now = Math.floor(Date.now() / 1000);
+                const res = await fetch(`https://corsproxy.io/?https://api.monobank.ua/personal/statement/${settings.monoAccountId}/${now - 2678400}/${now}`, {
+                    headers: { 'X-Token': settings.monoKey }
+                });
+                const data = await res.json();
+                if (!Array.isArray(data)) throw new Error("Помилка API");
+                
+                const batch = writeBatch(db);
+                let count = 0;
+                const existingIds = new Set(transactions.map(t => t.bankId));
+                
+                data.forEach(item => {
+                    if (!existingIds.has(item.id)) {
+                        batch.set(doc(collection(db, "transactions")), {
+                            amount: Math.abs(item.amount / 100),
+                            description: item.description,
+                            cat: 'Інше',
+                            source: 'Monobank ФОП',
+                            type: item.amount > 0 ? 'income' : 'expense',
+                            isDividend: false,
+                            date: new Date(item.time * 1000).toLocaleDateString('uk-UA'),
+                            createdAt: item.time * 1000,
+                            bankId: item.id
+                        });
+                        count++;
+                    }
+                });
+                if(count > 0) await batch.commit();
+                setStatusMsg(`Додано: ${count} нових записів`);
+                setTimeout(() => setStatusMsg(''), 3000);
+            } catch (e) {
+                alert(e.message);
+                setStatusMsg("");
+            }
+        };
+
+        const saveS = async (d) => { await setDoc(doc(db, "settings", "global"), d); setSettings(d); alert("Збережено!"); };
+        const saveC = async (d) => { await setDoc(doc(db, "settings", "categories"), d); setCategories(d); alert("Оновлено!"); };
+        const delAll = async () => { if(confirm("Це видалить ВСЮ історію. Впевнені?")) { const s = await getDocs(collection(db, "transactions")); const b = writeBatch(db); s.docs.forEach(d => b.delete(d.ref)); await b.commit(); } };
 
         if (view === 'auth') return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-                <form onSubmit={login} className="bg-white p-10 rounded-[32px] w-full max-w-sm space-y-4 shadow-2xl">
-                    <h1 className="text-3xl font-black text-center mb-6">Latiao <span className="text-brand-500">Finance</span></h1>
-                    <input name="email" type="email" placeholder="Email" className="w-full p-4 bg-slate-100 rounded-2xl outline-none" required />
-                    <input name="pass" type="password" placeholder="Пароль" className="w-full p-4 bg-slate-100 rounded-2xl outline-none" required />
-                    <button className="w-full bg-brand-500 text-white p-4 rounded-2xl font-bold shadow-lg shadow-brand-500/30">Увійти</button>
-                </form>
+            <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900 relative overflow-hidden">
+                <div className="absolute top-[-10%] left-[-10%] w-64 h-64 bg-brand-500 rounded-full blur-[100px] opacity-20"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-64 h-64 bg-brand-600 rounded-full blur-[100px] opacity-20"></div>
+                <div className="bg-white/10 backdrop-blur-xl p-10 rounded-[32px] w-full max-w-sm text-center border border-white/10 shadow-2xl relative z-10">
+                    <div className="mb-8">
+                        <div className="w-16 h-16 bg-brand-500 rounded-2xl mx-auto flex items-center justify-center text-white text-3xl font-extrabold shadow-lg mb-4">L</div>
+                        <h1 className="text-2xl font-extrabold text-white">Latiao Finance</h1>
+                        <p className="text-slate-400 text-sm mt-1">Версія для управління бізнесом</p>
+                    </div>
+                    <form onSubmit={handleLogin} className="space-y-4">
+                        <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full p-4 rounded-2xl bg-white/5 text-white border border-white/10 outline-none focus:border-brand-500 transition-all" />
+                        <input type="password" placeholder="Пароль" value={pass} onChange={e=>setPass(e.target.value)} className="w-full p-4 rounded-2xl bg-white/5 text-white border border-white/10 outline-none focus:border-brand-500 transition-all" />
+                        <button type="submit" className="w-full bg-brand-500 text-white py-4 rounded-2xl font-bold hover:bg-brand-600 transition-all shadow-lg active:scale-95">Увійти</button>
+                    </form>
+                </div>
             </div>
         );
 
         return (
-            <div className="flex h-screen bg-[#F8FAFC]">
-                <aside className="w-72 bg-white border-r flex flex-col p-6 space-y-2">
-                    <div className="text-2xl font-black mb-8 px-2">Latiao <span className="text-brand-500">.</span></div>
-                    {ALL_VIEWS.map(v => (
-                        <button key={v.id} onClick={()=>setView(v.id)} className={`flex items-center gap-3 p-4 font-bold transition-all sidebar-link ${view===v.id?'active text-white':'text-slate-500'}`}>
-                            <Icon name={v.icon}/> {v.label}
-                        </button>
-                    ))}
-                    <button onClick={()=>{signOut(auth); localStorage.clear(); window.location.reload();}} className="mt-auto flex items-center gap-3 p-4 text-slate-400 font-bold"><Icon name="log-out"/> Вихід</button>
+            <div className="flex h-screen overflow-hidden bg-[#F8FAFC]">
+                <aside className="w-72 bg-slate-900 flex flex-col z-20 shadow-xl relative overflow-hidden">
+                    <div className="p-8 pb-4">
+                        <h1 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                            <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center text-sm">L</div>
+                            Latiao Finance
+                        </h1>
+                    </div>
+                    <nav className="flex-1 px-4 space-y-1.5 mt-8">
+                        {ALL_VIEWS.map(item => (
+                            <button key={item.id} onClick={()=>setView(item.id)} className={`w-full flex items-center gap-3 p-3.5 text-sm font-bold transition-all sidebar-link group ${view===item.id ? 'active' : 'text-slate-400 hover:text-white'}`}>
+                                <Icon name={item.icon} size={20} className={view===item.id ? "" : "opacity-50 group-hover:opacity-100"}/> <span>{item.label}</span>
+                            </button>
+                        ))}
+                    </nav>
+                    <div className="p-4">
+                        <button onClick={handleLogout} className="w-full flex items-center gap-3 p-3.5 text-sm font-bold text-slate-400 hover:text-red-400 transition-all"><Icon name="log-out" size={18}/> Вихід</button>
+                    </div>
                 </aside>
 
-                <main className="flex-1 overflow-y-auto p-8">
-                    <div className="flex justify-between items-center mb-10">
-                        <h1 className="text-4xl font-black capitalize">{view}</h1>
-                        <div className="flex gap-3">
-                            <button onClick={()=>setModalType('income')} className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold">+ Дохід</button>
-                            <button onClick={()=>setModalType('expense')} className="bg-brand-500 text-white px-6 py-3 rounded-xl font-bold">- Витрата</button>
+                <main className="flex-1 overflow-y-auto p-8 relative scroll-smooth">
+                    <div className="flex justify-between items-center mb-8 fade-in">
+                        <div>
+                            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight capitalize">{ALL_VIEWS.find(v=>v.id===view)?.label}</h2>
+                            <p className="text-slate-500 font-medium mt-1">{currentUser?.email} (Адмін)</p>
                         </div>
-                    </div>
-
-                    <div className="fade-in">
-                        {loading ? <div className="animate-pulse">Завантаження даних...</div> : (
-                            <>
-                                {view==='dashboard' && <DashboardView metrics={metrics} transactions={transactions} setView={setView}/>}
-                                {view==='ops' && <OpsView transactions={transactions} deleteTx={(id)=>deleteDoc(doc(db,"transactions",id))} syncMono={()=>{}} canDelete={true} />}
-                                {view==='pnl' && <div className="p-10 card-modern text-center">Розділ P&L у розробці</div>}
-                            </>
+                        {['dashboard','ops'].includes(view) && (
+                            <div className="flex gap-4">
+                                <button onClick={()=>setModalType('income')} className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-emerald-200/50 hover:bg-emerald-600 transition active:scale-95 flex items-center gap-2"><Icon name="plus-circle" size={18}/> Дохід</button>
+                                <button onClick={()=>setModalType('expense')} className="bg-brand-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-brand-200/50 hover:bg-brand-600 transition active:scale-95 flex items-center gap-2"><Icon name="minus-circle" size={18}/> Витрата</button>
+                            </div>
                         )}
                     </div>
-                </main>
 
-                {modalType && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white p-8 rounded-[32px] w-full max-w-md space-y-4">
-                            <h2 className="text-2xl font-bold">Нова операція: {modalType}</h2>
-                            <input id="amt" type="number" placeholder="Сума" className="w-full p-4 bg-slate-100 rounded-2xl" />
-                            <input id="dsc" type="text" placeholder="Опис" className="w-full p-4 bg-slate-100 rounded-2xl" />
-                            <select id="ct" className="w-full p-4 bg-slate-100 rounded-2xl">
-                                {categories[modalType==='income'?'income':'expense'].map(c=><option key={c}>{c}</option>)}
-                            </select>
-                            <div className="flex gap-3 pt-4">
-                                <button onClick={()=>setModalType(null)} className="flex-1 p-4 font-bold text-slate-400">Скасувати</button>
-                                <button onClick={async ()=>{
-                                    const a = document.getElementById('amt').value;
-                                    const d = document.getElementById('dsc').value;
-                                    const c = document.getElementById('ct').value;
-                                    if(!a) return;
-                                    await addDoc(collection(db, "transactions"), {
-                                        amount: Number(a), description: d, cat: c, type: modalType==='income'?'income':'expense',
-                                        date: new Date().toLocaleDateString('uk-UA'), createdAt: Date.now(), source: 'Готівка'
-                                    });
-                                    setModalType(null);
-                                }} className="flex-1 p-4 bg-brand-500 text-white font-bold rounded-2xl">Зберегти</button>
-                            </div>
-                        </div>
+                    {statusMsg && <div className="fixed top-6 right-6 bg-slate-900/95 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 animate-bounce flex items-center gap-3 border border-white/10 font-medium"><Icon name="loader" className="animate-spin text-brand-500"/> {statusMsg}</div>}
+
+                    <div className="fade-in pb-16">
+                        {loading && <div className="absolute inset-0 flex items-center justify-center bg-slate-50/50 backdrop-blur-sm z-20 rounded-3xl"><Icon name="loader" size={40} className="animate-spin text-brand-500"/></div>}
+                        {view==='dashboard' && <DashboardView metrics={metrics} transactions={transactions} setView={setView}/>}
+                        {view==='pnl' && <PnLView metrics={metrics} transactions={transactions}/>}
+                        {view==='cashflow' && <CashFlowView metrics={metrics}/>}
+                        {view==='dividends' && <DividendsView metrics={metrics} transactions={transactions} setModalType={setModalType}/>}
+                        {view==='ops' && <OpsView transactions={transactions} deleteTx={deleteTx} syncMono={syncM} canDelete={currentUser?.role==='admin'}/>}
+                        {view==='settings' && <SettingsView settings={settings} setSettings={setSettings} saveSettings={saveS} syncMono={syncM} deleteAllTransactions={delAll} categories={categories} saveCategories={saveC}/>}
                     </div>
-                )}
+                </main>
+                {modalType && <TransactionModal type={modalType} close={()=>setModalType(null)} categories={categories}/>}
             </div>
         );
     };
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    root.render(<ErrorBoundary><App /></ErrorBoundary>);
 </script>
+
 </body>
 </html>
