@@ -1,338 +1,455 @@
 <!DOCTYPE html>
 <html lang="uk" class="bg-slate-50/50">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Latiao Finance | Enterprise v12.6 Redesign</title>
-    
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Manrope', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-                    colors: { 
-                        brand: { 50: '#fff1ec', 100: '#ffe4d9', 500: '#FF5722', 600: '#ea580c', 700: '#c2410c' },
-                        slate: { 850: '#172033' }
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03)',
-                        'glow-brand': '0 0 20px -5px rgba(255, 87, 34, 0.4)'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { color: #1e293b; -webkit-tap-highlight-color: transparent; }
-        main { background-image: radial-gradient(circle at center, #f1f5f9 1px, transparent 1px); background-size: 40px 40px; }
-        .sidebar-link { transition: all 0.2s ease-in-out; }
-        .sidebar-link.active { background: linear-gradient(135deg, #FF5722 0%, #ea580c 100%); color: white; box-shadow: 0 8px 16px -4px rgba(255, 87, 34, 0.3); border-radius: 16px; }
-        .sidebar-link:hover:not(.active):not(.disabled) { background: #fff1ec; color: #ea580c; border-radius: 16px; }
-        .card-modern { background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; }
-        .table-row-modern { transition: all 0.15s; border-radius: 12px; }
-        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .logo-mono { background-image: url('https://multicast.com.ua/wp-content/uploads/2024/04/monobank-logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
-        .logo-nova { background-image: url('https://novapay.ua/wp-content/themes/novapay/assets/img/logo.svg'); background-size: contain; background-repeat: no-repeat; background-position: center; }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Latiao Finance | Enterprise v12.6 Redesign</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Manrope', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { 
+                        brand: { 50: '#fff1ec', 100: '#ffe4d9', 500: '#FF5722', 600: '#ea580c', 700: '#c2410c' },
+                        slate: { 850: '#172033' }
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03)',
+                        'glow-brand': '0 0 20px -5px rgba(255, 87, 34, 0.4)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { color: #1e293b; -webkit-tap-highlight-color: transparent; }
+        main { background-image: radial-gradient(circle at center, #f1f5f9 1px, transparent 1px); background-size: 40px 40px; }
+        .sidebar-link { transition: all 0.2s ease-in-out; }
+        .sidebar-link.active { background: linear-gradient(135deg, #FF5722 0%, #ea580c 100%); color: white; box-shadow: 0 8px 16px -4px rgba(255, 87, 34, 0.3); border-radius: 16px; }
+        .sidebar-link:hover:not(.active):not(.disabled) { background: #fff1ec; color: #ea580c; border-radius: 16px; }
+        .card-modern { background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; }
+        .card-modern:hover { box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08); border-color: #cbd5e1; }
+        .table-row-modern { transition: all 0.15s; border-radius: 12px; }
+        .table-row-modern:hover { background-color: #f8fafc; }
+        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); scale: 0.98; } to { opacity: 1; transform: translateY(0); scale: 1; } }
+        .logo-mono { background-image: url('https://multicast.com.ua/wp-content/uploads/2024/04/monobank-logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .logo-nova { background-image: url('https://novapay.ua/wp-content/themes/novapay/assets/img/logo.svg'); background-size: contain; background-repeat: no-repeat; background-position: center; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
         
-        /* Mobile Specific Overrides */
         @media (max-width: 1024px) {
             .sidebar-closed { transform: translateX(-100%); }
             .sidebar-open { transform: translateX(0); }
         }
-    </style>
+    </style>
 </head>
 <body>
 
 <div id="root"></div>
 
 <script type="text/babel" data-type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, setDoc, getDoc, writeBatch, getDocs, limit, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, setDoc, getDoc, writeBatch, getDocs, limit, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDIk302oYXye-r4hRE-EB16N6K3T31g1uk",
-      authDomain: "latiao-finance.firebaseapp.com",
-      projectId: "latiao-finance",
-      storageBucket: "latiao-finance.firebasestorage.app",
-      messagingSenderId: "858773999156",
-      appId: "1:858773999156:web:fe8f4907314f83c9a88461"
-    };
+    const firebaseConfig = {
+      apiKey: "AIzaSyDIk302oYXye-r4hRE-EB16N6K3T31g1uk",
+      authDomain: "latiao-finance.firebaseapp.com",
+      projectId: "latiao-finance",
+      storageBucket: "latiao-finance.firebasestorage.app",
+      messagingSenderId: "858773999156",
+      appId: "1:858773999156:web:fe8f4907314f83c9a88461"
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    try { setPersistence(auth, browserLocalPersistence).catch(console.error); } catch(e) {}
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    try { setPersistence(auth, browserLocalPersistence).catch(console.error); } catch(e) {}
 
-    const { useState, useEffect, useMemo } = React;
+    const { useState, useEffect, useMemo } = React;
 
-    const Icon = ({ name, size = 18, className }) => {
-        useEffect(() => { try { if(window.lucide) window.lucide.createIcons(); } catch(e){} }, [name]);
-        return <i data-lucide={name} width={size} height={size} className={className}></i>;
-    };
+    const Icon = ({ name, size = 18, className }) => {
+        useEffect(() => { try { if(window.lucide) window.lucide.createIcons(); } catch(e){} }, [name]);
+        return <i data-lucide={name} width={size} height={size} className={className}></i>;
+    };
 
-    const DEFAULT_CATEGORIES = {
-        income: ['Продажі', 'Кешбек', 'Повернення', 'Інше'],
-        expense: ['Закупівля (COGS)', 'Реклама', 'Логістика', 'Пакування', 'Зарплата', 'Податки', 'Оренда', 'Комісії', 'Знижки', 'Інше']
-    };
+    const DEFAULT_CATEGORIES = {
+        income: ['Продажі', 'Кешбек', 'Повернення', 'Інше'],
+        expense: ['Закупівля (COGS)', 'Реклама', 'Логістика', 'Пакування', 'Зарплата', 'Податки', 'Оренда', 'Комісії', 'Знижки', 'Інше']
+    };
 
-    const ALL_VIEWS = [
-        {id:'dashboard', label:'Огляд бізнесу', icon:'layout-grid'},
-        {id:'ops', label:'Операції', icon:'list-checks'},
-        {id:'pnl', label:'P&L Звіт', icon:'pie-chart'},
-        {id:'cashflow', label:'Cash Flow', icon:'banknote'},
-        {id:'dividends', label:'Дивіденди', icon:'gem'},
-        {id:'managers', label:'Команда', icon:'users-round'},
-        {id:'settings', label:'Налаштування', icon:'sliders-horizontal'}
-    ];
+    const ALL_VIEWS = [
+        {id:'dashboard', label:'Огляд бізнесу', icon:'layout-grid'},
+        {id:'ops', label:'Операції', icon:'list-checks'},
+        {id:'pnl', label:'P&L Звіт', icon:'pie-chart'},
+        {id:'cashflow', label:'Cash Flow', icon:'banknote'},
+        {id:'dividends', label:'Дивіденди', icon:'gem'},
+        {id:'managers', label:'Команда', icon:'users-round'},
+        {id:'settings', label:'Налаштування', icon:'sliders-horizontal'}
+    ];
 
-    // --- VIEW COMPONENTS ---
+    // --- RE-INTEGRATED REDESIGN VIEWS ---
 
-    const DashboardView = ({ metrics, transactions, setView }) => {
-        const isHealthy = metrics.margin > 20;
-        const healthStatus = isHealthy ? "Чудовий стан" : (metrics.margin > 0 ? "Нормальний стан" : "Критичний стан");
-        return (
-            <div className="space-y-6 md:space-y-8 animate-fade-in">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    <div className="bg-gradient-to-br from-slate-850 to-slate-900 text-white p-6 rounded-[28px] shadow-2xl relative overflow-hidden group border border-slate-800">
-                        <div className="absolute right-[-30px] top-[-30px] opacity-[0.08] rotate-12"><Icon name="wallet" size={160}/></div>
-                        <div className="relative z-10">
-                            <div className="text-slate-300 text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2"><Icon name="wallet" size={14} className="text-brand-500"/> Гроші</div>
-                            <div className="text-3xl md:text-4xl font-mono font-bold tracking-tight">{metrics.totalCash.toLocaleString()} <span className="text-xl text-slate-400">₴</span></div>
-                        </div>
-                    </div>
-                    <div className="card-modern p-6 relative overflow-hidden border-t-4 border-t-emerald-500">
-                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">Чистий Прибуток</div>
-                        <div className={`text-3xl md:text-4xl font-mono font-bold tracking-tight ${metrics.net >= 0 ? 'text-slate-900' : 'text-red-600'}`}>{metrics.net.toLocaleString()} ₴</div>
-                         <div className="mt-4 text-xs font-bold inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700">Рент: {metrics.margin}%</div>
-                    </div>
-                    <div className="card-modern p-6 border-t-4 border-t-brand-500 relative overflow-hidden">
-                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">Runway</div>
-                        <div className="text-3xl md:text-4xl font-mono font-bold text-brand-600 tracking-tight">{metrics.runway} <span className="text-lg text-slate-500 font-sans">днів</span></div>
-                    </div>
-                    <div className={`card-modern p-6 flex flex-col justify-center items-center text-center border-t-4 ${isHealthy ? 'border-t-emerald-500' : 'border-t-red-500'}`}>
-                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Здоров'я</div>
-                        <div className={`text-lg font-bold flex items-center gap-2 ${isHealthy ? 'text-emerald-600' : 'text-red-600'}`}>
-                            {isHealthy ? <Icon name="activity" size={20} className="animate-pulse"/> : <Icon name="alert-triangle" size={20}/>} {healthStatus}
-                        </div>
-                    </div>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                     <div className="space-y-4">
-                         <h3 className="font-bold text-lg px-2 flex items-center gap-2"><Icon name="credit-card"/> Гаманці</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="card-modern p-5 bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col justify-between h-32 border-b-4 border-b-black">
-                                <div className="w-8 h-8 logo-mono grayscale opacity-80"></div>
-                                <div><div className="text-[10px] uppercase font-bold text-slate-400">Mono</div><div className="font-mono font-bold text-lg">{metrics.balances.mono.toLocaleString()} ₴</div></div>
-                            </div>
-                             <div className="card-modern p-5 bg-gradient-to-br from-red-50 to-red-100 flex flex-col justify-between h-32 border-b-4 border-b-red-500">
-                                <div className="w-8 h-8 logo-nova"></div>
-                                <div><div className="text-[10px] uppercase font-bold text-red-400">Nova</div><div className="font-mono font-bold text-lg">{metrics.balances.nova.toLocaleString()} ₴</div></div>
-                            </div>
-                        </div>
-                     </div>
-                    <div className="card-modern p-6 bg-gradient-to-br from-white to-slate-50">
-                        <h3 className="font-bold text-lg mb-6 flex items-center gap-2"><Icon name="pie-chart"/> Експрес P&L</h3>
-                        <div className="space-y-6">
-                            <div className="relative">
-                                <div className="flex justify-between text-xs font-bold text-slate-600 mb-2"><span>Доходи</span><span className="font-mono">{metrics.revenue.toLocaleString()}</span></div>
-                                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-emerald-500" style={{width: '100%'}}></div></div>
-                            </div>
-                            <div className="relative">
-                                <div className="flex justify-between text-xs font-bold text-slate-600 mb-2"><span>Витрати</span><span className="font-mono">{metrics.totalExpense.toLocaleString()}</span></div>
-                                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-red-500" style={{width: `${metrics.revenue ? (metrics.totalExpense/metrics.revenue)*100 : 0}%`}}></div></div>
-                            </div>
-                        </div>
-                        <button onClick={()=>setView('pnl')} className="w-full mt-6 py-3 text-sm font-bold text-blue-700 bg-blue-50 rounded-xl">Детальний звіт</button>
-                    </div>
-                </div>
-            </div>
-        );
-    };
+    const DashboardView = ({ metrics, transactions, setView }) => {
+        const isHealthy = metrics.margin > 20;
+        const healthStatus = isHealthy ? "Чудовий стан" : (metrics.margin > 0 ? "Нормальний стан" : "Критичний стан");
+        return (
+            <div className="space-y-6 md:space-y-8 animate-fade-in">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div className="bg-gradient-to-br from-slate-850 to-slate-900 text-white p-6 rounded-[28px] shadow-2xl relative overflow-hidden group border border-slate-800">
+                        <div className="absolute right-[-30px] top-[-30px] opacity-[0.08] group-hover:scale-110 transition-transform rotate-12"><Icon name="wallet" size={160}/></div>
+                        <div className="relative z-10">
+                            <div className="text-slate-300 text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2"><Icon name="wallet" size={16} className="text-brand-500"/> Гроші в бізнесі</div>
+                            <div className="text-3xl md:text-4xl font-mono font-bold tracking-tight">{metrics.totalCash.toLocaleString()} <span className="text-xl text-slate-400">₴</span></div>
+                        </div>
+                    </div>
 
-    const PnLView = ({ metrics, transactions }) => {
-        const getPct = (val) => metrics.revenue ? ((val / metrics.revenue) * 100).toFixed(1) : 0;
-        return (
-            <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-                <div className="card-modern p-6 md:p-8 bg-gradient-to-r from-emerald-50 to-white border-l-8 border-l-emerald-500">
-                    <div className="text-[10px] md:text-xs font-bold text-emerald-700 uppercase mb-2">Виручка (Revenue)</div>
-                    <div className="text-3xl md:text-5xl font-mono font-bold text-slate-900">+{metrics.revenue.toLocaleString()} ₴</div>
-                </div>
-                <div className="space-y-4">
-                    <div className="card-modern p-6 border-l-4 border-l-orange-400">
-                        <div className="flex justify-between items-center text-[10px] md:text-xs font-bold text-slate-500 uppercase mb-4"><span>(-) COGS</span><span>{getPct(metrics.cogs)}%</span></div>
-                        <div className="text-xl md:text-2xl font-mono font-bold">-{metrics.cogs.toLocaleString()} ₴</div>
-                    </div>
-                    <div className="card-modern p-6 bg-blue-50/50 border-blue-200 text-center">
-                        <div className="text-[10px] md:text-xs font-bold text-blue-700 uppercase mb-2">(=) Валовий Прибуток</div>
-                        <div className="text-2xl md:text-3xl font-mono font-bold">{(metrics.revenue - metrics.cogs).toLocaleString()} ₴</div>
-                    </div>
-                    <div className="card-modern p-6 border-l-4 border-l-red-400">
-                        <div className="flex justify-between items-center text-[10px] md:text-xs font-bold text-slate-500 uppercase mb-4"><span>(-) OpEx</span><span>{getPct(metrics.opex)}%</span></div>
-                        <div className="text-xl md:text-2xl font-mono font-bold">-{metrics.opex.toLocaleString()} ₴</div>
-                    </div>
-                </div>
-                <div className="bg-slate-900 text-white p-8 rounded-[28px] flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-                    <div>
-                        <div className="text-[10px] md:text-xs font-bold text-slate-400 uppercase mb-2">(=) Чистий Прибуток</div>
-                        <div className="text-4xl md:text-6xl font-mono font-bold text-emerald-400">{metrics.net.toLocaleString()} ₴</div>
-                    </div>
-                    <div className="bg-white/10 p-4 rounded-2xl">
-                        <div className="text-2xl font-bold">{getPct(metrics.net)}%</div>
-                        <div className="text-[10px] uppercase font-bold text-slate-300">Рентабельність</div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
+                    <div className="card-modern p-6 relative overflow-hidden border-t-4 border-t-emerald-500">
+                        <div className="absolute right-[-20px] bottom-[-20px] opacity-[0.05] text-emerald-500"><Icon name="trending-up" size={120}/></div>
+                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">Чистий Прибуток</div>
+                        <div className={`text-3xl md:text-4xl font-mono font-bold tracking-tight ${metrics.net >= 0 ? 'text-slate-900' : 'text-red-600'}`}>{metrics.net.toLocaleString()} ₴</div>
+                        <div className={`mt-4 text-xs font-bold inline-flex items-center gap-1 px-3 py-1 rounded-full ${metrics.net >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                            <Icon name={metrics.net >= 0 ? "trending-up" : "trending-down"} size={14}/> Рент: {metrics.margin}%
+                        </div>
+                    </div>
 
-    const OpsView = ({ transactions, deleteTx, syncMono, canDelete }) => {
+                    <div className="card-modern p-6 border-t-4 border-t-brand-500 relative overflow-hidden">
+                        <div className="absolute right-[-20px] bottom-[-20px] opacity-[0.05] text-brand-500"><Icon name="hourglass" size={120}/></div>
+                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">Запас ходу (Runway)</div>
+                        <div className="text-3xl md:text-4xl font-mono font-bold text-brand-600 tracking-tight">{metrics.runway} <span className="text-lg text-slate-500 font-sans">днів</span></div>
+                    </div>
+
+                    <div className={`card-modern p-6 flex flex-col justify-center items-center text-center border-t-4 ${isHealthy ? 'border-t-emerald-500 bg-emerald-50/30' : 'border-t-red-500 bg-red-50/30'}`}>
+                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">Здоров'я бізнесу</div>
+                        <div className={`text-xl md:text-2xl font-bold flex items-center gap-3 ${isHealthy ? 'text-emerald-600' : 'text-red-600'}`}>
+                            {isHealthy ? <Icon name="activity" size={32} className="animate-pulse"/> : <Icon name="skull" size={32}/>}
+                            {healthStatus}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h3 className="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2 px-2"><Icon name="credit-card"/> Гаманці</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="card-modern p-5 bg-gradient-to-br from-slate-50 to-slate-100 h-32 flex flex-col justify-between border-b-4 border-b-black">
+                                <div className="w-8 h-8 logo-mono grayscale opacity-80"></div>
+                                <div><div className="text-[10px] font-bold text-slate-400 uppercase">Mono</div><div className="font-mono font-bold text-lg">{metrics.balances.mono.toLocaleString()} ₴</div></div>
+                            </div>
+                            <div className="card-modern p-5 bg-gradient-to-br from-red-50 to-red-100 h-32 flex flex-col justify-between border-b-4 border-b-red-500">
+                                <div className="w-8 h-8 logo-nova"></div>
+                                <div><div className="text-[10px] font-bold text-red-400 uppercase">Nova</div><div className="font-mono font-bold text-lg">{metrics.balances.nova.toLocaleString()} ₴</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card-modern p-6 flex flex-col justify-between bg-gradient-to-br from-white to-slate-50">
+                        <div>
+                             <h3 className="font-bold text-lg mb-6 text-slate-800 flex items-center gap-2"><Icon name="pie-chart"/> Експрес P&L</h3>
+                             <div className="space-y-6">
+                                 <div className="relative">
+                                     <div className="flex justify-between text-xs font-bold text-slate-600 mb-2"><span>Доходи</span><span className="font-mono">+{metrics.revenue.toLocaleString()}</span></div>
+                                     <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-emerald-500 rounded-full" style={{width: '100%'}}></div></div>
+                                 </div>
+                                 <div className="relative">
+                                     <div className="flex justify-between text-xs font-bold text-slate-600 mb-2"><span>Витрати</span><span className="font-mono">-{metrics.totalExpense.toLocaleString()}</span></div>
+                                     <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-red-500 rounded-full" style={{width: `${metrics.revenue ? (metrics.totalExpense/metrics.revenue)*100 : 0}%`}}></div></div>
+                                 </div>
+                             </div>
+                        </div>
+                        <button onClick={()=>setView('pnl')} className="w-full mt-6 py-3 text-sm font-bold text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-100 transition">Детальний звіт</button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const PnLView = ({ metrics, transactions }) => {
+        const getPct = (val) => metrics.revenue ? ((val / metrics.revenue) * 100).toFixed(1) : 0;
+        return (
+            <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
+                <div className="card-modern p-8 bg-gradient-to-r from-emerald-50 to-white border-l-8 border-l-emerald-500 flex justify-between items-center relative overflow-hidden">
+                    <div className="absolute right-[-20px] top-[-20px] opacity-[0.05] text-emerald-600"><Icon name="trending-up" size={180}/></div>
+                    <div className="relative z-10">
+                        <div className="text-sm font-bold text-emerald-700 uppercase tracking-wider mb-2">Виручка (Revenue)</div>
+                        <div className="text-4xl md:text-5xl font-mono font-bold text-slate-900">+{metrics.revenue.toLocaleString()} <span className="text-2xl text-slate-400">₴</span></div>
+                    </div>
+                    <div className="h-16 w-16 bg-emerald-100 rounded-2xl hidden md:flex items-center justify-center text-emerald-600"><Icon name="coins" size={32}/></div>
+                </div>
+
+                <div className="space-y-4 relative">
+                    <div className="absolute left-8 top-10 bottom-10 w-0.5 bg-slate-200 z-0 mobile-hide"></div>
+                    <div className="card-modern p-6 border-l-4 border-l-orange-400">
+                        <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase mb-4"><span>(-) Собівартість (COGS)</span><span className="bg-orange-50 px-2 py-1 rounded text-orange-500">{getPct(metrics.cogs)}%</span></div>
+                        <div className="text-2xl md:text-3xl font-mono font-bold text-slate-700">-{metrics.cogs.toLocaleString()} ₴</div>
+                    </div>
+                    <div className="card-modern p-6 bg-blue-50/50 border-blue-200 text-center relative z-10">
+                        <div className="text-sm font-bold text-blue-700 uppercase mb-2">(=) Валовий Прибуток</div>
+                        <div className="text-3xl md:text-4xl font-mono font-bold text-blue-900">{(metrics.revenue - metrics.cogs).toLocaleString()} ₴</div>
+                    </div>
+                    <div className="card-modern p-6 border-l-4 border-l-red-400">
+                         <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase mb-4"><span>(-) Операційні витрати (OpEx)</span><span className="bg-red-50 px-2 py-1 rounded text-red-500">{getPct(metrics.opex)}%</span></div>
+                        <div className="text-2xl md:text-3xl font-mono font-bold text-slate-700">-{metrics.opex.toLocaleString()} ₴</div>
+                    </div>
+                </div>
+
+                <div className="bg-slate-900 text-white p-8 rounded-[28px] shadow-2xl flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden border border-slate-700">
+                    <div className="text-center md:text-left">
+                        <div className="text-sm font-bold text-slate-300 uppercase mb-2 tracking-wider flex items-center justify-center md:justify-start gap-2"><Icon name="flag" size={16} className="text-emerald-400"/> (=) Чистий Прибуток (Net Profit)</div>
+                        <div className="text-5xl md:text-6xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-emerald-500">{metrics.net.toLocaleString()} <span className="text-3xl text-slate-500 font-sans">₴</span></div>
+                    </div>
+                    <div className="text-right bg-white/10 p-4 rounded-2xl backdrop-blur-sm min-w-[140px] text-center">
+                        <div className="text-3xl font-bold text-white">{getPct(metrics.net)}%</div>
+                        <div className="text-[10px] text-slate-300 uppercase font-bold">Рентабельність</div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const CashFlowView = ({ metrics }) => (
+        <div className="max-w-4xl mx-auto animate-fade-in space-y-8">
+            <div className="card-modern bg-purple-50 p-5 flex items-start gap-4">
+                <div className="bg-purple-100 p-3 rounded-xl text-purple-600"><Icon name="book-open" size={24}/></div>
+                <div>
+                    <h3 className="font-bold text-purple-900 mb-1">Cash Flow (Рух коштів)</h3>
+                    <p className="text-sm text-purple-700 leading-relaxed">Відстежує реальні надходження та витрати <b>живих грошей</b>. Показує, як змінюється ваш банківський рахунок.</p>
+                </div>
+            </div>
+
+            <div className="card-modern p-8 relative overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-2 bg-blue-500"></div>
+                <h3 className="font-bold text-xl mb-6 text-slate-800">1. Операційний потік (Operating)</h3>
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                        <div className="text-sm font-bold text-emerald-800 uppercase">Надходження</div>
+                        <div className="text-2xl font-mono font-bold text-emerald-700">+{metrics.revenue.toLocaleString()} ₴</div>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-red-50/50 rounded-2xl border border-red-100">
+                        <div className="text-sm font-bold text-red-800 uppercase">Виплати</div>
+                        <div className="text-2xl font-mono font-bold text-red-700">-{metrics.totalExpense.toLocaleString()} ₴</div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="bg-slate-900 text-white p-8 rounded-[28px] flex justify-between items-center border border-slate-800">
+                <div><h3 className="text-lg font-bold">Чистий грошовий потік</h3></div>
+                <div className={`text-4xl font-mono font-bold ${metrics.netCashChange >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {metrics.netCashChange > 0 ? '+' : ''}{metrics.netCashChange.toLocaleString()} ₴
+                </div>
+            </div>
+        </div>
+    );
+
+    const DividendsView = ({ metrics, transactions, setModalType }) => (
+        <div className="max-w-4xl mx-auto animate-fade-in space-y-8">
+            <div className="bg-gradient-to-br from-slate-800 to-indigo-950 text-white p-10 rounded-[32px] shadow-2xl relative overflow-hidden">
+                <div className="relative z-10 flex flex-col md:flex-row justify-between gap-8 items-end mb-10">
+                    <div>
+                         <h2 className="text-3xl font-bold mb-4 flex items-center gap-3"><Icon name="gem" size={28} className="text-indigo-300"/> Управління Дивідендами</h2>
+                         <p className="text-indigo-100 max-w-md">Дивіденди — це розподіл чистого прибутку. Не виводьте більше, ніж бізнес реально заробив.</p>
+                    </div>
+                    <button onClick={()=>setModalType('dividend')} className="bg-white text-indigo-950 px-8 py-4 rounded-2xl font-bold hover:bg-indigo-50 transition-all flex items-center gap-3 shadow-xl active:scale-95">
+                        <Icon name="download" size={20}/> Виплатити
+                    </button>
+                </div>
+                <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10 text-center">
+                        <div className="text-xs uppercase text-slate-300 font-bold mb-2">Всього прибутку</div>
+                        <div className="text-2xl font-mono font-bold text-emerald-300">{metrics.net.toLocaleString()} ₴</div>
+                    </div>
+                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10 text-center">
+                        <div className="text-xs uppercase text-slate-300 font-bold mb-2">Вже виведено</div>
+                        <div className="text-2xl font-mono font-bold text-indigo-300">{metrics.dividends.toLocaleString()} ₴</div>
+                    </div>
+                    <div className="bg-emerald-500/20 p-6 rounded-2xl border border-emerald-500/50 text-center ring-1 ring-emerald-400">
+                        <div className="text-xs uppercase text-white font-bold mb-2">Доступно</div>
+                        <div className="text-3xl font-mono font-bold text-white">{(metrics.net - metrics.dividends).toLocaleString()} ₴</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="card-modern overflow-hidden">
+                <div className="p-6 border-b bg-slate-50/50 font-bold text-lg">Історія виплат</div>
+                {transactions.filter(t=>t.isDividend).length === 0 ? <div className="p-12 text-center text-slate-400 italic">Виплат ще не було</div> :
+                <div className="p-2 space-y-2">
+                    {transactions.filter(t=>t.isDividend).map(t => (
+                        <div key={t.id} className="flex justify-between items-center p-4 hover:bg-slate-50 rounded-2xl transition">
+                            <div><div className="font-bold text-slate-800">Виплата власнику</div><div className="text-xs text-slate-400">{t.date} | {t.source}</div></div>
+                            <div className="font-bold text-purple-700 font-mono text-xl">-{t.amount.toLocaleString()} ₴</div>
+                        </div>
+                    ))}
+                </div>}
+            </div>
+        </div>
+    );
+
+    const OpsView = ({ transactions, deleteTx, syncMono, canDelete }) => {
         const [currentPage, setCurrentPage] = useState(1);
-        const itemsPerPage = 15;
-        const totalPages = Math.ceil(transactions.length / itemsPerPage);
-        const currentData = transactions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+        const limit = 15;
+        const totalPages = Math.ceil(transactions.length / limit);
+        const currentData = transactions.slice((currentPage - 1) * limit, currentPage * limit);
 
         return (
-            <div className="space-y-6 animate-fade-in">
-                <div className="card-modern p-4 flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-50/80">
+            <div className="space-y-6 animate-fade-in">
+                <div className="card-modern p-4 flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-50/80">
                     <button onClick={syncMono} className="w-full sm:w-auto bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition shadow-lg"><Icon name="refresh-cw" size={16}/> Синхро Mono</button>
-                </div>
-                <div className="card-modern overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left min-w-[600px]">
-                            <thead>
-                                <tr className="text-slate-400 text-[10px] uppercase font-black tracking-widest border-b">
-                                    <th className="p-5">Дата</th>
-                                    <th className="p-5">Опис</th>
-                                    <th className="p-5">Категорія</th>
-                                    <th className="p-5 text-right">Сума</th>
-                                    <th className="p-5"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {currentData.map(t => (
-                                    <tr key={t.id} className="table-row-modern group">
-                                        <td className="p-5 text-xs font-mono font-bold text-slate-500">{t.date}</td>
-                                        <td className="p-5 font-bold text-slate-800 text-sm">{t.description}</td>
-                                        <td className="p-5"><span className="text-[10px] font-black bg-slate-100 px-2 py-1 rounded-md">{t.cat}</span></td>
-                                        <td className={`p-5 text-right font-mono font-bold ${t.type==='income'?'text-emerald-600':'text-slate-900'}`}>
-                                            {t.type==='income'?'+':'-'}{t.amount.toLocaleString()} ₴
-                                        </td>
-                                        <td className="p-5 text-right">{canDelete && <button onClick={()=>deleteTx(t.id)} className="text-slate-300 hover:text-red-500 transition"><Icon name="trash-2" size={16}/></button>}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                </div>
+                
+                <div className="card-modern overflow-hidden relative">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200"></div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left min-w-[700px]">
+                            <thead>
+                                <tr className="text-slate-400 text-[10px] uppercase font-black tracking-widest border-b">
+                                    <th className="px-6 py-5">Дата</th>
+                                    <th className="px-6 py-5">Тип</th>
+                                    <th className="px-6 py-5 w-1/3">Опис</th>
+                                    <th className="px-6 py-5">Категорія</th>
+                                    <th className="px-6 py-5 text-right">Сума</th>
+                                    <th className="px-6 py-5"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {currentData.map(t => (
+                                    <tr key={t.id} className="table-row-modern group">
+                                        <td className="px-6 py-5 text-xs font-mono font-bold text-slate-500">{t.date}</td>
+                                        <td className="px-6 py-5">
+                                            <span className={`text-[10px] font-black px-2 py-1 rounded-md ${t.isDividend ? 'bg-purple-100 text-purple-700' : (t.type==='income'?'bg-emerald-100 text-emerald-700':'bg-orange-100 text-orange-700')}`}>
+                                                {t.isDividend ? 'ДИВ' : (t.type==='income'?'ВХІД':'ВИХІД')}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5 font-bold text-slate-800 text-sm">{t.description}</td>
+                                        <td className="px-6 py-5"><span className="text-[10px] font-black bg-slate-100 px-2 py-1 rounded-md text-slate-600">{t.cat}</span></td>
+                                        <td className={`px-6 py-5 text-right font-mono font-bold text-lg ${t.type==='income'?'text-emerald-600':'text-slate-900'}`}>
+                                            {t.type==='income'?'+':'-'}{t.amount.toLocaleString()} ₴
+                                        </td>
+                                        <td className="px-6 py-5 text-right">{canDelete && <button onClick={()=>deleteTx(t.id)} className="text-slate-200 hover:text-red-500 transition opacity-0 group-hover:opacity-100"><Icon name="trash-2" size={16}/></button>}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                     {totalPages > 1 && (
-                        <div className="p-4 bg-slate-50 border-t flex justify-center gap-2">
-                            <button disabled={currentPage===1} onClick={()=>setCurrentPage(p=>p-1)} className="p-2 border rounded-lg bg-white disabled:opacity-30"><Icon name="chevron-left"/></button>
-                            <span className="flex items-center px-4 font-bold text-sm">{currentPage} / {totalPages}</span>
-                            <button disabled={currentPage===totalPages} onClick={()=>setCurrentPage(p=>p+1)} className="p-2 border rounded-lg bg-white disabled:opacity-30"><Icon name="chevron-right"/></button>
+                        <div className="p-6 bg-slate-50 border-t flex justify-center gap-2">
+                            <button disabled={currentPage===1} onClick={()=>setCurrentPage(p=>p-1)} className="p-3 border rounded-xl bg-white disabled:opacity-30 shadow-sm"><Icon name="chevron-left"/></button>
+                            <span className="flex items-center px-4 font-bold text-sm text-slate-600">{currentPage} / {totalPages}</span>
+                            <button disabled={currentPage===totalPages} onClick={()=>setCurrentPage(p=>p+1)} className="p-3 border rounded-xl bg-white disabled:opacity-30 shadow-sm"><Icon name="chevron-right"/></button>
                         </div>
                     )}
-                </div>
-            </div>
-        );
-    };
+                </div>
+            </div>
+        );
+    };
 
-    const App = () => {
-        const [currentUser, setCurrentUser] = useState(null);
-        const [view, setView] = useState('auth');
+    // --- MAIN APP LOGIC ---
+
+    const App = () => {
+        const [view, setView] = useState('auth');
         const [isSidebarOpen, setSidebarOpen] = useState(false);
-        const [transactions, setTransactions] = useState([]);
-        const [loading, setLoading] = useState(true);
-        const [statusMsg, setStatusMsg] = useState('');
-        const [settings, setSettings] = useState({ monoKey: '', monoAccountId: '' });
-        const [email, setEmail] = useState('');
-        const [pass, setPass] = useState('');
-        const [modalType, setModalType] = useState(null);
+        const [transactions, setTransactions] = useState([]);
+        const [loading, setLoading] = useState(true);
+        const [currentUser, setCurrentUser] = useState(null);
+        const [modalType, setModalType] = useState(null);
+        const [settings, setSettings] = useState({ monoKey: '', monoAccountId: '' });
+        const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+        
+        const [email, setEmail] = useState('');
+        const [pass, setPass] = useState('');
 
-        useEffect(() => {
-            const unsub = onAuthStateChanged(auth, (u) => {
-                if (u) { setCurrentUser({ uid: u.uid, email: u.email, role: 'admin' }); setView('dashboard'); loadData(); } 
-                else { setView('auth'); setLoading(false); }
-            }); return () => unsub();
-        }, []);
+        useEffect(() => {
+            const unsub = onAuthStateChanged(auth, (u) => {
+                if (u) { setCurrentUser({ uid: u.uid, email: u.email, role: 'admin' }); setView('dashboard'); loadData(); } 
+                else { setView('auth'); setLoading(false); }
+            }); return () => unsub();
+        }, []);
 
-        const loadData = async () => {
-            onSnapshot(query(collection(db, "transactions")), (snap) => {
-                setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)));
-                setLoading(false);
-            });
+        const loadData = async () => {
+            onSnapshot(query(collection(db, "transactions")), (snap) => {
+                const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                setTransactions(list.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)));
+                setLoading(false);
+            });
             const sSnap = await getDoc(doc(db, "settings", "global"));
             if (sSnap.exists()) setSettings(sSnap.data());
-        };
+            const cSnap = await getDoc(doc(db, "settings", "categories"));
+            if (cSnap.exists()) setCategories(cSnap.data());
+        };
 
         const metrics = useMemo(() => {
             const inc = transactions.filter(t => t.type === 'income' && !t.isDividend).reduce((s,t)=>s+Number(t.amount),0);
             const exp = transactions.filter(t => t.type === 'expense' && !t.isDividend).reduce((s,t)=>s+Number(t.amount),0);
             const cogs = transactions.filter(t => t.cat === 'Закупівля (COGS)').reduce((s,t)=>s+Number(t.amount),0);
             const cash = transactions.reduce((s,t)=>t.type==='income'?s+Number(t.amount):s-Number(t.amount),0);
+            const div = transactions.filter(t=>t.isDividend).reduce((s,t)=>s+Number(t.amount),0);
+            
             const bals = { mono: 0, nova: 0, cash: 0 };
             transactions.forEach(t => {
                 const src = (t.source || '').toLowerCase();
                 const key = src.includes('mono') ? 'mono' : (src.includes('nova') ? 'nova' : 'cash');
                 bals[key] += (t.type==='income' ? Number(t.amount) : -Number(t.amount));
             });
-            return { revenue: inc, cogs, opex: exp - cogs, totalExpense: exp, totalCash: cash, balances: bals, margin: inc ? (((inc-exp)/inc)*100).toFixed(0) : 0, net: inc - exp, runway: exp > 0 ? (cash / (exp/30)).toFixed(0) : '∞' };
+
+            return { 
+                revenue: inc, cogs, opex: exp - cogs, totalExpense: exp, totalCash: cash, balances: bals, 
+                margin: inc ? (((inc-exp)/inc)*100).toFixed(0) : 0, net: inc - exp, dividends: div,
+                runway: exp > 0 ? (cash / (exp/30)).toFixed(0) : '∞', netCashChange: (inc - exp) - div
+            };
         }, [transactions]);
 
-        if (view === 'auth') return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 text-white text-center">
-                <div className="w-full max-w-sm space-y-8 relative">
-                    <div className="mb-10 flex flex-col items-center">
-                        <div className="w-20 h-20 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl flex items-center justify-center shadow-lg mb-6"><Icon name="flame" size={40}/></div>
-                        <h1 className="text-4xl font-black tracking-tighter">Latiao <span className="text-brand-500">Finance</span></h1>
-                        <p className="text-slate-400 text-sm mt-2 uppercase tracking-widest font-bold">Enterprise v12.6</p>
-                    </div>
-                    <form onSubmit={async (e)=>{e.preventDefault(); try{await signInWithEmailAndPassword(auth,email,pass)}catch(e){alert("Помилка")}} } className="space-y-4">
-                        <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full pl-6 pr-4 py-4 rounded-2xl bg-slate-800 border-none outline-none focus:ring-2 ring-brand-500 transition shadow-inner font-bold"/>
-                        <input type="password" placeholder="Пароль" value={pass} onChange={e=>setPass(e.target.value)} className="w-full pl-6 pr-4 py-4 rounded-2xl bg-slate-800 border-none outline-none focus:ring-2 ring-brand-500 transition shadow-inner font-bold"/>
-                        <button type="submit" className="w-full bg-gradient-to-r from-brand-500 to-brand-600 py-4 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition shadow-lg shadow-brand-500/30">Увійти</button>
-                    </form>
+        if (view === 'auth') return (
+            <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 font-sans">
+                <div className="w-full max-w-sm space-y-8 text-center relative z-10">
+                    <div className="w-20 h-20 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl mx-auto flex items-center justify-center shadow-2xl mb-6 transform rotate-3"><Icon name="flame" size={40} className="text-white"/></div>
+                    <h1 className="text-5xl font-black text-white tracking-tighter">Latiao</h1>
+                    <form onSubmit={async (e)=>{e.preventDefault(); try{await signInWithEmailAndPassword(auth, email, pass);}catch(e){alert("Помилка логіна");}}} className="space-y-4 pt-4">
+                        <input type="email" placeholder="Логін" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-800 border-none rounded-2xl p-4 text-white font-bold outline-none focus:ring-2 ring-brand-500 transition"/>
+                        <input type="password" placeholder="Пароль" value={pass} onChange={e=>setPass(e.target.value)} className="w-full bg-slate-800 border-none rounded-2xl p-4 text-white font-bold outline-none focus:ring-2 ring-brand-500 transition"/>
+                        <button type="submit" className="w-full bg-gradient-to-r from-brand-500 to-brand-600 text-white p-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-brand-500/30 active:scale-95 transition">Увійти</button>
+                    </form>
                 </div>
-            </div>
-        );
+            </div>
+        );
 
-        return (
-            <div className="flex h-screen overflow-hidden bg-[#F8FAFC]">
-                {/* Mobile Menu Button & Overlay */}
+        return (
+            <div className="flex h-screen overflow-hidden bg-[#F8FAFC]">
+                {/* Overlay for mobile */}
                 {isSidebarOpen && <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden" onClick={()=>setSidebarOpen(false)}></div>}
-                
-                <aside className={`fixed lg:relative inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200/70 flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-                    <div className="p-8 flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center text-white shadow-lg"><Icon name="flame" size={24}/></div>
-                        <h1 className="text-xl font-black text-slate-900 tracking-tighter">Latiao <span className="text-brand-600">v12.6</span></h1>
+
+                {/* Sidebar */}
+                <aside className={`fixed lg:relative inset-y-0 left-0 z-50 w-72 bg-white border-r flex flex-col transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+                    <div className="p-8 flex items-center gap-3">
+                         <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center text-white shadow-lg"><Icon name="flame" size={24}/></div>
+                         <h1 className="text-xl font-black text-slate-900 tracking-tighter">Latiao <span className="text-brand-600">v12.6</span></h1>
                     </div>
-                    <nav className="flex-1 px-4 space-y-1.5 mt-4 overflow-y-auto">
-                        {ALL_VIEWS.map(v => (
-                            <button key={v.id} onClick={()=>{setView(v.id); setSidebarOpen(false)}} className={`w-full flex items-center gap-3 p-4 text-sm font-bold sidebar-link ${view===v.id ? 'active' : 'text-slate-500'}`}>
-                                <Icon name={v.icon} size={20}/> <span>{v.label}</span>
-                            </button>
-                        ))}
+                    <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto">
+                        {ALL_VIEWS.map(v => (
+                            <button key={v.id} onClick={()=>{setView(v.id); setSidebarOpen(false);}} className={`w-full flex items-center gap-3 p-4 text-sm font-bold transition-all sidebar-link group ${view===v.id ? 'active' : 'text-slate-500'}`}>
+                                <Icon name={v.icon} size={20}/> <span>{v.label}</span>
+                            </button>
+                        ))}
                         <div className="p-4 opacity-40 flex items-center gap-3 grayscale pointer-events-none">
-                            <Icon name="shopping-cart" size={20}/> <span className="text-sm font-bold">Закупівля</span>
+                            <Icon name="shopping-cart" size={20}/> <span className="text-sm font-bold text-slate-400">Закупівля</span>
                             <span className="bg-red-500 text-[8px] text-white px-2 rounded-full font-black">СКОРО</span>
                         </div>
-                    </nav>
-                    <div className="p-6 border-t mt-auto">
-                        <button onClick={()=>signOut(auth)} className="w-full flex items-center gap-3 text-red-500 font-bold text-sm hover:bg-red-50 p-3 rounded-xl transition"><Icon name="log-out" size={18}/> Вихід</button>
-                    </div>
-                </aside>
+                    </nav>
+                    <div className="p-6 border-t mt-auto">
+                        <button onClick={()=>signOut(auth)} className="w-full flex items-center gap-3 text-red-500 font-bold text-sm hover:bg-red-50 p-3 rounded-xl transition"><Icon name="log-out" size={18}/> Вихід</button>
+                    </div>
+                </aside>
 
-                <main className="flex-1 overflow-y-auto relative">
-                    <header className="h-16 md:h-20 bg-white/80 backdrop-blur-md border-b sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
+                {/* Main Content Area */}
+                <main className="flex-1 overflow-y-auto relative">
+                    <header className="h-16 md:h-20 bg-white/70 backdrop-blur-md border-b sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <button onClick={()=>setSidebarOpen(true)} className="lg:hidden p-2 text-slate-600 active:bg-slate-100 rounded-lg"><Icon name="menu" size={24}/></button>
                             <h2 className="text-lg md:text-2xl font-black text-slate-900 tracking-tight capitalize">{ALL_VIEWS.find(v=>v.id===view)?.label}</h2>
@@ -343,31 +460,37 @@
                         </div>
                     </header>
 
-                    <div className="p-4 md:p-8 pb-20">
-                        {loading ? <div className="text-center py-20 font-black text-slate-300 animate-pulse uppercase tracking-widest">Завантаження даних...</div> : (
+                    <div className="p-4 md:p-8 pb-24">
+                        {loading ? <div className="text-center py-20 font-black text-slate-300 animate-pulse">Завантаження даних...</div> : (
                             <div className="max-w-[1400px] mx-auto">
-                                {view==='dashboard' && <DashboardView metrics={metrics} transactions={transactions} setView={setView}/>}
-                                {view==='pnl' && <PnLView metrics={metrics} transactions={transactions}/>}
+                                {view==='dashboard' && <DashboardView metrics={metrics} transactions={transactions} setView={setView}/>}
+                                {view==='pnl' && <PnLView metrics={metrics} transactions={transactions}/>}
+                                {view==='cashflow' && <CashFlowView metrics={metrics}/>}
+                                {view==='dividends' && <DividendsView metrics={metrics} transactions={transactions} setModalType={setModalType}/>}
                                 {view==='ops' && <OpsView transactions={transactions} deleteTx={async (id)=>await deleteDoc(doc(db,"transactions",id))} canDelete={currentUser?.role==='admin'} syncMono={async ()=>alert("Синхронізація...")}/>}
-                                {['cashflow', 'dividends', 'settings', 'managers'].includes(view) && <div className="py-20 text-center font-bold text-slate-400 italic">Цей розділ в розробці адаптації для v12.6</div>}
+                                {view==='settings' && <div className="text-center py-20 font-bold text-slate-300">Налаштування доступні лише в десктоп версії</div>}
                             </div>
                         )}
-                    </div>
-                </main>
+                    </div>
+                </main>
 
-                {modalType && (
-                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
-                        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={()=>setModalType(null)}></div>
-                        <div className="bg-white w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] p-6 md:p-8 relative z-10 animate-fade-in shadow-2xl">
-                             <h3 className="text-2xl font-black mb-6">Нова операція</h3>
-                             <div className="space-y-5">
+                {/* Enterprise Modal Design */}
+                {modalType && (
+                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+                        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={()=>setModalType(null)}></div>
+                        <div className="bg-white w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] overflow-hidden shadow-2xl relative z-10 animate-fade-in">
+                            <div className={`p-6 text-white flex justify-between items-center ${modalType==='income'?'bg-emerald-500':'bg-brand-500'}`}>
+                                <h3 className="font-bold text-xl uppercase tracking-widest">Нова операція</h3>
+                                <button onClick={()=>setModalType(null)}><Icon name="x"/></button>
+                            </div>
+                            <div className="p-8 space-y-6">
                                 <div className="relative border-b-2 border-slate-100 py-2 focus-within:border-brand-500 transition">
                                     <span className="absolute left-0 bottom-4 text-3xl text-slate-300 font-mono">₴</span>
                                     <input id="mAmount" type="number" placeholder="0" className="w-full text-5xl font-mono font-black pl-10 outline-none" autoFocus/>
                                 </div>
-                                <input id="mDesc" type="text" placeholder="Опис операції" className="w-full bg-slate-50 p-4 rounded-xl font-bold outline-none border border-transparent focus:border-slate-200"/>
+                                <input id="mDesc" type="text" placeholder="Опис" className="w-full bg-slate-50 p-4 rounded-xl font-bold outline-none border border-transparent focus:border-slate-200 transition"/>
                                 <select id="mCat" className="w-full bg-slate-50 p-4 rounded-xl font-bold outline-none">
-                                    {modalType==='income' ? DEFAULT_CATEGORIES.income.map(c=><option key={c}>{c}</option>) : DEFAULT_CATEGORIES.expense.map(c=><option key={c}>{c}</option>)}
+                                    {modalType==='income' ? categories.income.map(c=><option key={c}>{c}</option>) : categories.expense.map(c=><option key={c}>{c}</option>)}
                                 </select>
                                 <button onClick={async ()=>{
                                     const amount = document.getElementById('mAmount').value;
@@ -375,21 +498,21 @@
                                     await addDoc(collection(db, "transactions"), {
                                         amount: Number(amount), description: document.getElementById('mDesc').value,
                                         cat: document.getElementById('mCat').value, source: 'Готівка',
-                                        type: modalType==='income' ? 'income' : 'expense',
+                                        type: (modalType==='income'?'income':'expense'), isDividend: (modalType==='dividend'),
                                         createdAt: Date.now(), date: new Date().toLocaleDateString('uk-UA')
                                     });
                                     setModalType(null);
                                 }} className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black uppercase tracking-widest shadow-xl active:scale-95 transition">Зафіксувати</button>
-                             </div>
+                            </div>
                         </div>
                     </div>
                 )}
-            </div>
-        );
-    };
+            </div>
+        );
+    };
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
 </script>
 
 </body>
