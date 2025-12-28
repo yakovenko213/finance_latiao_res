@@ -19,7 +19,7 @@
                     fontFamily: { sans: ['Manrope', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
                     colors: { 
                         brand: { 50: '#fff1ec', 100: '#ffe4d9', 500: '#FF5722', 600: '#ea580c', 700: '#c2410c' },
-                        slate: { 850: '#172033' } // Custom darker slate
+                        slate: { 850: '#172033' }
                     },
                     boxShadow: {
                         'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03)',
@@ -31,7 +31,6 @@
     </script>
     <style>
         body { color: #1e293b; -webkit-tap-highlight-color: transparent; }
-        /* Subtle pattern for main background */
         main { background-image: radial-gradient(circle at center, #f1f5f9 1px, transparent 1px); background-size: 40px 40px; }
         
         .sidebar-link { transition: all 0.2s ease-in-out; }
@@ -39,74 +38,21 @@
         .sidebar-link:hover:not(.active) { background: #fff1ec; color: #ea580c; border-radius: 16px; }
         
         .card-modern { background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; }
-        .card-modern:hover { box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08); border-color: #cbd5e1; }
-
+        
         .table-row-modern { transition: all 0.15s; border-radius: 12px; }
-        .table-row-modern:hover { background-color: #f8fafc; transform: scale-[1.005]; }
-        .table-row-modern td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-        .table-row-modern td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+        .table-row-modern:hover { background-color: #f8fafc; }
 
-        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); scale: 0.98; } to { opacity: 1; transform: translateY(0); scale: 1; } }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .logo-mono { background-image: url('https://multicast.com.ua/wp-content/uploads/2024/04/monobank-logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
         .logo-nova { background-image: url('https://novapay.ua/wp-content/themes/novapay/assets/img/logo.svg'); background-size: contain; background-repeat: no-repeat; background-position: center; }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
-
-        /* --- MOBILE ADAPTATION (iOS & Android) --- */
+        /* Mobile Specific Styles */
         @media (max-width: 768px) {
-            #root > div { flex-direction: column !important; }
-            aside { 
-                width: 100% !important; 
-                height: 60px !important; 
-                position: fixed !important; 
-                bottom: 0 !important; 
-                left: 0 !important; 
-                flex-direction: row !important; 
-                padding: 0 !important;
-                border-r: none !important;
-                border-t: 1px solid #e2e8f0 !important;
-                background: rgba(255,255,255,0.95) !important;
-                backdrop-filter: blur(10px);
-            }
-            aside > div:first-child, aside > div:last-child, aside nav > div { display: none !important; }
-            aside nav { 
-                display: flex !important; 
-                flex-direction: row !important; 
-                width: 100% !important; 
-                justify-content: space-around !important; 
-                align-items: center !important;
-                margin: 0 !important;
-                padding: 0 10px !important;
-            }
-            .sidebar-link { 
-                padding: 10px !important; 
-                flex-direction: column !important; 
-                gap: 2px !important;
-                font-size: 9px !important;
-                width: auto !important;
-                background: transparent !important;
-                box-shadow: none !important;
-                color: #64748b !important;
-            }
-            .sidebar-link.active { color: #FF5722 !important; background: transparent !important; box-shadow: none !important; }
-            .sidebar-link span { display: block !important; }
-            
-            main { padding: 15px !important; padding-bottom: 80px !important; }
-            .grid-cols-4, .grid-cols-2 { grid-template-columns: 1fr !important; }
-            .text-4xl { font-size: 28px !important; }
-            .text-6xl { font-size: 36px !important; }
-            
-            /* Hide description columns in ops on small screens if needed */
-            .table-row-modern td:nth-child(2), .table-row-modern td:nth-child(4) { display: none !important; }
-            
-            /* Responsive Modals */
-            .card-modern.max-w-lg { width: 95% !important; margin: 10px !important; }
+            .mobile-sidebar-hidden { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .mobile-sidebar-visible { transform: translateX(0); transition: transform 0.3s ease; }
+            .content-overlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); position: fixed; inset: 0; z-index: 40; }
         }
     </style>
 </head>
@@ -119,7 +65,6 @@
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, setDoc, getDoc, writeBatch, getDocs, limit, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
       apiKey: "AIzaSyDIk302oYXye-r4hRE-EB16N6K3T31g1uk",
       authDomain: "latiao-finance.firebaseapp.com",
@@ -147,13 +92,13 @@
     };
 
     const ALL_VIEWS = [
-        {id:'dashboard', label:'Огляд', icon:'layout-grid'},
+        {id:'dashboard', label:'Огляд бізнесу', icon:'layout-grid'},
         {id:'ops', label:'Операції', icon:'list-checks'},
-        {id:'pnl', label:'P&L', icon:'pie-chart'},
-        {id:'cashflow', label:'Потік', icon:'banknote'},
-        {id:'dividends', label:'Прибуток', icon:'gem'},
+        {id:'pnl', label:'P&L Звіт', icon:'pie-chart'},
+        {id:'cashflow', label:'Cash Flow', icon:'banknote'},
+        {id:'dividends', label:'Дивіденди', icon:'gem'},
         {id:'managers', label:'Команда', icon:'users-round'},
-        {id:'settings', label:'Налашт.', icon:'sliders-horizontal'}
+        {id:'settings', label:'Налаштування', icon:'sliders-horizontal'}
     ];
 
     const DashboardView = ({ metrics, transactions, setView }) => {
@@ -161,65 +106,115 @@
         const healthStatus = isHealthy ? "Чудовий стан" : (metrics.margin > 0 ? "Нормальний стан" : "Критичний стан");
         
         return (
-            <div className="space-y-8 animate-fade-in">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="bg-gradient-to-br from-slate-850 to-slate-900 text-white p-6 rounded-[28px] shadow-2xl relative overflow-hidden group border border-slate-800">
-                        <div className="absolute right-[-30px] top-[-30px] opacity-[0.08] group-hover:scale-110 transition-transform rotate-12"><Icon name="wallet" size={160}/></div>
+            <div className="space-y-6 md:space-y-8 animate-fade-in">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div className="bg-gradient-to-br from-slate-850 to-slate-900 text-white p-6 rounded-[24px] md:rounded-[28px] shadow-xl relative overflow-hidden group border border-slate-800">
+                        <div className="absolute right-[-30px] top-[-30px] opacity-[0.08] group-hover:scale-110 transition-transform rotate-12"><Icon name="wallet" size={120}/></div>
                         <div className="relative z-10">
-                            <div className="text-slate-300 text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2"><Icon name="wallet" size={16} className="text-brand-500"/> Гроші</div>
-                            <div className="text-4xl font-mono font-bold tracking-tight">{metrics.totalCash.toLocaleString()} <span className="text-2xl text-slate-400">₴</span></div>
+                            <div className="text-slate-300 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2"><Icon name="wallet" size={14} className="text-brand-500"/> Гроші в бізнесі</div>
+                            <div className="text-3xl font-mono font-bold">{metrics.totalCash.toLocaleString()} <span className="text-xl text-slate-400">₴</span></div>
                         </div>
                     </div>
 
                     <div className="card-modern p-6 relative overflow-hidden border-t-4 border-t-emerald-500">
-                        <div className="text-slate-500 text-sm font-bold uppercase tracking-wider mb-3">Чистий Прибуток</div>
-                        <div className={`text-4xl font-mono font-bold tracking-tight ${metrics.net >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
-                             {metrics.net.toLocaleString()} <span className="text-2xl text-slate-400">₴</span>
+                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Чистий Прибуток</div>
+                        <div className={`text-3xl font-mono font-bold ${metrics.net >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
+                             {metrics.net > 0 ? '+' : ''}{metrics.net.toLocaleString()} <span className="text-xl text-slate-400">₴</span>
                         </div>
                     </div>
 
                     <div className="card-modern p-6 border-t-4 border-t-brand-500 relative overflow-hidden">
-                        <div className="text-slate-500 text-sm font-bold uppercase tracking-wider mb-3">Запас ходу</div>
-                        <div className="text-4xl font-mono font-bold text-brand-600 tracking-tight">
-                            {metrics.runway} <span className="text-xl text-slate-500 font-sans font-bold">днів</span>
+                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Запас ходу (Runway)</div>
+                        <div className="text-3xl font-mono font-bold text-brand-600">
+                            {metrics.runway} <span className="text-lg text-slate-500 font-sans font-bold">днів</span>
                         </div>
                     </div>
 
-                    <div className={`card-modern p-6 flex flex-col justify-center items-center text-center border-t-4 ${isHealthy ? 'border-t-emerald-500 bg-emerald-50/30' : 'border-t-red-500 bg-red-50/30'}`}>
-                        <div className="text-slate-500 text-sm font-bold uppercase tracking-wider mb-3">Здоров'я</div>
-                        <div className={`text-2xl font-bold flex items-center gap-3 ${isHealthy ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <div className={`card-modern p-6 flex flex-col justify-center border-t-4 ${isHealthy ? 'border-t-emerald-500 bg-emerald-50/30' : 'border-t-red-500 bg-red-50/30'}`}>
+                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Здоров'я бізнесу</div>
+                        <div className={`text-xl font-bold flex items-center gap-2 ${isHealthy ? 'text-emerald-600' : 'text-red-600'}`}>
+                            <Icon name={isHealthy ? "activity" : "skull"} size={24}/>
                             {healthStatus}
                         </div>
                     </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                      <div>
-                         <h3 className="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2"><Icon name="credit-card"/> Гаманці</h3>
-                        <div className="grid grid-cols-2 gap-4">
+                         <h3 className="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2 px-1"><Icon name="credit-card"/> Гаманці</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="card-modern p-5 bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col justify-between h-32 border-b-4 border-b-black">
-                                <div className="w-8 h-8 logo-mono grayscale opacity-80"></div>
-                                <div className="font-mono font-bold text-lg text-slate-800 truncate">{metrics.balances.mono.toLocaleString()} ₴</div>
+                                <div className="flex justify-between items-start">
+                                    <div className="w-8 h-8 logo-mono grayscale opacity-80"></div>
+                                    <Icon name="nfc" size={20} className="text-slate-400"/>
+                                </div>
+                                <div>
+                                     <div className="text-xs uppercase font-bold text-slate-400">Monobank ФОП</div>
+                                     <div className="font-mono font-bold text-lg text-slate-800">{metrics.balances.mono.toLocaleString()} ₴</div>
+                                </div>
                             </div>
                              <div className="card-modern p-5 bg-gradient-to-br from-red-50 to-red-100 flex flex-col justify-between h-32 border-b-4 border-b-red-500">
-                                <div className="w-8 h-8 logo-nova"></div>
-                                <div className="font-mono font-bold text-lg text-red-900 truncate">{metrics.balances.nova.toLocaleString()} ₴</div>
+                                <div className="flex justify-between items-start">
+                                    <div className="w-8 h-8 logo-nova"></div>
+                                    <Icon name="nfc" size={20} className="text-red-300"/>
+                                </div>
+                                <div>
+                                     <div className="text-xs uppercase font-bold text-red-400">NovaPay</div>
+                                     <div className="font-mono font-bold text-lg text-red-900">{metrics.balances.nova.toLocaleString()} ₴</div>
+                                </div>
+                            </div>
+                             <div className="card-modern p-5 bg-gradient-to-br from-emerald-50 to-emerald-100 flex flex-col justify-between h-32 border-b-4 border-b-emerald-500 sm:col-span-2">
+                                <div className="flex justify-between items-start">
+                                     <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white"><Icon name="banknote" size={16}/></div>
+                                        <span className="font-bold text-sm text-emerald-800">Готівкова каса</span>
+                                     </div>
+                                </div>
+                                <div className="text-right">
+                                     <div className="font-mono font-bold text-2xl text-emerald-900">{metrics.balances.cash.toLocaleString()} ₴</div>
+                                </div>
                             </div>
                         </div>
                      </div>
+
                     <div className="card-modern p-6 flex flex-col justify-between bg-gradient-to-br from-white to-slate-50">
-                        <h3 className="font-bold text-lg mb-6 text-slate-800 flex items-center gap-2"><Icon name="pie-chart"/> Експрес P&L</h3>
-                        <div className="space-y-6">
-                            <div className="relative">
-                                <div className="flex justify-between text-sm font-bold text-slate-600 mb-2"><span>Доходи</span><span className="font-mono">+{metrics.revenue.toLocaleString()}</span></div>
-                                <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full shadow-glow-emerald" style={{width: '100%'}}></div></div>
-                            </div>
-                            <div className="relative">
-                                <div className="flex justify-between text-sm font-bold text-slate-600 mb-2"><span>Витрати</span><span className="font-mono">-{metrics.totalExpense.toLocaleString()}</span></div>
-                                <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full" style={{width: `${metrics.revenue ? (metrics.totalExpense/metrics.revenue)*100 : 0}%`}}></div></div>
-                            </div>
+                        <div>
+                             <h3 className="font-bold text-lg mb-6 text-slate-800 flex items-center gap-2"><Icon name="pie-chart"/> Експрес P&L</h3>
+                             <div className="space-y-6">
+                                 <div className="relative">
+                                     <div className="flex justify-between text-sm font-bold text-slate-600 mb-2"><span>Доходи</span><span className="font-mono">+{metrics.revenue.toLocaleString()}</span></div>
+                                     <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-emerald-500" style={{width: '100%'}}></div></div>
+                                 </div>
+                                 <div className="relative">
+                                     <div className="flex justify-between text-sm font-bold text-slate-600 mb-2"><span>Витрати</span><span className="font-mono">-{metrics.totalExpense.toLocaleString()}</span></div>
+                                     <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-red-500" style={{width: `${metrics.revenue ? (metrics.totalExpense/metrics.revenue)*100 : 0}%`}}></div></div>
+                                 </div>
+                             </div>
                         </div>
-                        <button onClick={()=>setView('pnl')} className="w-full mt-6 py-3 text-sm font-bold text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-100 transition flex items-center justify-center gap-2">Звіт <Icon name="arrow-right" size={16}/></button>
+                        <button onClick={()=>setView('pnl')} className="w-full mt-6 py-3 text-sm font-bold text-blue-700 bg-blue-50 rounded-xl flex items-center justify-center gap-2">Детальний звіт <Icon name="arrow-right" size={16}/></button>
+                    </div>
+                </div>
+
+                <div className="card-modern overflow-hidden">
+                    <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2"><Icon name="history"/> Останні операції</h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse min-w-[500px]">
+                            <tbody className="divide-y divide-slate-100">
+                                {transactions.slice(0, 5).map(t => (
+                                    <tr key={t.id} className="table-row-modern">
+                                        <td className="p-4"><div className="font-bold text-slate-700 text-sm">{t.description}</div><div className="text-[10px] text-slate-400 font-medium flex items-center gap-1"><Icon name="calendar" size={10}/> {t.date}</div></td>
+                                        <td className="p-4 text-right">
+                                            <div className={`font-mono font-bold ${t.type==='income'?'text-emerald-600':'text-slate-800'}`}>
+                                                {t.type==='income'?'+':'-'}{(Number(t.amount)||0).toLocaleString()} ₴
+                                            </div>
+                                            <div className="text-[10px] text-slate-400 mt-1 font-medium">{t.source}</div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -228,132 +223,176 @@
 
     const PnLView = ({ metrics, transactions }) => {
         const getPct = (val) => metrics.revenue ? ((val / metrics.revenue) * 100).toFixed(1) : 0;
+        const getExpPct = (val) => metrics.totalExpense ? ((val / metrics.totalExpense) * 100).toFixed(1) : 0;
         const allExpenses = transactions.filter(t => t.type === 'expense' && !t.isDividend).reduce((acc, t) => {
              const existing = acc.find(i => i.cat === t.cat); if (existing) existing.val += Number(t.amount); else acc.push({ cat: t.cat, val: Number(t.amount) }); return acc;
         }, []).sort((a, b) => b.val - a.val);
 
         return (
-            <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-                <div className="card-modern p-8 bg-gradient-to-r from-emerald-50 to-white border-l-8 border-l-emerald-500">
-                    <div className="text-sm font-bold text-emerald-700 uppercase tracking-wider mb-2">Виручка</div>
-                    <div className="text-4xl font-mono font-bold text-slate-900">+{metrics.revenue.toLocaleString()} ₴</div>
+            <div className="space-y-6 animate-fade-in max-w-4xl mx-auto pb-10">
+                <div className="card-modern p-6 bg-gradient-to-r from-emerald-50 to-white border-l-8 border-l-emerald-500">
+                    <div className="text-xs font-bold text-emerald-700 uppercase mb-1">Виручка (Revenue)</div>
+                    <div className="text-3xl md:text-5xl font-mono font-bold text-slate-900 leading-tight">+{metrics.revenue.toLocaleString()} <span className="text-xl md:text-3xl text-slate-400">₴</span></div>
                 </div>
-                <div className="space-y-4">
-                    <div className="card-modern p-6 border-l-4 border-l-orange-400">
-                        <div className="text-sm font-bold text-slate-500 uppercase mb-2">COGS: -{metrics.cogs.toLocaleString()} ₴ ({getPct(metrics.cogs)}%)</div>
-                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-orange-400" style={{width: `${getPct(metrics.cogs)}%`}}></div></div>
+
+                <div className="grid grid-cols-1 gap-4">
+                    <div className="card-modern p-5 border-l-4 border-l-orange-400">
+                        <div className="flex justify-between items-center mb-2">
+                            <div className="text-xs font-bold text-slate-500 uppercase">Собівартість (COGS)</div>
+                            <div className="text-xs font-bold text-orange-500">{getPct(metrics.cogs)}%</div>
+                        </div>
+                        <div className="text-2xl font-mono font-bold text-slate-700">-{metrics.cogs.toLocaleString()} ₴</div>
                     </div>
-                    <div className="card-modern p-6 border-l-4 border-l-red-400">
-                        <div className="text-sm font-bold text-slate-500 uppercase mb-2">OpEx: -{metrics.opex.toLocaleString()} ₴ ({getPct(metrics.opex)}%)</div>
-                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-red-400" style={{width: `${getPct(metrics.opex)}%`}}></div></div>
+
+                    <div className="card-modern p-5 bg-blue-50/50 border-blue-200 text-center">
+                        <div className="text-xs font-bold text-blue-700 uppercase mb-1">Валовий Прибуток</div>
+                        <div className="text-2xl md:text-3xl font-mono font-bold text-blue-900">{(metrics.revenue - metrics.cogs).toLocaleString()} ₴</div>
+                    </div>
+
+                    <div className="card-modern p-5 border-l-4 border-l-red-400">
+                        <div className="flex justify-between items-center mb-2">
+                            <div className="text-xs font-bold text-slate-500 uppercase">Операційні витрати (OpEx)</div>
+                            <div className="text-xs font-bold text-red-500">{getPct(metrics.opex)}%</div>
+                        </div>
+                        <div className="text-2xl font-mono font-bold text-slate-700">-{metrics.opex.toLocaleString()} ₴</div>
                     </div>
                 </div>
-                <div className="bg-gradient-to-br from-slate-800 to-slate-950 rounded-[28px] p-8 shadow-2xl text-white flex justify-between items-center">
-                    <div>
-                        <div className="text-sm font-bold text-slate-300 uppercase mb-2 tracking-wider">Чистий Прибуток</div>
-                        <div className="text-4xl font-mono font-bold text-emerald-400">{metrics.net.toLocaleString()} ₴</div>
+
+                <div className="bg-slate-900 text-white p-6 md:p-8 rounded-[24px] md:rounded-[28px] shadow-xl text-center">
+                    <div className="text-xs font-bold text-slate-300 uppercase mb-2">Чистий Прибуток (Net Profit)</div>
+                    <div className={`text-4xl md:text-6xl font-mono font-bold ${metrics.net >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {metrics.net.toLocaleString()} <span className="text-2xl text-slate-500">₴</span>
                     </div>
-                    <div className="text-right"><div className="text-3xl font-bold">{getPct(metrics.net)}%</div><div className="text-xs text-slate-500">Рент.</div></div>
+                    <div className="inline-block mt-4 bg-white/10 px-4 py-1 rounded-full text-lg font-bold">{getPct(metrics.net)}% рентабельність</div>
+                </div>
+
+                <div className="card-modern p-6">
+                    <h3 className="font-bold text-lg mb-6">Структура витрат</h3>
+                    <div className="space-y-4">
+                        {allExpenses.map((item) => (
+                            <div key={item.cat} className="space-y-1">
+                                <div className="flex justify-between text-xs font-bold text-slate-600">
+                                    <span className="truncate pr-2">{item.cat}</span>
+                                    <span className="font-mono whitespace-nowrap">{item.val.toLocaleString()} ₴</span>
+                                </div>
+                                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-brand-500" style={{width: `${getExpPct(item.val)}%`}}></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         );
     };
 
     const CashFlowView = ({ metrics }) => (
-        <div className="max-w-4xl mx-auto animate-fade-in space-y-8">
-            <div className="card-modern p-8 relative overflow-hidden border-l-8 border-l-blue-500">
-                <h3 className="font-bold text-xl mb-6 text-slate-800">Операційний потік</h3>
-                <div className="space-y-4">
-                    <div className="flex justify-between p-4 bg-emerald-50 rounded-2xl">
-                        <span className="font-bold text-emerald-800 uppercase text-xs">Надходження</span>
-                        <span className="font-mono font-bold text-emerald-700">+{metrics.revenue.toLocaleString()} ₴</span>
+        <div className="max-w-4xl mx-auto animate-fade-in space-y-6 pb-10">
+            <div className="card-modern p-6 border-l-4 border-l-blue-500">
+                <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Icon name="briefcase" className="text-blue-500"/> 1. Операційний потік</h3>
+                <div className="space-y-3">
+                    <div className="flex justify-between items-center text-sm p-3 bg-emerald-50 rounded-xl">
+                        <span className="font-bold text-emerald-800">Надходження</span>
+                        <span className="font-mono font-bold text-emerald-700">+{metrics.revenue.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between p-4 bg-red-50 rounded-2xl">
-                        <span className="font-bold text-red-800 uppercase text-xs">Виплати</span>
-                        <span className="font-mono font-bold text-red-700">-{metrics.totalExpense.toLocaleString()} ₴</span>
+                    <div className="flex justify-between items-center text-sm p-3 bg-red-50 rounded-xl">
+                        <span className="font-bold text-red-800">Виплати</span>
+                        <span className="font-mono font-bold text-red-700">-{metrics.totalExpense.toLocaleString()}</span>
                     </div>
                 </div>
             </div>
-             <div className="bg-slate-900 text-white p-8 rounded-[28px] shadow-2xl flex justify-between items-center">
-                <span className="text-xl font-bold">Зміна готівки</span>
-                <span className={`text-4xl font-mono font-bold ${metrics.netCashChange >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{metrics.netCashChange.toLocaleString()} ₴</span>
+
+            <div className="bg-slate-900 text-white p-6 rounded-[24px] text-center border border-slate-800">
+                <h3 className="text-sm font-bold mb-2 text-slate-400">Net Cash Change</h3>
+                <div className={`text-3xl md:text-5xl font-mono font-bold ${metrics.netCashChange >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {metrics.netCashChange > 0 ? '+' : ''}{metrics.netCashChange.toLocaleString()} ₴
+                </div>
             </div>
         </div>
     );
 
     const DividendsView = ({ metrics, transactions, setModalType }) => (
-        <div className="max-w-4xl mx-auto animate-fade-in space-y-8">
-            <div className="bg-gradient-to-br from-slate-800 to-indigo-950 text-white p-10 rounded-[32px] shadow-2xl relative overflow-hidden border border-indigo-900/50">
-                <div className="relative z-10 flex flex-col md:flex-row justify-between gap-8 items-center mb-10">
-                    <div>
-                         <h2 className="text-3xl font-bold mb-4">Управління Дивідендами</h2>
-                         <p className="text-sm text-indigo-100">Виплата чистого прибутку власнику.</p>
+        <div className="max-w-4xl mx-auto animate-fade-in space-y-6 pb-10">
+            <div className="bg-gradient-to-br from-slate-800 to-indigo-950 text-white p-6 md:p-10 rounded-[24px] md:rounded-[32px] shadow-xl text-center md:text-left">
+                <h2 className="text-2xl font-bold mb-6 flex items-center justify-center md:justify-start gap-3"><Icon name="gem" className="text-indigo-300"/> Дивіденди</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                        <div className="text-[10px] uppercase text-slate-400 font-bold mb-1">Прибуток</div>
+                        <div className="text-xl font-mono font-bold text-emerald-300">{metrics.net.toLocaleString()}</div>
                     </div>
-                     <button onClick={()=>setModalType('dividend')} className="bg-white text-indigo-950 px-8 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">Виплатити</button>
-                </div>
-                <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10 text-center">
-                        <div className="text-xs uppercase text-slate-300 font-bold mb-2">Прибуток</div>
-                        <div className="text-2xl font-mono font-bold text-emerald-300">{metrics.net.toLocaleString()} ₴</div>
+                    <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                        <div className="text-[10px] uppercase text-slate-400 font-bold mb-1">Виведено</div>
+                        <div className="text-xl font-mono font-bold text-indigo-300">{metrics.dividends.toLocaleString()}</div>
                     </div>
-                    <div className="bg-white/5 p-6 rounded-2xl border border-white/10 text-center">
-                        <div className="text-xs uppercase text-slate-300 font-bold mb-2">Виведено</div>
-                        <div className="text-2xl font-mono font-bold text-indigo-300">{metrics.dividends.toLocaleString()} ₴</div>
-                    </div>
-                    <div className="bg-emerald-500/30 p-6 rounded-2xl border border-emerald-400/30 text-center">
-                        <div className="text-xs uppercase text-white font-bold mb-2">Доступно</div>
-                        <div className="text-2xl font-mono font-bold text-white">{(metrics.net - metrics.dividends).toLocaleString()} ₴</div>
+                    <div className="bg-emerald-500/20 p-4 rounded-xl border border-emerald-400/30">
+                        <div className="text-[10px] uppercase text-white font-bold mb-1">Доступно</div>
+                        <div className="text-xl font-mono font-bold text-white">{(metrics.net - metrics.dividends).toLocaleString()}</div>
                     </div>
                 </div>
+                <button onClick={()=>setModalType('dividend')} className="w-full md:w-auto bg-white text-indigo-950 px-8 py-4 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2">
+                    <Icon name="download" size={20}/> Виплатити
+                </button>
             </div>
         </div>
     );
 
     const OpsView = ({ transactions, deleteTx, syncMono, canDelete, categories }) => {
         const [isSyncing, setIsSyncing] = useState(false);
-        const [filters, setFilters] = useState({ date: '', source: 'all', type: 'all' });
+        const [filters, setFilters] = useState({ date: '', source: 'all', type: 'all', min: '', max: '' });
         const handleSync = async () => { setIsSyncing(true); await syncMono(); setIsSyncing(false); };
+
         const filtered = transactions.filter(t => {
             if (filters.date) { const [y, m, d] = filters.date.split('-'); if (t.date !== `${d}.${m}.${y}`) return false; }
+            if (filters.source !== 'all') { const src = t.source || ''; if (filters.source === 'mono' && !src.includes('Monobank')) return false; if (filters.source === 'nova' && !src.includes('Nova')) return false; if (filters.source === 'cash' && !src.includes('Готівка')) return false; }
             if (filters.type !== 'all' && t.type !== filters.type) return false;
+            if (filters.min && Number(t.amount) < Number(filters.min)) return false;
+            if (filters.max && Number(t.amount) > Number(filters.max)) return false;
             return true;
         });
 
         return (
-            <div className="space-y-6 animate-fade-in">
-                <div className="card-modern p-5 flex flex-wrap gap-4 items-center justify-between bg-slate-50/80">
-                    <div className="flex gap-4">
-                        <input type="date" value={filters.date} onChange={e=>setFilters({...filters, date:e.target.value})} className="border p-2 rounded-xl text-sm font-bold outline-none shadow-sm"/>
-                        <select value={filters.type} onChange={e=>setFilters({...filters, type:e.target.value})} className="border p-2 rounded-xl text-sm font-bold outline-none shadow-sm">
+            <div className="space-y-4 md:space-y-6 animate-fade-in pb-10">
+                <div className="card-modern p-4 flex flex-col gap-4 bg-slate-50/80">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <input type="date" value={filters.date} onChange={e=>setFilters({...filters, date:e.target.value})} className="bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs font-medium outline-none"/>
+                        <select value={filters.type} onChange={e=>setFilters({...filters, type:e.target.value})} className="bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs font-medium">
                             <option value="all">Всі типи</option><option value="income">Дохід</option><option value="expense">Витрата</option>
                         </select>
+                        <select value={filters.source} onChange={e=>setFilters({...filters, source:e.target.value})} className="bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs font-medium">
+                            <option value="all">Всі рахунки</option><option value="mono">Monobank</option><option value="nova">NovaPay</option><option value="cash">Готівка</option>
+                        </select>
+                        <button onClick={handleSync} disabled={isSyncing} className="bg-slate-900 text-white rounded-xl text-xs font-bold py-2 disabled:opacity-70 flex items-center justify-center gap-2">
+                            <Icon name="refresh-cw" size={14} className={isSyncing ? "animate-spin" : ""} /> Банк
+                        </button>
                     </div>
-                    <button onClick={handleSync} disabled={isSyncing} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold flex gap-2 active:scale-95 transition text-sm">
-                        <Icon name="refresh-cw" size={16} className={isSyncing ? "animate-spin" : ""} /> {isSyncing ? "..." : "Синхр."}
-                    </button>
                 </div>
+
                 <div className="card-modern overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse min-w-[500px]">
+                        <table className="w-full text-left border-collapse min-w-[700px]">
                             <thead>
-                                <tr className="text-slate-400 text-[10px] uppercase font-extrabold border-b border-slate-100">
-                                    <th className="px-6 py-5">Дата/Опис</th>
-                                    <th className="px-6 py-5 text-right">Сума</th>
-                                    <th className="px-6 py-5"></th>
+                                <tr className="text-slate-400 text-[10px] uppercase font-extrabold tracking-wider border-b border-slate-100">
+                                    <th className="px-4 py-4">Дата/Опис</th>
+                                    <th className="px-4 py-4">Категорія</th>
+                                    <th className="px-4 py-4">Рахунок</th>
+                                    <th className="px-4 py-4 text-right">Сума</th>
+                                    <th className="px-4 py-4"></th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100/50">
-                                {filtered.slice(0, 100).map(t => (
+                            <tbody className="divide-y divide-slate-100">
+                                {filtered.map(t => (
                                     <tr key={t.id} className="table-row-modern group">
-                                        <td className="px-6 py-5">
-                                            <div className="font-bold text-slate-700 text-sm md:text-base">{t.description}</div>
-                                            <div className="text-[10px] text-slate-400 font-medium">{t.date} | {t.cat}</div>
+                                        <td className="px-4 py-4">
+                                            <div className="text-[10px] font-mono font-bold text-slate-400 mb-0.5">{t.date}</div>
+                                            <div className="font-bold text-slate-700 text-sm truncate max-w-[150px]">{t.description}</div>
                                         </td>
-                                        <td className={`px-6 py-5 text-right font-mono font-bold text-lg ${t.type==='income'?'text-emerald-600':'text-slate-800'}`}>
-                                            {(t.type==='income'?'+':'-') + (Number(t.amount)||0).toLocaleString()}
+                                        <td className="px-4 py-4"><span className="text-[10px] bg-slate-100 px-2 py-1 rounded font-bold uppercase">{t.cat}</span></td>
+                                        <td className="px-4 py-4 text-[10px] font-medium text-slate-500">{t.source}</td>
+                                        <td className={`px-4 py-4 text-right font-mono font-bold ${t.type==='income'?'text-emerald-600':'text-slate-800'}`}>
+                                            {(t.type==='income'?'+':'-') + (Number(t.amount)||0).toLocaleString()} ₴
                                         </td>
-                                        <td className="px-6 py-5 text-right">
-                                            {canDelete && <button onClick={()=>deleteTx(t.id)} className="text-slate-300 hover:text-red-500 transition-opacity p-2"><Icon name="trash-2" size={18}/></button>}
+                                        <td className="px-4 py-4 text-right">
+                                            {canDelete && <button onClick={()=>deleteTx(t.id)} className="text-red-300 hover:text-red-500 p-1"><Icon name="trash-2" size={16}/></button>}
                                         </td>
                                     </tr>
                                 ))}
@@ -369,24 +408,24 @@
         const [managers, setManagers] = useState([]);
         const [showModal, setShowModal] = useState(false);
         useEffect(() => { const q = query(collection(db, "managers")); const unsub = onSnapshot(q, (snap) => setManagers(snap.docs.map(d => ({ id: d.id, ...d.data() })))); return () => unsub(); }, []);
-        const deleteManager = async (id) => { if(confirm("Видалити?")) await deleteDoc(doc(db, "managers", id)); };
+        const deleteManager = async (id) => { if(confirm("Видалити менеджера?")) await deleteDoc(doc(db, "managers", id)); };
         
         return (
-            <div className="max-w-5xl mx-auto space-y-8 animate-fade-in">
-                <div className="flex justify-between items-center card-modern p-8 bg-gradient-to-r from-slate-50 to-white">
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3"><Icon name="users-round" className="text-brand-500"/> Команда</h2>
-                    <button onClick={()=>setShowModal(true)} className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-sm active:scale-95 transition shadow-lg"><Icon name="user-plus" size={18}/></button>
+            <div className="max-w-5xl mx-auto space-y-6 animate-fade-in pb-10">
+                <div className="flex flex-col md:flex-row justify-between items-center card-modern p-6 bg-gradient-to-r from-slate-50 to-white gap-4">
+                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3"><Icon name="users-round" size={24}/> Команда</h2>
+                    <button onClick={()=>setShowModal(true)} className="w-full md:w-auto bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2"><Icon name="user-plus" size={18}/> Додати</button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {managers.map(m => (
-                        <div key={m.id} className="card-modern p-6 relative group border-none shadow-md">
-                            <button onClick={()=>deleteManager(m.id)} className="absolute top-4 right-4 text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition"><Icon name="trash-2" size={18}/></button>
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-brand-100 text-brand-600 rounded-2xl flex items-center justify-center font-bold text-xl uppercase shadow-inner">{m.name?.[0]}</div>
-                                <div className="truncate flex-1">
-                                    <div className="font-bold text-slate-800">{m.name}</div>
-                                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{m.email}</div>
-                                </div>
+                        <div key={m.id} className="card-modern p-5 relative">
+                            <button onClick={()=>deleteManager(m.id)} className="absolute top-4 right-4 text-red-300 hover:text-red-500"><Icon name="trash-2" size={18}/></button>
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center text-brand-600 font-bold text-xl">{m.name?.[0]?.toUpperCase()}</div>
+                                <div><div className="font-bold text-slate-800">{m.name}</div><div className="text-xs text-slate-400">{m.email}</div></div>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                                {(m.permissions||[]).map(p => <span key={p} className="text-[9px] bg-slate-100 px-2 py-1 rounded uppercase font-bold">{p}</span>)}
                             </div>
                         </div>
                     ))}
@@ -399,25 +438,25 @@
     const AddManagerModal = ({ db, close }) => {
         const [form, setForm] = useState({ name: '', email: '', password: '', permissions: ['dashboard', 'ops'] });
         const togglePerm = (p) => setForm(prev => ({...prev, permissions: prev.permissions.includes(p) ? prev.permissions.filter(x => x !== p) : [...prev.permissions, p]}));
-        const submit = async () => { if(!form.name || !form.email || !form.password) return alert("Заповніть поля"); await addDoc(collection(db, "managers"), form); close(); };
+        const submit = async () => { if(!form.name || !form.email || !form.password) return alert("Заповніть всі поля"); await addDoc(collection(db, "managers"), form); close(); };
         const VIEWS_TO_SELECT = ALL_VIEWS.filter(v => v.id !== 'settings' && v.id !== 'managers');
         return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                <div className="card-modern w-full max-w-md p-8 relative z-10 shadow-2xl animate-fade-in">
-                    <h3 className="font-bold text-2xl mb-8 uppercase tracking-tighter text-slate-900">Новий менеджер</h3>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={close}></div>
+                <div className="card-modern w-full max-w-lg p-6 md:p-8 shadow-2xl relative z-10 max-h-[90vh] overflow-y-auto">
+                    <h3 className="font-bold text-xl mb-6">Новий менеджер</h3>
                     <div className="space-y-4">
-                        <input placeholder="Ім'я" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} className="w-full border-2 p-4 rounded-2xl outline-none focus:border-brand-500 font-bold"/>
-                        <input placeholder="Email" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} className="w-full border-2 p-4 rounded-2xl outline-none focus:border-brand-500 font-bold"/>
-                        <input placeholder="Пароль" value={form.password} onChange={e=>setForm({...form, password:e.target.value})} className="w-full border-2 p-4 rounded-2xl outline-none focus:border-brand-500 font-bold"/>
-                        <div className="grid grid-cols-2 gap-3 pt-6 border-t border-slate-100">
+                        <input placeholder="Ім'я" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} className="w-full border p-3 rounded-xl text-sm bg-slate-50"/>
+                        <input placeholder="Email" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} className="w-full border p-3 rounded-xl text-sm bg-slate-50"/>
+                        <input placeholder="Пароль" value={form.password} onChange={e=>setForm({...form, password:e.target.value})} className="w-full border p-3 rounded-xl text-sm bg-slate-50"/>
+                        <div className="grid grid-cols-2 gap-2 pt-2">
                             {VIEWS_TO_SELECT.map(v => (
-                                <label key={v.id} className={`flex items-center gap-2 p-3 border-2 rounded-xl cursor-pointer transition ${form.permissions.includes(v.id) ? 'bg-brand-50 border-brand-500' : 'bg-white border-slate-100 hover:bg-slate-50'}`}>
-                                    <input type="checkbox" className="hidden" checked={form.permissions.includes(v.id)} onChange={()=>togglePerm(v.id)} />
-                                    <span className="text-[10px] font-black uppercase text-slate-700 tracking-tighter">{v.label}</span>
-                                </label>
+                                <button key={v.id} onClick={()=>togglePerm(v.id)} className={`p-2 rounded-lg text-[10px] font-bold border transition ${form.permissions.includes(v.id)?'bg-brand-500 border-brand-500 text-white':'bg-white border-slate-200'}`}>
+                                    {v.label}
+                                </button>
                             ))}
                         </div>
-                        <button onClick={submit} className="w-full bg-slate-900 text-white py-5 rounded-[24px] font-black text-lg shadow-2xl mt-6 active:scale-95 transition-all">СТВОРИТИ</button>
+                        <button onClick={submit} className="w-full bg-brand-500 text-white py-4 rounded-xl font-bold mt-4 shadow-lg">Створити</button>
                     </div>
                 </div>
             </div>
@@ -430,49 +469,74 @@
         const removeCat = (t, v) => { if(confirm('Видалити?')) saveCategories({...categories, [t]: categories[t].filter(c=>c!==v)}); };
 
         return (
-            <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-20">
-                <div className="card-modern p-8 shadow-xl"><h2 className="text-2xl font-black mb-8 uppercase tracking-tighter border-b pb-4">Категорії</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div><h3 className="font-black text-[10px] text-emerald-700 mb-4 uppercase tracking-widest">Доходи</h3>
-                            <div className="flex gap-2 mb-4"><input value={newCatIn} onChange={e=>setNewCatIn(e.target.value)} className="flex-1 border-2 p-3 rounded-xl text-sm font-bold focus:border-emerald-500 outline-none"/><button onClick={()=>addCat('income',newCatIn,setNewCatIn)} className="bg-emerald-500 text-white p-3 rounded-xl shadow-lg shadow-emerald-200"><Icon name="plus"/></button></div>
-                            <div className="flex flex-wrap gap-2">{categories.income.map(c => (<span key={c} className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2.5 py-1.5 rounded-lg border border-emerald-100 flex items-center gap-2 uppercase tracking-tighter">{c} <button onClick={()=>removeCat('income',c)}><Icon name="x" size={10}/></button></span>))}</div>
+            <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-10">
+                <div className="card-modern p-6">
+                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2"><Icon name="tags"/> Категорії</h2>
+                    <div className="space-y-6">
+                        <div>
+                            <div className="text-xs font-bold text-emerald-600 mb-2 uppercase">Доходи</div>
+                            <div className="flex gap-2 mb-3">
+                                <input type="text" value={newCatIn} onChange={e=>setNewCatIn(e.target.value)} className="flex-1 border p-2 rounded-lg text-sm" placeholder="Нова..."/>
+                                <button onClick={()=>addCat('income',newCatIn,setNewCatIn)} className="bg-emerald-500 text-white px-3 rounded-lg"><Icon name="plus"/></button>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                                {categories.income.map(c => <span key={c} className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-1 rounded font-bold border border-emerald-100 flex items-center gap-1">{c} <button onClick={()=>removeCat('income',c)}><Icon name="x" size={10}/></button></span>)}
+                            </div>
                         </div>
-                        <div><h3 className="font-black text-[10px] text-orange-700 mb-4 uppercase tracking-widest">Витрати</h3>
-                            <div className="flex gap-2 mb-4"><input value={newCatOut} onChange={e=>setNewCatOut(e.target.value)} className="flex-1 border-2 p-3 rounded-xl text-sm font-bold focus:border-brand-500 outline-none"/><button onClick={()=>addCat('expense',newCatOut,setNewCatOut)} className="bg-brand-500 text-white p-3 rounded-xl shadow-lg shadow-brand-200"><Icon name="plus"/></button></div>
-                            <div className="flex flex-wrap gap-2">{categories.expense.map(c => (<span key={c} className="bg-orange-50 text-orange-700 text-[10px] font-black px-2.5 py-1.5 rounded-lg border border-orange-100 flex items-center gap-2 uppercase tracking-tighter">{c} <button onClick={()=>removeCat('expense',c)}><Icon name="x" size={10}/></button></span>))}</div>
+                        <div>
+                            <div className="text-xs font-bold text-orange-600 mb-2 uppercase">Витрати</div>
+                            <div className="flex gap-2 mb-3">
+                                <input type="text" value={newCatOut} onChange={e=>setNewCatOut(e.target.value)} className="flex-1 border p-2 rounded-lg text-sm" placeholder="Нова..."/>
+                                <button onClick={()=>addCat('expense',newCatOut,setNewCatOut)} className="bg-orange-500 text-white px-3 rounded-lg"><Icon name="plus"/></button>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                                {categories.expense.map(c => <span key={c} className="text-[10px] bg-orange-50 text-orange-700 px-2 py-1 rounded font-bold border border-orange-100 flex items-center gap-1">{c} <button onClick={()=>removeCat('expense',c)}><Icon name="x" size={10}/></button></span>)}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="card-modern p-8 border-none shadow-xl bg-slate-900 text-white"><h2 className="text-2xl font-black mb-8 uppercase tracking-tighter text-white/50 border-b border-white/10 pb-4">Монобанк API</h2>
+
+                <div className="card-modern p-6">
+                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2"><Icon name="link"/> API Monobank</h2>
                     <div className="space-y-4">
-                        <div className="space-y-1"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">X-Token</label><input type="password" value={settings.monoKey} onChange={e=>setSettings({...settings, monoKey:e.target.value})} className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl font-mono text-sm shadow-inner text-brand-500 outline-none focus:border-brand-500 transition-all"/></div>
-                        <div className="space-y-1"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Account ID</label><input value={settings.monoAccountId} onChange={e=>setSettings({...settings, monoAccountId:e.target.value})} className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl font-mono text-sm shadow-inner text-white outline-none focus:border-white/30 transition-all"/></div>
+                        <input type="password" value={settings.monoKey} onChange={e=>setSettings({...settings, monoKey:e.target.value})} placeholder="X-Token" className="w-full border p-3 rounded-xl text-xs font-mono"/>
+                        <input value={settings.monoAccountId} onChange={e=>setSettings({...settings, monoAccountId:e.target.value})} placeholder="Account ID" className="w-full border p-3 rounded-xl text-xs font-mono bg-slate-50"/>
+                        <button onClick={()=>saveSettings(settings)} className="w-full bg-brand-500 text-white py-3 rounded-xl font-bold shadow-md">Зберегти налаштування</button>
                     </div>
-                    <button onClick={()=>saveSettings(settings)} className="bg-white text-slate-900 px-10 py-5 rounded-[24px] font-black mt-10 hover:bg-brand-50 shadow-2xl transition-all active:scale-95 uppercase tracking-widest text-xs">Зберегти API</button>
                 </div>
             </div>
         );
     };
 
-    const TransactionModal = ({ type, close, categories, db }) => {
-        const [form, setForm] = useState({ amount: '', desc: '', cat: 'Продажі', source: 'Monobank ФОП' });
+    const TransactionModal = ({ type, close, categories }) => {
+        const [form, setForm] = useState({ amount: '', desc: '', cat: 'Інше', source: 'Monobank ФОП' });
+        const submit = async () => { if(!form.amount) return; const isDiv = type === 'dividend'; let cat = form.cat; if(!isDiv && form.cat === 'Інше') { const desc = (form.desc||'').toLowerCase(); if(desc.includes('nova')) cat = 'Логістика'; } else if(isDiv) cat = 'Дивіденди'; await addDoc(collection(db, "transactions"), { amount: Number(form.amount), description: form.desc || (isDiv?'Виплата дивідендів':''), cat, source: form.source, type: (type==='dividend' || type==='expense') ? 'expense' : 'income', isDividend: isDiv, date: new Date().toLocaleDateString('uk-UA'), createdAt: Date.now() }); close(); };
         const cats = type==='income' ? categories.income : categories.expense;
-        const theme = { income: 'from-emerald-500 to-teal-600', expense: 'from-brand-500 to-orange-600', dividend: 'from-indigo-500 to-purple-600' }[type];
-        
+        const config = {
+            income: { title: 'Дохід', theme: 'from-emerald-500 to-teal-600', border: 'focus:border-emerald-500' },
+            expense: { title: 'Витрата', theme: 'from-brand-500 to-orange-600', border: 'focus:border-brand-500' },
+            dividend: { title: 'Дивіденди', theme: 'from-indigo-500 to-purple-600', border: 'focus:border-indigo-500' }
+        }[type];
+
         return (
-            <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-                <div className="card-modern w-full max-w-lg overflow-hidden relative z-10 shadow-2xl animate-fade-in">
-                    <div className={`bg-gradient-to-r ${theme} p-6 text-white font-black text-xl uppercase tracking-tighter flex justify-between items-center`}><span>{type}</span> <button onClick={close} className="bg-white/20 p-2 rounded-full"><Icon name="x" size={20}/></button></div>
-                    <div className="p-8 space-y-6">
-                        <div className="relative"><input type="number" value={form.amount} onChange={e=>setForm({...form, amount:e.target.value})} className="w-full text-6xl font-mono font-black border-b-4 py-2 outline-none focus:border-slate-900 transition-colors bg-transparent text-center" placeholder="0"/><span className="absolute left-0 bottom-6 text-4xl text-slate-200">₴</span></div>
-                        <div className="space-y-4">
-                            <input type="text" value={form.desc} onChange={e=>setForm({...form, desc:e.target.value})} className="w-full border-2 p-4 rounded-2xl font-bold outline-none focus:border-brand-500 transition-all text-sm shadow-sm" placeholder="Опис операції..." />
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <select value={form.cat} onChange={e=>setForm({...form, cat:e.target.value})} className="w-full border-2 p-3 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-white shadow-sm">{cats.map(c=><option key={c} value={c}>{c}</option>)}</select>
-                                <select value={form.source} onChange={e=>setForm({...form, source:e.target.value})} className="w-full border-2 p-3 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-white shadow-sm">{['Monobank ФОП', 'NovaPay', 'Готівка'].map(a=><option key={a} value={a}>{a}</option>)}</select>
-                            </div>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={close}></div>
+                <div className="card-modern w-full max-w-lg overflow-hidden shadow-2xl relative z-10 animate-fade-in">
+                    <div className={`bg-gradient-to-r ${config.theme} p-5 text-white flex justify-between items-center`}>
+                        <h3 className="font-bold text-lg">{config.title}</h3>
+                        <button onClick={close}><Icon name="x"/></button>
+                    </div>
+                    <div className="p-6 space-y-5">
+                        <div className="relative">
+                            <input type="number" inputMode="decimal" value={form.amount} onChange={e=>setForm({...form, amount:e.target.value})} className={`w-full text-4xl font-mono font-bold border-b-2 py-2 outline-none text-center ${config.border}`} placeholder="0" autoFocus />
+                            <span className="absolute left-0 bottom-4 text-2xl text-slate-300">₴</span>
                         </div>
-                        <button onClick={async () => { if(!form.amount) return; await addDoc(collection(db, "transactions"), { amount: Number(form.amount), description: form.desc || (type==='dividend'?'Виплата дивідендів':''), cat: type==='dividend'?'Дивіденди':form.cat, source: form.source, type: (type==='dividend' || type==='expense') ? 'expense' : 'income', isDividend: type==='dividend', date: new Date().toLocaleDateString('uk-UA'), createdAt: Date.now() }); close(); }} className="w-full bg-slate-900 text-white py-5 rounded-[24px] font-black text-lg shadow-2xl active:scale-95 transition-transform uppercase tracking-widest">ПІДТВЕРДИТИ</button>
+                        {type !== 'dividend' && <input type="text" value={form.desc} onChange={e=>setForm({...form, desc:e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl text-sm outline-none" placeholder="Опис..." />}
+                        <div className="grid grid-cols-2 gap-3">
+                            {type !== 'dividend' && <select value={form.cat} onChange={e=>setForm({...form, cat:e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl text-xs">{cats.map(c=><option key={c} value={c}>{c}</option>)}</select>}
+                            <select value={form.source} onChange={e=>setForm({...form, source:e.target.value})} className="w-full bg-slate-50 border p-3 rounded-xl text-xs sm:col-span-1 col-span-2">{['Monobank ФОП', 'NovaPay', 'Готівка'].map(a=><option key={a} value={a}>{a}</option>)}</select>
+                        </div>
+                        <button onClick={submit} className={`w-full py-4 rounded-xl font-bold text-white shadow-lg bg-gradient-to-r ${config.theme}`}>Підтвердити</button>
                     </div>
                 </div>
             </div>
@@ -485,108 +549,131 @@
         const [transactions, setTransactions] = useState([]);
         const [loading, setLoading] = useState(true);
         const [statusMsg, setStatusMsg] = useState('');
-        const [settings, setSettings] = useState({ monoKey: '', monoAccountId: '' });
+        const [settings, setSettings] = useState({ monoKey: '', novaKey: '', monoAccountId: '' });
         const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
         const [email, setEmail] = useState('');
         const [pass, setPass] = useState('');
         const [modalType, setModalType] = useState(null);
+        const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
         useEffect(() => {
-            onAuthStateChanged(auth, async (u) => {
+            const unsub = onAuthStateChanged(auth, async (u) => {
                 if (u) { setCurrentUser({ uid: u.uid, email: u.email, role: 'admin', permissions: ['all'] }); setView('dashboard'); loadData(); } 
-                else { const stored = localStorage.getItem('latiao_user'); if (stored) { setCurrentUser(JSON.parse(stored)); setView('dashboard'); loadData(); } else { setView('auth'); setLoading(false); } }
-            });
+                else { try { const stored = localStorage.getItem('latiao_user'); if (stored) { setCurrentUser(JSON.parse(stored)); setView('dashboard'); loadData(); } else { setCurrentUser(null); setView('auth'); setLoading(false); } } catch (e) { localStorage.removeItem('latiao_user'); setView('auth'); setLoading(false); } }
+            }); return () => unsub();
         }, []);
 
         const loadData = async () => {
-            setLoading(true);
-            try {
-                const sSnap = await getDoc(doc(db, "settings", "global")); if (sSnap.exists()) setSettings(sSnap.data());
-                const cSnap = await getDoc(doc(db, "settings", "categories")); if (cSnap.exists()) setCategories(cSnap.data());
-                onSnapshot(query(collection(db, "transactions"), orderBy("createdAt", "desc"), limit(500)), (snap) => {
-                    setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-                    setLoading(false);
-                });
-            } catch (e) { setLoading(false); }
+            setLoading(true); try { const sSnap = await getDoc(doc(db, "settings", "global")); if (sSnap.exists()) setSettings(sSnap.data()); const cSnap = await getDoc(doc(db, "settings", "categories")); if (cSnap.exists()) setCategories(cSnap.data()); else await setDoc(doc(db, "settings", "categories"), DEFAULT_CATEGORIES); const q = query(collection(db, "transactions")); onSnapshot(q, (snap) => { const list = snap.docs.map(d => ({ id: d.id, ...d.data() })); list.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)); setTransactions(list); setLoading(false); }); } catch (e) { console.error(e); setLoading(false); }
         };
 
         const metrics = useMemo(() => {
-            const income = transactions.filter(t => t.type === 'income' && !t.isDividend).reduce((s,t)=>s+(Number(t.amount)||0), 0);
-            const expense = transactions.filter(t => t.type === 'expense' && !t.isDividend).reduce((s,t)=>s+(Number(t.amount)||0), 0);
-            const cogs = transactions.filter(t => t.cat === 'Закупівля (COGS)').reduce((s,t)=>s+(Number(t.amount)||0), 0);
-            const cash = transactions.reduce((s,t) => t.type==='income' ? s+(Number(t.amount)||0) : s-(Number(t.amount)||0), 0);
+            const income = transactions.filter(t => t.type === 'income' && !t.isDividend);
+            const expense = transactions.filter(t => t.type === 'expense' && !t.isDividend);
+            const revenue = income.reduce((s,t) => s + (Number(t.amount)||0), 0);
+            const cogs = expense.filter(t => t.cat === 'Закупівля (COGS)').reduce((s,t) => s + (Number(t.amount)||0), 0);
+            const opex = expense.filter(t => t.cat !== 'Закупівля (COGS)').reduce((s,t) => s + (Number(t.amount)||0), 0);
+            const totalExpense = cogs + opex;
+            const totalCash = transactions.reduce((s,t) => t.type==='income' ? s+(Number(t.amount)||0) : s-(Number(t.amount)||0), 0);
             const dividends = transactions.filter(t => t.isDividend).reduce((s,t) => s+(Number(t.amount)||0), 0);
+            const net = revenue - totalExpense;
             const balances = { mono: 0, nova: 0, cash: 0 };
-            transactions.forEach(t => { const k = t.source?.includes('Mono') ? 'mono' : (t.source?.includes('Nova') ? 'nova' : 'cash'); balances[k] += (t.type==='income' ? (Number(t.amount)||0) : -(Number(t.amount)||0)); });
-            return { revenue: income, totalExpense: expense, cogs, opex: expense - cogs, net: income - expense, totalCash: cash, dividends, balances, margin: income ? (((income-expense)/income)*100).toFixed(0) : 0, runway: expense > 0 ? (cash / (expense / 30)).toFixed(0) : "∞", operationalCashFlow: income - expense, netCashChange: (income - expense) - dividends };
+            transactions.forEach(t => { const src = t.source || ''; const key = src.includes('Monobank') ? 'mono' : (src.includes('Nova') ? 'nova' : 'cash'); if(balances[key] !== undefined) balances[key] += (t.type==='income' ? (Number(t.amount)||0) : -(Number(t.amount)||0)); });
+            const runway = totalExpense > 0 ? (totalCash / (totalExpense / 30)).toFixed(0) : "∞";
+            return { revenue, cogs, opex, net, totalCash, dividends, balances, margin: revenue ? ((net/revenue)*100).toFixed(0) : 0, totalExpense, runway, operationalCashFlow: revenue - totalExpense, financingCashFlow: -dividends, netCashChange: (revenue - totalExpense) - dividends };
         }, [transactions]);
 
-        const handleLogin = async (e) => {
-            e.preventDefault(); setLoading(true);
-            try { 
-                await signInWithEmailAndPassword(auth, email, pass); 
-            } catch (authErr) {
-                const s = await getDocs(query(collection(db, "managers"), where("email", "==", email), where("password", "==", pass)));
-                if (!s.empty) {
-                    const u = { uid: s.docs[0].id, ...s.docs[0].data(), role: 'manager' };
-                    localStorage.setItem('latiao_user', JSON.stringify(u));
-                    setCurrentUser(u); setView('dashboard'); loadData();
-                } else { alert("Помилка"); setLoading(false); }
-            }
-        };
+        const handleLogin = async (e) => { e.preventDefault(); setLoading(true); try { await signInWithEmailAndPassword(auth, email, pass); } catch (authErr) { try { const q = query(collection(db, "managers"), where("email", "==", email), where("password", "==", pass)); const snapshot = await getDocs(q); if (!snapshot.empty) { const data = snapshot.docs[0].data(); const userObj = { uid: snapshot.docs[0].id, ...data, role: 'manager' }; localStorage.setItem('latiao_user', JSON.stringify(userObj)); setCurrentUser(userObj); setView(userObj.permissions?.[0] || 'dashboard'); loadData(); } else { alert("Невірний логін або пароль"); setLoading(false); } } catch (dbErr) { alert("Помилка: " + dbErr.message); setLoading(false); } } };
+        const handleLogout = () => { signOut(auth); localStorage.removeItem('latiao_user'); setCurrentUser(null); setView('auth'); };
+        const canAccess = (viewId) => { if (!currentUser) return false; if (currentUser.role === 'admin') return true; return currentUser.permissions?.includes(viewId); };
+        const deleteTx = async (id) => { if(confirm('Видалити операцію?')) await deleteDoc(doc(db, "transactions", id)); };
+        const saveS = async (d) => { await setDoc(doc(db, "settings", "global"), d); setSettings(d); alert('Збережено'); };
+        const saveC = async (d) => { await setDoc(doc(db, "settings", "categories"), d); setCategories(d); };
+        const syncM = async () => { if (!settings.monoKey || !settings.monoAccountId) return alert("Налаштуйте API"); setStatusMsg("Синхронізація..."); try { const now = Math.floor(Date.now()/1000); const res = await fetch(`https://corsproxy.io/?https://api.monobank.ua/personal/statement/${settings.monoAccountId}/${now - 2678400}/${now}`, { headers: { 'X-Token': settings.monoKey } }); const data = await res.json(); if (!Array.isArray(data)) throw new Error("Помилка API"); const batch = writeBatch(db); let count=0; const ids = new Set(transactions.map(t=>t.bankId)); data.forEach(item => { if(!ids.has(item.id)) { let cat = 'Інше'; const d = (item.description||'').toLowerCase(); if(d.includes('nova')) cat='Логістика'; else if(d.includes('atb')||d.includes('silpo')) cat='Закупівля (COGS)'; batch.set(doc(collection(db,"transactions")), { amount: Math.abs(item.amount/100), description: item.description, cat, source: 'Monobank ФОП', type: item.amount>0?'income':'expense', isDividend: false, date: new Date(item.time*1000).toLocaleDateString('uk-UA'), createdAt: item.time*1000, bankId: item.id }); count++; } }); if(count>0) await batch.commit(); setStatusMsg(`Додано: ${count}`); setTimeout(()=>setStatusMsg(''), 3000); } catch(e) { setStatusMsg("Помилка"); alert(e.message); } };
+        const delAll = async () => { if(confirm("ВИДАЛИТИ ВСЕ?")) { const s = await getDocs(query(collection(db,"transactions"), limit(500))); const b = writeBatch(db); s.docs.forEach(d=>b.delete(d.ref)); await b.commit(); alert("Очищено."); } };
 
         if (view === 'auth') return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full opacity-20"><div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-brand-500 rounded-full blur-[150px] animate-pulse"></div></div>
-                <div className="glass-bg p-10 rounded-[48px] w-full max-w-sm text-center shadow-2xl relative z-10 border border-white/10">
-                    <div className="w-16 h-16 bg-brand-500 rounded-2xl flex items-center justify-center shadow-lg mb-6 mx-auto rotate-3"><Icon name="flame" size={32} className="text-white"/></div>
-                    <h1 className="text-3xl font-black text-white mb-2 uppercase tracking-widest">Latiao</h1>
-                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-8">Finance ERP</p>
+            <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+                <div className="bg-white/5 backdrop-blur-xl p-8 rounded-[32px] w-full max-w-sm text-center border border-white/10">
+                    <div className="mb-6 flex flex-col items-center">
+                        <div className="w-16 h-16 bg-brand-500 rounded-2xl flex items-center justify-center shadow-lg mb-4 transform rotate-3"><span className="text-3xl font-extrabold text-white">L</span></div>
+                        <h1 className="text-2xl font-extrabold text-white">Latiao Finance</h1>
+                    </div>
                     <form onSubmit={handleLogin} className="space-y-4">
-                        <input type="email" placeholder="Логін" value={email} onChange={e=>setEmail(e.target.value)} className="w-full p-4 rounded-2xl bg-white/5 text-white outline-none border border-white/10 focus:border-brand-500 transition-all font-bold"/>
-                        <input type="password" placeholder="Пароль" value={pass} onChange={e=>setPass(e.target.value)} className="w-full p-4 rounded-2xl bg-white/5 text-white outline-none border border-white/10 focus:border-brand-500 transition-all font-bold"/>
-                        <button type="submit" className="w-full bg-brand-500 text-white py-4 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">УВІЙТИ</button>
+                        <input type="email" placeholder="Логін" value={email} onChange={e=>setEmail(e.target.value)} className="w-full p-4 rounded-2xl bg-slate-800 text-white outline-none focus:ring-2 focus:ring-brand-500"/>
+                        <input type="password" placeholder="Пароль" value={pass} onChange={e=>setPass(e.target.value)} className="w-full p-4 rounded-2xl bg-slate-800 text-white outline-none focus:ring-2 focus:ring-brand-500"/>
+                        <button type="submit" className="w-full bg-brand-500 text-white py-4 rounded-2xl font-bold shadow-lg shadow-brand-500/20 active:scale-95">
+                            {loading ? "Завантаження..." : "Увійти"}
+                        </button>
                     </form>
                 </div>
             </div>
         );
 
         return (
-            <div className="flex h-screen overflow-hidden bg-[#F8FAFC]">
-                <aside className="w-72 bg-white border-r border-slate-200 flex flex-col z-20 shadow-soft sidebar-mobile">
-                    <div className="p-8"><div className="flex items-center gap-3"><div className="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20"><Icon name="flame" size={24} className="text-white"/></div><h1 className="text-xl font-black">Latiao</h1></div></div>
-                    <nav className="flex-1 px-4 space-y-1">
+            <div className="flex h-screen overflow-hidden bg-slate-50 relative">
+                {/* Mobile Menu Overlay */}
+                {isSidebarOpen && <div className="content-overlay block md:hidden" onClick={()=>setIsSidebarOpen(false)}></div>}
+
+                {/* Sidebar */}
+                <aside className={`fixed inset-y-0 left-0 w-72 bg-white border-r border-slate-200 flex flex-col z-50 transition-transform duration-300 transform md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                    <div className="p-6 pb-2">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white"><Icon name="flame" size={24}/></div>
+                            <h1 className="text-xl font-extrabold text-slate-900">Latiao <span className="text-brand-600">Фінанси</span></h1>
+                        </div>
+                    </div>
+                    <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
                         {ALL_VIEWS.filter(v => canAccess(v.id)).map(item => (
-                            <button key={item.id} onClick={()=>setView(item.id)} className={`w-full flex items-center gap-3 p-3.5 text-xs font-black uppercase tracking-widest sidebar-link ${view===item.id ? 'active' : 'text-slate-400'}`}><Icon name={item.icon} size={20}/> <span>{item.label}</span></button>
+                            <button key={item.id} onClick={()=>{setView(item.id); setIsSidebarOpen(false);}} className={`w-full flex items-center gap-3 p-3.5 text-sm font-bold sidebar-link ${view===item.id ? 'active' : 'text-slate-500 hover:bg-brand-50 hover:text-brand-600'}`}>
+                                <Icon name={item.icon} size={18}/> {item.label}
+                            </button>
                         ))}
                     </nav>
-                    <div className="p-6 border-t"><button onClick={() => {signOut(auth); localStorage.removeItem('latiao_user'); setView('auth');}} className="w-full flex items-center gap-3 p-3 text-xs font-bold text-slate-400 hover:text-red-500 transition-colors uppercase tracking-widest"><Icon name="log-out" size={20}/> <span>Вихід</span></button></div>
-                </aside>
-                <main className="flex-1 overflow-y-auto p-8 relative scroll-smooth">
-                    <div className="flex justify-between items-center mb-10 sticky top-0 bg-[#F8FAFC]/80 backdrop-blur-md z-30 py-4">
-                        <div><h1 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight capitalize">{ALL_VIEWS.find(v=>v.id===view)?.label}</h1></div>
-                        {(view==='dashboard' || view==='ops') && (
-                            <div className="flex gap-4 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-soft">
-                                <button onClick={()=>setModalType('income')} className="bg-emerald-500 text-white px-6 md:px-8 py-2 md:py-3 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 transition-all">In</button>
-                                <button onClick={()=>setModalType('expense')} className="bg-brand-500 text-white px-6 md:px-8 py-2 md:py-3 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest active:scale-95 transition-all">Out</button>
-                            </div>
-                        )}
+                    <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+                        <button onClick={handleLogout} className="w-full flex items-center gap-3 p-3 text-sm font-bold text-slate-400 hover:text-red-500"><Icon name="log-out" size={18}/> Вихід</button>
                     </div>
-                    <div className="fade-in">
-                        {loading ? <div className="text-center p-20 font-black animate-pulse text-slate-300 text-3xl uppercase tracking-tighter">Syncing...</div> : (
-                            <>
-                                {view==='dashboard' && <DashboardView metrics={metrics} setView={setView}/>}
-                                {view==='ops' && <OpsView transactions={transactions} deleteTx={(id)=>deleteDoc(doc(db,"transactions",id))} syncMono={()=>{}} canDelete={currentUser?.role==='admin'} categories={categories}/>}
+                </aside>
+
+                {/* Main Content */}
+                <main className="flex-1 overflow-y-auto h-full scroll-smooth">
+                    {/* Header */}
+                    <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 py-4 flex justify-between items-center md:px-8">
+                        <div className="flex items-center gap-3">
+                            <button className="md:hidden p-2 text-slate-600" onClick={()=>setIsSidebarOpen(true)}><Icon name="menu" size={24}/></button>
+                            <h2 className="text-lg font-bold text-slate-900 capitalize">{ALL_VIEWS.find(v=>v.id===view)?.label}</h2>
+                        </div>
+                        <div className="flex gap-2">
+                            {(view==='dashboard'||view==='ops') && <>
+                                <button onClick={()=>setModalType('income')} className="bg-emerald-500 text-white w-10 h-10 md:w-auto md:px-4 rounded-xl shadow-lg flex items-center justify-center gap-2"><Icon name="plus" size={18}/><span className="hidden md:inline">Дохід</span></button>
+                                <button onClick={()=>setModalType('expense')} className="bg-brand-500 text-white w-10 h-10 md:w-auto md:px-4 rounded-xl shadow-lg flex items-center justify-center gap-2"><Icon name="minus" size={18}/><span className="hidden md:inline">Витрата</span></button>
+                            </>}
+                        </div>
+                    </div>
+
+                    <div className="p-4 md:p-8 max-w-6xl mx-auto">
+                        {statusMsg && <div className="mb-4 bg-slate-900 text-white text-xs px-4 py-2 rounded-lg text-center">{statusMsg}</div>}
+                        
+                        {loading ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-brand-500 gap-3">
+                                <Icon name="loader" size={40} className="animate-spin"/>
+                                <span className="font-bold">Завантаження...</span>
+                            </div>
+                        ) : (
+                            <div className="fade-in">
+                                {view==='dashboard' && <DashboardView metrics={metrics} transactions={transactions} setView={setView}/>}
                                 {view==='pnl' && <PnLView metrics={metrics} transactions={transactions}/>}
                                 {view==='cashflow' && <CashFlowView metrics={metrics}/>}
                                 {view==='dividends' && <DividendsView metrics={metrics} transactions={transactions} setModalType={setModalType}/>}
-                                {view==='settings' && <SettingsView settings={settings} setSettings={setSettings} saveSettings={(d)=>setDoc(doc(db,"settings","global"),d)} categories={categories} saveCategories={(d)=>setDoc(doc(db,"settings","categories"),d)}/>}
+                                {view==='ops' && <OpsView transactions={transactions} deleteTx={deleteTx} syncMono={syncM} canDelete={currentUser?.role==='admin'} categories={categories}/>}
+                                {view==='settings' && <SettingsView settings={settings} setSettings={setSettings} saveSettings={saveS} syncMono={syncM} deleteAllTransactions={delAll} categories={categories} saveCategories={saveC}/>}
                                 {view==='managers' && <ManagersView db={db}/>}
-                            </>
+                            </div>
                         )}
                     </div>
                 </main>
-                {modalType && <TransactionModal type={modalType} close={()=>setModalType(null)} categories={categories} db={db}/>}
+
+                {modalType && <TransactionModal type={modalType} close={()=>setModalType(null)} categories={categories}/>}
             </div>
         );
     };
