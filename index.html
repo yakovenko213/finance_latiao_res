@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Latiao Finance | Enterprise v12.6 Redesign</title>
+    <title>Latiao Finance | Premium Enterprise v12.6</title>
     
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -11,44 +11,53 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Manrope', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
                     colors: { 
                         brand: { 50: '#fff1ec', 100: '#ffe4d9', 500: '#FF5722', 600: '#ea580c', 700: '#c2410c' },
-                        slate: { 850: '#172033' }
+                        slate: { 850: '#172033', 950: '#0a0f1d' }
                     },
                     boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03)',
-                        'glow-brand': '0 0 20px -5px rgba(255, 87, 34, 0.4)'
+                        'premium': '0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 15px -5px rgba(0, 0, 0, 0.02)',
+                        'glow-brand': '0 0 25px -5px rgba(255, 87, 34, 0.4)'
                     }
                 }
             }
         }
     </script>
     <style>
-        body { color: #1e293b; -webkit-tap-highlight-color: transparent; }
-        main { background-image: radial-gradient(circle at center, #f1f5f9 1px, transparent 1px); background-size: 40px 40px; }
-        .sidebar-link { transition: all 0.2s ease-in-out; }
-        .sidebar-link.active { background: linear-gradient(135deg, #FF5722 0%, #ea580c 100%); color: white; box-shadow: 0 8px 16px -4px rgba(255, 87, 34, 0.3); border-radius: 16px; }
-        .sidebar-link:hover:not(.active):not(.disabled) { background: #fff1ec; color: #ea580c; border-radius: 16px; }
-        .card-modern { background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); transition: transform 0.2s, box-shadow 0.2s; }
-        .card-modern:hover { box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08); border-color: #cbd5e1; }
-        .table-row-modern { transition: all 0.15s; border-radius: 12px; }
-        .table-row-modern:hover { background-color: #f8fafc; transform: scale-[1.005]; }
-        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .logo-mono { background-image: url('https://multicast.com.ua/wp-content/uploads/2024/04/monobank-logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; }
-        .logo-nova { background-image: url('https://novapay.ua/wp-content/themes/novapay/assets/img/logo.svg'); background-size: contain; background-repeat: no-repeat; background-position: center; }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+        body { color: #1e293b; -webkit-tap-highlight-color: transparent; font-feature-settings: "cv02", "cv03", "cv04"; }
+        main { background-image: radial-gradient(circle at 2px 2px, #e2e8f0 1px, transparent 0); background-size: 32px 32px; }
         
-        /* Mobile Overlay logic */
+        .glass-sidebar { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-right: 1px solid rgba(226, 232, 240, 0.8); }
+        
+        .sidebar-link { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .sidebar-link.active { background: #1e293b; color: white; box-shadow: 0 10px 20px -5px rgba(30, 41, 59, 0.3); border-radius: 14px; }
+        .sidebar-link.active::after { content: ''; position: absolute; right: 12px; width: 6px; height: 6px; background: #FF5722; border-radius: 50%; box-shadow: 0 0 10px #FF5722; }
+        .sidebar-link:hover:not(.active):not(.disabled) { background: white; color: #FF5722; transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-radius: 14px; }
+        
+        .card-premium { background: white; border-radius: 24px; border: 1px solid rgba(226, 232, 240, 0.7); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.03); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-premium:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.06); border-color: #FF5722; }
+
+        .table-row-premium { transition: all 0.2s ease; }
+        .table-row-premium:hover { background: rgba(255, 87, 34, 0.02); }
+        
+        .btn-primary { background: linear-gradient(135deg, #FF5722 0%, #ea580c 100%); transition: all 0.3s ease; box-shadow: 0 8px 20px -6px rgba(255, 87, 34, 0.5); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -6px rgba(255, 87, 34, 0.6); }
+        .btn-primary:active { transform: scale(0.96); }
+
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
         @media (max-width: 1024px) {
-            .sidebar-nav { position: fixed; inset: 0; z-index: 50; transform: translateX(-100%); transition: transform 0.3s ease; }
+            .sidebar-nav { transform: translateX(-100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
             .sidebar-nav.open { transform: translateX(0); }
         }
     </style>
@@ -98,89 +107,102 @@
         {id:'settings', label:'Налаштування', icon:'sliders-horizontal'}
     ];
 
-    // --- VIEW COMPONENTS (PNL, CASHFLOW, DIVIDENDS, MANAGERS, SETTINGS) ---
+    // --- ENHANCED VIEW COMPONENTS ---
 
     const DashboardView = ({ metrics, transactions, setView }) => {
         const isHealthy = metrics.margin > 20;
-        const healthStatus = isHealthy ? "Чудовий стан" : (metrics.margin > 0 ? "Нормальний стан" : "Критичний стан");
         return (
             <div className="space-y-6 md:space-y-8 animate-fade-in">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    <div className="bg-gradient-to-br from-slate-850 to-slate-900 text-white p-6 rounded-[28px] shadow-2xl relative overflow-hidden group border border-slate-800">
-                        <div className="absolute right-[-30px] top-[-30px] opacity-[0.08] group-hover:scale-110 transition-transform rotate-12"><Icon name="wallet" size={160}/></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+                    <div className="bg-slate-950 text-white p-7 rounded-[32px] shadow-2xl relative overflow-hidden group border border-slate-800">
+                        <div className="absolute right-[-20px] top-[-20px] opacity-[0.15] group-hover:scale-125 transition-transform duration-700"><Icon name="wallet" size={140}/></div>
                         <div className="relative z-10">
-                            <div className="text-slate-300 text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2"><Icon name="wallet" size={16} className="text-brand-500"/> Гроші в бізнесі</div>
-                            <div className="text-3xl md:text-4xl font-mono font-bold tracking-tight">{metrics.totalCash.toLocaleString()} <span className="text-xl md:text-2xl text-slate-400">₴</span></div>
-                            <p className="text-sm text-slate-400 mt-3 font-medium">Доступний капітал</p>
+                            <div className="text-slate-400 text-[10px] font-extrabold uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-glow-brand"></span> Гроші в бізнесі
+                            </div>
+                            <div className="text-3xl md:text-4xl font-mono font-bold tracking-tight mb-1">
+                                {metrics.totalCash.toLocaleString()} <span className="text-xl text-slate-500 font-sans tracking-normal">₴</span>
+                            </div>
+                            <div className="text-[10px] text-slate-500 font-bold">Актуальний баланс каси</div>
                         </div>
                     </div>
-                    <div className="card-modern p-6 relative overflow-hidden border-t-4 border-t-emerald-500">
-                         <div className="absolute right-[-20px] bottom-[-20px] opacity-[0.05] text-emerald-500"><Icon name="trending-up" size={120}/></div>
-                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">Чистий Прибуток</div>
+
+                    <div className="card-premium p-7 border-t-4 border-t-emerald-500">
+                        <div className="text-slate-400 text-[10px] font-extrabold uppercase tracking-[0.2em] mb-4">Чистий Прибуток</div>
                         <div className={`text-3xl md:text-4xl font-mono font-bold tracking-tight ${metrics.net >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
-                             {metrics.net > 0 ? '+' : ''}{metrics.net.toLocaleString()} <span className="text-xl md:text-2xl text-slate-400">₴</span>
+                             {metrics.net.toLocaleString()} <span className="text-xl text-slate-400 font-sans tracking-normal">₴</span>
                         </div>
-                         <div className={`mt-4 text-xs font-bold inline-flex items-center gap-1 px-3 py-1 rounded-full ${metrics.net >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                            <Icon name={metrics.net >=0 ? "trending-up" : "trending-down"} size={14}/> Рент: {metrics.margin}%
+                         <div className={`mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${metrics.net >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                            <Icon name={metrics.net >=0 ? "trending-up" : "trending-down"} size={12}/> Рент: {metrics.margin}%
                         </div>
                     </div>
-                    <div className="card-modern p-6 border-t-4 border-t-brand-500 relative overflow-hidden">
-                         <div className="absolute right-[-20px] bottom-[-20px] opacity-[0.05] text-brand-500"><Icon name="hourglass" size={120}/></div>
-                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">Запас ходу (Runway)</div>
+
+                    <div className="card-premium p-7 border-t-4 border-t-brand-500">
+                        <div className="text-slate-400 text-[10px] font-extrabold uppercase tracking-[0.2em] mb-4">Запас ходу</div>
                         <div className="text-3xl md:text-4xl font-mono font-bold text-brand-600 tracking-tight">
-                            {metrics.runway} <span className="text-xl text-slate-500 font-sans font-bold">днів</span>
+                            {metrics.runway} <span className="text-xl text-slate-400 font-sans tracking-normal">днів</span>
                         </div>
-                        <p className="text-sm text-slate-500 mt-3 font-medium flex items-center gap-1"><Icon name="alert-circle" size={14}/> Без нових продажів</p>
+                        <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-slate-400">
+                            <Icon name="clock" size={12}/> До касового розриву
+                        </div>
                     </div>
-                    <div className={`card-modern p-6 flex flex-col justify-center items-center text-center border-t-4 ${isHealthy ? 'border-t-emerald-500 bg-emerald-50/30' : 'border-t-red-500 bg-red-50/30'}`}>
-                        <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">Здоров'я бізнесу</div>
-                        <div className={`text-xl md:text-2xl font-bold flex items-center gap-3 ${isHealthy ? 'text-emerald-600' : 'text-red-600'}`}>
-                            {isHealthy ? <Icon name="activity" size={32} className="animate-pulse"/> : <Icon name="skull" size={32}/>}
-                            {healthStatus}
+
+                    <div className={`card-premium p-7 flex flex-col justify-between border-t-4 ${isHealthy ? 'border-t-emerald-400' : 'border-t-red-400'}`}>
+                        <div className="text-slate-400 text-[10px] font-extrabold uppercase tracking-[0.2em]">Фінансовий стан</div>
+                        <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isHealthy ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
+                                <Icon name={isHealthy ? "activity" : "alert-octagon"} size={24} className={isHealthy ? "animate-pulse" : ""}/>
+                            </div>
+                            <div className={`font-extrabold text-lg leading-tight ${isHealthy ? 'text-emerald-700' : 'text-red-700'}`}>
+                                {isHealthy ? "Стабільний" : "Критичний"}
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                     <div>
-                         <h3 className="font-bold text-lg mb-4 text-slate-800 flex items-center gap-2 px-2"><Icon name="credit-card"/> Гаманці</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="card-modern p-5 bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col justify-between h-32 border-b-4 border-b-black">
-                                <div className="flex justify-between items-start">
-                                    <div className="w-8 h-8 logo-mono grayscale opacity-80"></div>
-                                    <Icon name="nfc" size={20} className="text-slate-400"/>
+                    <div className="space-y-4">
+                         <h3 className="font-extrabold text-xl text-slate-900 px-2 flex items-center gap-3">
+                            <Icon name="credit-card" className="text-brand-500"/> Гаманці
+                         </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div className="card-premium p-6 bg-gradient-to-br from-slate-50 to-white hover:border-black border-b-8 border-b-slate-900 group">
+                                <div className="flex justify-between items-start mb-6">
+                                    <div className="w-10 h-10 logo-mono grayscale group-hover:grayscale-0 transition-all"></div>
+                                    <Icon name="nfc" size={20} className="text-slate-300"/>
                                 </div>
                                 <div>
-                                     <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Monobank ФОП</div>
-                                     <div className="font-mono font-bold text-lg text-slate-800">{metrics.balances.mono.toLocaleString()} ₴</div>
+                                     <div className="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-1">Monobank ФОП</div>
+                                     <div className="font-mono font-bold text-2xl text-slate-900 tracking-tighter">{metrics.balances.mono.toLocaleString()} ₴</div>
                                 </div>
                             </div>
-                             <div className="card-modern p-5 bg-gradient-to-br from-red-50 to-red-100 flex flex-col justify-between h-32 border-b-4 border-b-red-500">
-                                <div className="flex justify-between items-start">
-                                    <div className="w-8 h-8 logo-nova"></div>
-                                    <Icon name="nfc" size={20} className="text-red-300"/>
+                             <div className="card-premium p-6 bg-gradient-to-br from-red-50 to-white hover:border-red-500 border-b-8 border-b-red-600 group">
+                                <div className="flex justify-between items-start mb-6">
+                                    <div className="w-10 h-10 logo-nova grayscale group-hover:grayscale-0 transition-all"></div>
+                                    <Icon name="shield-check" size={20} className="text-red-200"/>
                                 </div>
                                 <div>
-                                     <div className="text-[10px] uppercase font-bold text-red-400 tracking-wider">NovaPay</div>
-                                     <div className="font-mono font-bold text-lg text-red-900">{metrics.balances.nova.toLocaleString()} ₴</div>
+                                     <div className="text-[10px] uppercase font-black text-red-400 tracking-widest mb-1">NovaPay Бізнес</div>
+                                     <div className="font-mono font-bold text-2xl text-red-900 tracking-tighter">{metrics.balances.nova.toLocaleString()} ₴</div>
                                 </div>
                             </div>
                         </div>
-                     </div>
-                    <div className="card-modern p-6 flex flex-col justify-between bg-gradient-to-br from-white to-slate-50">
-                        <div>
-                             <h3 className="font-bold text-lg mb-6 text-slate-800 flex items-center gap-2"><Icon name="pie-chart"/> Експрес P&L</h3>
-                             <div className="space-y-6">
-                                 <div className="relative">
-                                     <div className="flex justify-between text-xs font-bold text-slate-600 mb-2"><span>Доходи</span><span className="font-mono">+{metrics.revenue.toLocaleString()}</span></div>
-                                     <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full" style={{width: '100%'}}></div></div>
-                                 </div>
-                                 <div className="relative">
-                                     <div className="flex justify-between text-xs font-bold text-slate-600 mb-2"><span>Витрати (Все)</span><span className="font-mono">-{metrics.totalExpense.toLocaleString()}</span></div>
-                                     <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full" style={{width: `${metrics.revenue ? (metrics.totalExpense/metrics.revenue)*100 : 0}%`}}></div></div>
-                                 </div>
-                             </div>
+                    </div>
+
+                    <div className="card-premium p-8 bg-slate-900 text-white relative overflow-hidden border-none">
+                        <div className="absolute top-0 right-0 p-8 opacity-10"><Icon name="pie-chart" size={120}/></div>
+                        <h3 className="font-bold text-xl mb-8 flex items-center gap-3"><Icon name="zap" className="text-brand-500" size={20}/> Експрес-аналіз P&L</h3>
+                        <div className="space-y-7 relative z-10">
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400"><span>Доходи (Revenue)</span><span className="text-emerald-400 font-mono">+{metrics.revenue.toLocaleString()}</span></div>
+                                <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-emerald-400 shadow-[0_0_10px_#34d399]" style={{width: '100%'}}></div></div>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400"><span>Всі витрати (Total Exp)</span><span className="text-red-400 font-mono">-{metrics.totalExpense.toLocaleString()}</span></div>
+                                <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-red-400" style={{width: `${metrics.revenue ? (metrics.totalExpense/metrics.revenue)*100 : 0}%`}}></div></div>
+                            </div>
                         </div>
-                        <button onClick={()=>setView('pnl')} className="w-full mt-6 py-3 text-sm font-bold text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-100 transition flex items-center justify-center gap-2">Детальний звіт <Icon name="arrow-right" size={16}/></button>
+                        <button onClick={()=>setView('pnl')} className="w-full mt-10 py-4 text-xs font-black uppercase tracking-widest bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all">Відкрити повний звіт</button>
                     </div>
                 </div>
             </div>
@@ -192,59 +214,77 @@
         const allExpenses = transactions.filter(t => t.type === 'expense' && !t.isDividend).reduce((acc, t) => {
              const existing = acc.find(i => i.cat === t.cat); if (existing) existing.val += Number(t.amount); else acc.push({ cat: t.cat, val: Number(t.amount) }); return acc;
         }, []).sort((a, b) => b.val - a.val);
+
         return (
-            <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
-                <div className="card-modern p-6 md:p-8 bg-gradient-to-r from-emerald-50 to-white border-l-8 border-l-emerald-500 flex flex-col md:flex-row justify-between items-center relative overflow-hidden text-center md:text-left">
+            <div className="space-y-6 animate-fade-in max-w-5xl mx-auto">
+                {/* Revenue Hero */}
+                <div className="card-premium p-8 md:p-12 bg-slate-950 text-white relative overflow-hidden border-none shadow-2xl">
+                    <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-emerald-500/10 to-transparent"></div>
+                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+                        <div>
+                            <div className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em] mb-4">Total Revenue</div>
+                            <div className="text-5xl md:text-7xl font-mono font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400">
+                                +{metrics.revenue.toLocaleString()}<span className="text-3xl text-slate-600 ml-2 font-sans tracking-normal">₴</span>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="text-right px-6 border-r border-white/10">
+                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Маржа</div>
+                                <div className="text-2xl font-mono font-bold text-emerald-400">{metrics.margin}%</div>
+                            </div>
+                            <div className="text-right px-6">
+                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Транзакцій</div>
+                                <div className="text-2xl font-mono font-bold">{transactions.filter(t=>t.type==='income').length}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                    <div className="card-premium p-8 border-l-8 border-l-orange-500">
+                        <div className="flex justify-between items-center mb-6">
+                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">[-] Собівартість (COGS)</div>
+                            <span className="text-[10px] font-bold bg-orange-50 text-orange-600 px-3 py-1 rounded-full">{getPct(metrics.cogs)}% від виручки</span>
+                        </div>
+                        <div className="text-3xl font-mono font-bold text-slate-800">-{metrics.cogs.toLocaleString()} ₴</div>
+                        <div className="mt-6 w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-orange-500" style={{width: `${getPct(metrics.cogs)}%`}}></div></div>
+                    </div>
+
+                    <div className="card-premium p-8 border-l-8 border-l-red-500">
+                        <div className="flex justify-between items-center mb-6">
+                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">[-] Операційні (OpEx)</div>
+                            <span className="text-[10px] font-bold bg-red-50 text-red-600 px-3 py-1 rounded-full">{getPct(metrics.opex)}% від виручки</span>
+                        </div>
+                        <div className="text-3xl font-mono font-bold text-slate-800">-{metrics.opex.toLocaleString()} ₴</div>
+                        <div className="mt-6 w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-red-500" style={{width: `${getPct(metrics.opex)}%`}}></div></div>
+                    </div>
+                </div>
+
+                {/* Net Profit Big Banner */}
+                <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white p-10 rounded-[40px] shadow-glow-emerald flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
                     <div className="relative z-10">
-                        <div className="text-[10px] md:text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2">Виручка (Revenue)</div>
-                        <div className="text-4xl md:text-5xl font-mono font-bold text-slate-900">+{metrics.revenue.toLocaleString()} <span className="text-2xl text-slate-400">₴</span></div>
+                        <div className="text-[10px] font-black uppercase tracking-[0.4em] mb-2 opacity-80 text-center md:text-left">Net Profit Result</div>
+                        <div className="text-6xl md:text-7xl font-mono font-black tracking-tighter">{metrics.net.toLocaleString()} <span className="text-3xl opacity-60">₴</span></div>
                     </div>
-                    <div className="h-16 w-16 bg-emerald-100 rounded-2xl hidden md:flex items-center justify-center text-emerald-600 shadow-lg shadow-emerald-200/50"><Icon name="coins" size={32}/></div>
-                </div>
-                <div className="space-y-4 relative">
-                    <div className="absolute left-8 top-10 bottom-10 w-0.5 bg-slate-200 z-0 hidden md:block"></div>
-                    <div className="card-modern p-6 border-l-4 border-l-orange-400">
-                        <div className="flex justify-between items-center mb-4">
-                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-orange-400"></div> (-) Собівартість (COGS)</div>
-                            <div className="text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-full">{getPct(metrics.cogs)}%</div>
-                        </div>
-                        <div className="text-2xl md:text-3xl font-mono font-bold text-slate-700">-{metrics.cogs.toLocaleString()} ₴</div>
-                    </div>
-                    <div className="card-modern p-6 bg-blue-50/50 border-blue-200 text-center relative z-10">
-                        <div className="text-[10px] md:text-xs font-bold text-blue-700 uppercase mb-2">(=) Валовий Прибуток</div>
-                        <div className="text-3xl md:text-4xl font-mono font-bold text-blue-900">{(metrics.revenue - metrics.cogs).toLocaleString()} ₴</div>
-                    </div>
-                    <div className="card-modern p-6 border-l-4 border-l-red-400">
-                        <div className="flex justify-between items-center mb-4">
-                            <div className="text-[10px] md:text-xs font-bold text-slate-500 uppercase flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-400"></div> (-) Операційні витрати (OpEx)</div>
-                             <div className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full">{getPct(metrics.opex)}%</div>
-                        </div>
-                        <div className="text-2xl md:text-3xl font-mono font-bold text-slate-700">-{metrics.opex.toLocaleString()} ₴</div>
+                    <div className="relative z-10 bg-white/20 backdrop-blur-md p-6 rounded-3xl border border-white/20 text-center min-w-[160px]">
+                        <div className="text-4xl font-black">{getPct(metrics.net)}%</div>
+                        <div className="text-[10px] font-bold uppercase tracking-widest opacity-80">Чиста рентабельність</div>
                     </div>
                 </div>
-                <div className="bg-slate-900 text-white p-6 md:p-8 rounded-[28px] shadow-2xl flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden border border-slate-700 text-center md:text-left">
-                    <div className="relative z-10">
-                        <div className="text-[10px] md:text-xs font-bold text-slate-300 uppercase mb-2 tracking-wider flex items-center justify-center md:justify-start gap-2"><Icon name="flag" size={16} className="text-emerald-400"/> (=) Чистий Прибуток (Net Profit)</div>
-                        <div className={`text-4xl md:text-6xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-emerald-500`}>
-                            {metrics.net.toLocaleString()} <span className="text-2xl text-slate-500 font-sans">₴</span>
-                        </div>
-                    </div>
-                    <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm min-w-[120px] text-center border border-white/10">
-                        <div className="text-2xl md:text-3xl font-bold text-white">{getPct(metrics.net)}%</div>
-                        <div className="text-[10px] text-slate-300 uppercase font-bold tracking-widest">Рентабельність</div>
-                    </div>
-                </div>
-                <div className="card-modern p-6 md:p-8">
-                    <h3 className="font-bold text-lg text-slate-800 mb-6 flex items-center gap-2"><Icon name="list-tree"/> Структура всіх витрат</h3>
-                    <div className="space-y-5">
+
+                {/* Expense Breakdown List */}
+                <div className="card-premium p-8">
+                    <h3 className="font-extrabold text-xl mb-8 flex items-center gap-3 text-slate-900"><Icon name="list-tree" className="text-brand-500"/> Деталізація витрат</h3>
+                    <div className="space-y-4">
                         {allExpenses.map((item, idx) => (
-                            <div key={item.cat} className="flex items-center gap-4 group">
-                                <div className="hidden sm:block text-[10px] font-bold text-slate-400 w-4">{idx+1}.</div>
-                                <div className="w-24 md:w-36 text-xs md:text-sm font-bold text-slate-700 truncate">{item.cat}</div>
-                                <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
-                                    <div className="h-full bg-gradient-to-r from-brand-400 to-brand-600 rounded-full" style={{width: `${metrics.totalExpense ? (item.val/metrics.totalExpense)*100 : 0}%`}}></div>
+                            <div key={item.cat} className="group flex items-center gap-6 p-4 hover:bg-slate-50 rounded-2xl transition-all">
+                                <div className="text-xs font-black text-slate-300 w-4">{idx+1}</div>
+                                <div className="w-32 md:w-48 text-sm font-bold text-slate-700 truncate group-hover:text-brand-600">{item.cat}</div>
+                                <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                                    <div className="h-full bg-gradient-to-r from-brand-400 to-brand-600 rounded-full group-hover:shadow-glow-brand transition-all duration-500" style={{width: `${metrics.totalExpense ? (item.val/metrics.totalExpense)*100 : 0}%`}}></div>
                                 </div>
-                                <div className="w-24 md:w-32 text-right text-xs md:text-sm font-mono font-bold text-slate-800">{item.val.toLocaleString()} ₴</div>
+                                <div className="w-32 text-right text-sm font-mono font-bold text-slate-900">{item.val.toLocaleString()} ₴</div>
                             </div>
                         ))}
                     </div>
@@ -253,78 +293,111 @@
         );
     };
 
+    const OpsView = ({ transactions, deleteTx, syncMono, canDelete, categories }) => {
+        const [currentPage, setCurrentPage] = useState(1);
+        const [filters, setFilters] = useState({ type: 'all' });
+        const limit = 15;
+
+        const filtered = transactions.filter(t => filters.type === 'all' || t.type === filters.type);
+        const totalPages = Math.ceil(filtered.length / limit);
+        const currentData = filtered.slice((currentPage - 1) * limit, currentPage * limit);
+
+        return (
+            <div className="space-y-6 animate-fade-in max-w-6xl mx-auto">
+                <div className="card-premium p-4 md:p-6 flex flex-col md:flex-row gap-4 justify-between items-center bg-white/80 backdrop-blur-md sticky top-24 z-30 border-brand-100">
+                    <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                        <button onClick={()=>setFilters({type:'all'})} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filters.type==='all' ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>Всі</button>
+                        <button onClick={()=>setFilters({type:'income'})} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filters.type==='income' ? 'bg-emerald-500 text-white shadow-lg' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>Доходи</button>
+                        <button onClick={()=>setFilters({type:'expense'})} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filters.type==='expense' ? 'bg-brand-500 text-white shadow-lg' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>Витрати</button>
+                    </div>
+                    <button onClick={syncMono} className="w-full md:w-auto bg-slate-900 text-white px-8 py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl hover:shadow-slate-200"><Icon name="refresh-cw" size={18}/> Синхро Mono</button>
+                </div>
+                
+                <div className="card-premium overflow-hidden bg-white/50 backdrop-blur-sm border-none shadow-premium">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left min-w-[800px]">
+                            <thead>
+                                <tr className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] border-b border-slate-100 bg-slate-50/50">
+                                    <th className="p-6">Дата</th>
+                                    <th className="p-6">Тип</th>
+                                    <th className="p-6 w-1/3">Опис</th>
+                                    <th className="p-6">Категорія</th>
+                                    <th className="p-6 text-right">Сума</th>
+                                    <th className="p-6"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {currentData.map(t => (
+                                    <tr key={t.id} className="table-row-premium group bg-white/40">
+                                        <td className="p-6 text-xs font-mono font-bold text-slate-500">{t.date}</td>
+                                        <td className="p-6">
+                                            <span className={`text-[9px] font-black px-3 py-1.5 rounded-lg border uppercase tracking-wider ${t.isDividend ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : (t.type==='income'?'bg-emerald-50 text-emerald-600 border-emerald-100':'bg-orange-50 text-orange-600 border-orange-100')}`}>
+                                                {t.isDividend ? 'Dividend' : (t.type==='income'?'Credit':'Debit')}
+                                            </span>
+                                        </td>
+                                        <td className="p-6 font-bold text-slate-800 text-sm truncate max-w-[250px]">{t.description}</td>
+                                        <td className="p-6"><span className="text-[10px] font-extrabold bg-slate-100/80 px-2 py-1 rounded-md text-slate-500 border border-slate-200/50 uppercase tracking-tighter">{t.cat}</span></td>
+                                        <td className={`p-6 text-right font-mono font-bold text-lg ${t.type==='income'?'text-emerald-600':'text-slate-900'}`}>
+                                            {t.type==='income'?'+':'-'}{t.amount.toLocaleString()} ₴
+                                        </td>
+                                        <td className="p-6 text-right">{canDelete && <button onClick={()=>deleteTx(t.id)} className="text-slate-200 hover:text-red-500 transition-all hover:scale-110"><Icon name="trash-2" size={18}/></button>}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    {totalPages > 1 && (
+                        <div className="p-8 bg-slate-50/50 border-t border-slate-100 flex justify-center items-center gap-6">
+                            <button disabled={currentPage===1} onClick={()=>setCurrentPage(p=>p-1)} className="p-4 border rounded-2xl bg-white disabled:opacity-30 shadow-sm hover:border-brand-500 transition-colors"><Icon name="chevron-left" size={20}/></button>
+                            <div className="flex flex-col items-center">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Page</span>
+                                <span className="font-mono font-black text-slate-900 text-lg">{currentPage} <span className="text-slate-300 mx-1">/</span> {totalPages}</span>
+                            </div>
+                            <button disabled={currentPage===totalPages} onClick={()=>setCurrentPage(p=>p+1)} className="p-4 border rounded-2xl bg-white disabled:opacity-30 shadow-sm hover:border-brand-500 transition-colors"><Icon name="chevron-right" size={20}/></button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
     const CashFlowView = ({ metrics }) => (
         <div className="max-w-4xl mx-auto animate-fade-in space-y-8">
-             <div className="card-modern bg-purple-50 p-5 flex items-start gap-4 border-purple-100">
-                <div className="bg-purple-100 p-3 rounded-xl text-purple-600"><Icon name="book-open" size={24}/></div>
+             <div className="card-premium p-6 bg-indigo-900 text-white flex items-start gap-6 border-none shadow-2xl">
+                <div className="bg-white/10 p-4 rounded-3xl text-indigo-200"><Icon name="trending-up" size={32}/></div>
                 <div>
-                    <h3 className="font-bold text-purple-900 mb-1 text-sm md:text-base">Cash Flow (Рух коштів)</h3>
-                    <p className="text-[10px] md:text-sm text-purple-700 leading-relaxed font-medium">Відстежує реальні надходження та витрати <b>живих грошей</b>. Показує, як змінюється ваш банківський рахунок.</p>
+                    <h3 className="font-extrabold text-xl mb-2">Cash Flow (Грошовий потік)</h3>
+                    <p className="text-sm text-indigo-200/80 leading-relaxed font-medium">Контроль реального залишку грошей на рахунках. Цей звіт показує платоспроможність вашого бізнесу Latiao.</p>
                 </div>
             </div>
-            <div className="card-modern p-6 md:p-8 relative overflow-hidden border-l-4 border-l-blue-500">
-                <h3 className="font-bold text-lg md:text-xl mb-6 text-slate-800 flex items-center gap-2"><Icon name="briefcase" size={20} className="text-blue-500"/> 1. Операційний потік (Operating)</h3>
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100">
-                         <div className="text-[10px] md:text-xs font-bold text-emerald-800 uppercase tracking-wider">Надходження</div>
-                        <div className="text-xl md:text-2xl font-mono font-bold text-emerald-700">+{metrics.revenue.toLocaleString()} ₴</div>
+            
+            <div className="grid grid-cols-1 gap-6 relative">
+                <div className="card-premium p-8 relative overflow-hidden border-l-[12px] border-l-blue-500">
+                    <div className="flex justify-between items-center mb-10">
+                        <h3 className="font-black text-[10px] text-slate-400 uppercase tracking-[0.3em]">1. Operating Activities</h3>
+                        <Icon name="briefcase" className="text-blue-200" size={40}/>
                     </div>
-                    <div className="flex justify-between items-center p-4 bg-red-50/50 rounded-2xl border border-red-100">
-                         <div className="text-[10px] md:text-xs font-bold text-red-800 uppercase tracking-wider">Виплати</div>
-                        <div className="text-xl md:text-2xl font-mono font-bold text-red-700">-{metrics.totalExpense.toLocaleString()} ₴</div>
-                    </div>
-                </div>
-            </div>
-             <div className="bg-slate-900 text-white p-6 md:p-8 rounded-[28px] shadow-2xl flex flex-col md:flex-row justify-between items-center border border-slate-800 gap-4 text-center">
-                <div className="text-sm md:text-lg font-bold">Чистий грошовий потік (Net Cash Change)</div>
-                <div className={`text-3xl md:text-5xl font-mono font-bold ${metrics.netCashChange >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {metrics.netCashChange > 0 ? '+' : ''}{metrics.netCashChange.toLocaleString()} ₴
-                </div>
-            </div>
-        </div>
-    );
-
-    const DividendsView = ({ metrics, transactions, setModalType }) => (
-        <div className="max-w-4xl mx-auto animate-fade-in space-y-8">
-            <div className="bg-gradient-to-br from-slate-800 to-indigo-950 text-white p-6 md:p-10 rounded-[32px] shadow-2xl relative overflow-hidden border border-indigo-900/50 text-center md:text-left">
-                <div className="relative z-10 flex flex-col md:flex-row justify-between gap-8 items-end mb-10">
-                    <div>
-                         <h2 className="text-2xl md:text-3xl font-bold mb-4 flex items-center justify-center md:justify-start gap-3"><Icon name="gem" className="text-indigo-300" size={28}/> Управління Дивідендами</h2>
-                         <p className="text-xs md:text-sm text-indigo-100 font-medium">Дивіденди — це розподіл прибутку. Не виводьте більше, ніж заробили.</p>
-                    </div>
-                     <button onClick={()=>setModalType('dividend')} className="w-full md:w-auto bg-white text-indigo-950 px-8 py-4 rounded-2xl font-bold hover:bg-indigo-50 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3">
-                        <Icon name="download" size={20}/> Виплатити дивіденди
-                    </button>
-                </div>
-                <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-                    <div className="bg-white/5 p-4 md:p-6 rounded-2xl border border-white/10 text-center">
-                        <div className="text-[10px] uppercase text-slate-300 font-bold mb-2 tracking-widest">Прибуток</div>
-                        <div className="text-xl md:text-2xl font-mono font-bold text-emerald-300">{metrics.net.toLocaleString()} ₴</div>
-                    </div>
-                    <div className="bg-white/5 p-4 md:p-6 rounded-2xl border border-white/10 text-center">
-                        <div className="text-[10px] uppercase text-slate-300 font-bold mb-2 tracking-widest">Виведено</div>
-                        <div className="text-xl md:text-2xl font-mono font-bold text-indigo-300">{metrics.dividends.toLocaleString()} ₴</div>
-                    </div>
-                    <div className="bg-emerald-500/20 p-4 md:p-6 rounded-2xl border border-emerald-500/50 text-center ring-1 ring-emerald-400">
-                        <div className="text-[10px] uppercase text-white font-bold mb-2 tracking-widest tracking-widest">Доступно</div>
-                        <div className="text-2xl md:text-3xl font-mono font-bold text-white">{(metrics.net - metrics.dividends).toLocaleString()} ₴</div>
-                    </div>
-                </div>
-            </div>
-            <div className="card-modern overflow-hidden">
-                 <div className="p-6 border-b bg-slate-50/50 font-bold text-lg">Історія виплат власнику</div>
-                {transactions.filter(t=>t.isDividend).length === 0 ? <div className="p-12 text-center text-slate-300 italic text-sm">Виплат ще не зафіксовано</div> :
-                <div className="p-2 space-y-2">
-                    {transactions.filter(t=>t.isDividend).map(t => (
-                        <div key={t.id} className="flex justify-between items-center p-4 hover:bg-slate-50 rounded-2xl transition border border-transparent hover:border-indigo-100">
-                            <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 shadow-sm"><Icon name="arrow-down-circle" size={20}/></div>
-                                <div><div className="font-bold text-slate-800 text-sm">Виплата власнику</div><div className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{t.date} | {t.source}</div></div>
-                            </div>
-                            <div className="font-bold text-purple-700 font-mono text-lg md:text-xl">-{t.amount.toLocaleString()} ₴</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="p-6 bg-emerald-50/50 rounded-[28px] border border-emerald-100 flex flex-col items-center text-center">
+                            <div className="text-[10px] font-black text-emerald-600 uppercase mb-3">Надходження</div>
+                            <div className="text-3xl font-mono font-bold text-emerald-700">+{metrics.revenue.toLocaleString()} ₴</div>
                         </div>
-                    ))}
-                </div>}
+                        <div className="p-6 bg-red-50/50 rounded-[28px] border border-red-100 flex flex-col items-center text-center">
+                            <div className="text-[10px] font-black text-red-600 uppercase mb-3">Виплати</div>
+                            <div className="text-3xl font-mono font-bold text-red-700">-{metrics.totalExpense.toLocaleString()} ₴</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <div className="bg-slate-900 text-white p-10 rounded-[40px] shadow-2xl flex flex-col md:flex-row justify-between items-center border border-slate-800 gap-6 text-center">
+                <div>
+                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 text-center md:text-left">Net Cash Change</div>
+                    <div className="text-lg md:text-xl font-extrabold">Чистий грошовий потік за період</div>
+                </div>
+                <div className={`text-4xl md:text-6xl font-mono font-bold ${metrics.netCashChange >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {metrics.netCashChange > 0 ? '+' : ''}{metrics.netCashChange.toLocaleString()} <span className="text-2xl font-sans opacity-50">₴</span>
+                </div>
             </div>
         </div>
     );
@@ -336,38 +409,44 @@
         const deleteManager = async (id) => { if(confirm("Видалити менеджера?")) await deleteDoc(doc(db, "managers", id)); };
         return (
             <div className="max-w-5xl mx-auto space-y-8 animate-fade-in">
-                <div className="flex flex-col md:flex-row justify-between items-center card-modern p-6 md:p-8 bg-gradient-to-r from-slate-50 to-white gap-4 text-center md:text-left">
-                    <div>
-                        <h2 className="text-2xl font-bold text-slate-800 mb-2 flex items-center justify-center md:justify-start gap-3"><Icon name="users-round" size={24} className="text-brand-600"/> Команда та Доступи</h2>
-                        <p className="text-xs md:text-sm font-medium text-slate-500">Керуйте доступом співробітників до системи Latiao</p>
+                <div className="flex flex-col md:flex-row justify-between items-center card-premium p-8 md:p-10 bg-gradient-to-r from-slate-900 to-slate-800 text-white gap-6 text-center md:text-left relative overflow-hidden">
+                    <div className="absolute right-0 top-0 p-10 opacity-5"><Icon name="users" size={150}/></div>
+                    <div className="relative z-10">
+                        <h2 className="text-3xl font-black mb-3 flex items-center justify-center md:justify-start gap-4">
+                            <Icon name="shield-check" className="text-brand-500" size={32}/> Команда та Доступи
+                        </h2>
+                        <p className="text-sm text-slate-400 font-medium">Керуйте правами співробітників у системі Latiao Finance</p>
                     </div>
-                    <button onClick={()=>setShowModal(true)} className="w-full md:w-auto bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-slate-800 transition active:scale-95 shadow-lg flex items-center justify-center gap-2"><Icon name="user-plus" size={18}/> Додати менеджера</button>
+                    <button onClick={()=>setShowModal(true)} className="btn-primary relative z-10 w-full md:w-auto text-white px-10 py-5 rounded-[22px] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3"><Icon name="user-plus" size={18}/> Додати менеджера</button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {managers.map(m => (
-                        <div key={m.id} className="card-modern p-6 relative group border-transparent hover:border-brand-200">
-                            <button onClick={()=>deleteManager(m.id)} className="absolute top-4 right-4 text-slate-200 hover:text-red-500 transition"><Icon name="trash-2" size={18}/></button>
-                            <div className="flex items-center gap-5 mb-6">
-                                <div className="w-16 h-16 bg-gradient-to-br from-brand-100 to-brand-200 rounded-2xl flex items-center justify-center text-brand-600 font-black text-2xl border border-brand-200 shadow-inner">
+                        <div key={m.id} className="card-premium p-8 relative group border-transparent hover:border-brand-500">
+                            <button onClick={()=>deleteManager(m.id)} className="absolute top-6 right-6 text-slate-200 hover:text-red-500 transition-all hover:scale-110"><Icon name="trash-2" size={20}/></button>
+                            <div className="flex items-center gap-6 mb-8">
+                                <div className="w-20 h-20 bg-gradient-to-br from-brand-100 to-brand-200 rounded-3xl flex items-center justify-center text-brand-600 font-black text-3xl border border-brand-200 shadow-inner group-hover:rotate-6 transition-transform">
                                     {m.name?.[0]?.toUpperCase() || <Icon name="user"/>}
                                 </div>
                                 <div>
-                                    <div className="font-bold text-lg md:text-xl text-slate-800">{m.name}</div>
-                                    <div className="text-xs font-medium text-slate-400 flex items-center gap-1 mt-1"><Icon name="mail" size={14}/> {m.email}</div>
+                                    <div className="font-black text-xl text-slate-900 mb-1">{m.name}</div>
+                                    <div className="text-xs font-bold text-slate-400 flex items-center gap-2 uppercase tracking-tighter"><Icon name="mail" size={12}/> {m.email}</div>
                                 </div>
                             </div>
-                            <div className="space-y-4">
-                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] flex items-center gap-1 border-b pb-2"><Icon name="lock" size={12}/> Дозволені розділи</div>
+                            <div className="space-y-5">
+                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 border-b border-slate-50 pb-3">
+                                    <Icon name="key" size={14} className="text-brand-500"/> Права доступу
+                                </div>
                                 <div className="flex flex-wrap gap-2">
                                     {(m.permissions||[]).map(p => (
-                                        <span key={p} className="text-[9px] md:text-[10px] bg-slate-100 border border-slate-200 px-2 py-1 rounded-md uppercase font-black text-slate-500">
+                                        <span key={p} className="text-[9px] bg-slate-950 text-white px-3 py-1.5 rounded-xl uppercase font-black tracking-widest border border-slate-800">
                                             {ALL_VIEWS.find(v=>v.id===p)?.label || p}
                                         </span>
                                     ))}
                                 </div>
-                                <div className="flex justify-between items-center pt-2">
-                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Пароль:</span>
-                                    <span className="text-xs font-mono font-bold text-slate-700 bg-slate-50 px-2 py-1 rounded border tracking-widest">{m.password}</span>
+                                <div className="flex justify-between items-center pt-4 bg-slate-50 -mx-8 -mb-8 px-8 py-5 rounded-b-[24px]">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Password:</span>
+                                    <span className="text-xs font-mono font-black text-slate-900 bg-white px-3 py-1.5 rounded-xl border border-slate-200 tracking-[0.1em]">{m.password}</span>
                                 </div>
                             </div>
                         </div>
@@ -382,161 +461,78 @@
         const [newCatIn, setNewCatIn] = useState(''); const [newCatOut, setNewCatOut] = useState('');
         const addCat = (t, v, setter) => { if(!v) return; saveCategories({...categories, [t]: [...categories[t], v]}); setter(''); };
         const removeCat = (t, v) => { if(confirm('Видалити категорію?')) saveCategories({...categories, [t]: categories[t].filter(c=>c!==v)}); };
+        
         return (
-            <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-20">
-                <div className="card-modern p-6 md:p-8">
-                    <h2 className="text-2xl font-bold mb-8 flex items-center gap-3 text-slate-800 border-b pb-4"><Icon name="tags" size={24} className="text-blue-600"/> Керування категоріями</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative">
+            <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-32">
+                <div className="card-premium p-8 md:p-10 border-none shadow-premium">
+                    <h2 className="text-2xl font-black mb-10 flex items-center gap-4 text-slate-950 border-b pb-6"><Icon name="settings" size={28} className="text-brand-500 animate-spin-slow"/> Налаштування системи</h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative">
                         <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-100 hidden md:block"></div>
-                        <div className="space-y-6">
-                            <h3 className="font-black text-[10px] text-emerald-700 uppercase tracking-[0.2em] flex items-center gap-2"><Icon name="arrow-down-circle" size={14}/> Доходи</h3>
-                            <div className="flex gap-2">
-                                <input type="text" value={newCatIn} onChange={e=>setNewCatIn(e.target.value)} className="flex-1 border border-slate-200 bg-slate-50 rounded-xl px-4 py-2 text-sm outline-none focus:border-emerald-500 font-bold" placeholder="Назва..."/>
-                                <button onClick={()=>addCat('income',newCatIn,setNewCatIn)} className="bg-emerald-500 text-white p-2 rounded-xl shadow-lg active:scale-95"><Icon name="plus"/></button>
+                        
+                        <div className="space-y-8">
+                            <h3 className="font-black text-[10px] text-emerald-600 uppercase tracking-[0.3em] flex items-center gap-3"><Icon name="plus-circle" size={16}/> Категорії доходів</h3>
+                            <div className="flex gap-3">
+                                <input type="text" value={newCatIn} onChange={e=>setNewCatIn(e.target.value)} className="flex-1 border-2 border-slate-100 bg-slate-50 rounded-2xl px-5 py-3 text-sm outline-none focus:border-emerald-500 font-bold transition-all" placeholder="Додати нову..."/>
+                                <button onClick={()=>addCat('income',newCatIn,setNewCatIn)} className="bg-emerald-500 text-white p-4 rounded-2xl shadow-lg active:scale-90 transition-all"><Icon name="plus"/></button>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {categories.income.map(c => (
-                                    <span key={c} className="group bg-emerald-50 text-emerald-700 text-[10px] px-3 py-1.5 rounded-lg border border-emerald-100 flex items-center gap-2 font-black uppercase">
-                                        {c} <button onClick={()=>removeCat('income',c)} className="text-emerald-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Icon name="x-circle" size={14}/></button>
+                                    <span key={c} className="group bg-white hover:bg-emerald-50 text-slate-700 text-[10px] px-4 py-2 rounded-xl border border-slate-100 hover:border-emerald-200 flex items-center gap-3 font-black uppercase tracking-widest transition-all">
+                                        {c} <button onClick={()=>removeCat('income',c)} className="text-slate-300 hover:text-red-500 transition-colors"><Icon name="x" size={14}/></button>
                                     </span>
                                 ))}
                             </div>
                         </div>
-                        <div className="space-y-6">
-                            <h3 className="font-black text-[10px] text-orange-700 uppercase tracking-[0.2em] flex items-center gap-2"><Icon name="arrow-up-circle" size={14}/> Витрати</h3>
-                            <div className="flex gap-2">
-                                <input type="text" value={newCatOut} onChange={e=>setNewCatOut(e.target.value)} className="flex-1 border border-slate-200 bg-slate-50 rounded-xl px-4 py-2 text-sm outline-none focus:border-orange-500 font-bold" placeholder="Назва..."/>
-                                <button onClick={()=>addCat('expense',newCatOut,setNewCatOut)} className="bg-brand-500 text-white p-2 rounded-xl shadow-lg active:scale-95"><Icon name="plus"/></button>
+
+                        <div className="space-y-8">
+                            <h3 className="font-black text-[10px] text-brand-600 uppercase tracking-[0.3em] flex items-center gap-3"><Icon name="minus-circle" size={16}/> Категорії витрат</h3>
+                            <div className="flex gap-3">
+                                <input type="text" value={newCatOut} onChange={e=>setNewCatOut(e.target.value)} className="flex-1 border-2 border-slate-100 bg-slate-50 rounded-2xl px-5 py-3 text-sm outline-none focus:border-brand-500 font-bold transition-all" placeholder="Додати нову..."/>
+                                <button onClick={()=>addCat('expense',newCatOut,setNewCatOut)} className="bg-brand-500 text-white p-4 rounded-2xl shadow-lg active:scale-90 transition-all"><Icon name="plus"/></button>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {categories.expense.map(c => (
-                                    <span key={c} className="group bg-orange-50 text-orange-700 text-[10px] px-3 py-1.5 rounded-lg border border-orange-100 flex items-center gap-2 font-black uppercase">
-                                        {c} <button onClick={()=>removeCat('expense',c)} className="text-orange-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Icon name="x-circle" size={14}/></button>
+                                    <span key={c} className="group bg-white hover:bg-brand-50 text-slate-700 text-[10px] px-4 py-2 rounded-xl border border-slate-100 hover:border-brand-200 flex items-center gap-3 font-black uppercase tracking-widest transition-all">
+                                        {c} <button onClick={()=>removeCat('expense',c)} className="text-slate-300 hover:text-red-500 transition-colors"><Icon name="x" size={14}/></button>
                                     </span>
                                 ))}
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="card-modern p-6 md:p-8 border-l-8 border-l-slate-800">
-                    <h2 className="text-2xl font-bold mb-8 flex items-center gap-3 text-slate-800"><Icon name="link" size={24} className="text-slate-500"/> API Інтеграції</h2>
+
+                <div className="card-premium p-8 border-none bg-slate-900 text-white">
+                    <h2 className="text-xl font-bold mb-8 flex items-center gap-4"><Icon name="cpu" size={24} className="text-emerald-400"/> Integrations</h2>
                     <div className="space-y-8">
-                         <div className="bg-slate-50/80 p-6 rounded-2xl border border-slate-200 group">
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg"><div className="w-10 h-10 logo-mono"></div></div>
-                                <div><h3 className="font-bold text-lg">Monobank API</h3><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Автоматизація банківської виписки</p></div>
+                         <div className="bg-white/5 p-8 rounded-3xl border border-white/10 group">
+                            <div className="flex flex-col md:flex-row md:items-center gap-6 mb-8">
+                                <div className="w-14 h-14 bg-black rounded-3xl flex items-center justify-center border border-white/20 shadow-2xl"><div className="w-10 h-10 logo-mono"></div></div>
+                                <div><h3 className="font-black text-xl">Monobank API</h3><p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Автоматичний білінг транзакцій</p></div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase block mb-1.5 ml-1">X-Token</label>
-                                    <input type="password" value={settings.monoKey} onChange={e=>setSettings({...settings, monoKey:e.target.value})} placeholder="Вставте токен..." className="w-full border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm outline-none focus:border-brand-500 transition font-mono shadow-sm"/>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase block mb-2 ml-1 tracking-[0.1em]">Personal X-Token</label>
+                                    <input type="password" value={settings.monoKey} onChange={e=>setSettings({...settings, monoKey:e.target.value})} className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-sm outline-none focus:border-brand-500 transition-all font-mono"/>
                                 </div>
-                                <div className="flex gap-2">
-                                    <input value={settings.monoAccountId} onChange={e=>setSettings({...settings, monoAccountId:e.target.value})} placeholder="ID Рахунку" className="flex-1 border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm outline-none focus:border-brand-500 transition font-mono shadow-sm"/>
-                                    <button onClick={syncMono} className="bg-slate-800 text-white px-4 py-3 rounded-xl active:scale-95 transition shadow-lg"><Icon name="refresh-cw" size={18}/></button>
+                                <div className="flex gap-3">
+                                    <input value={settings.monoAccountId} onChange={e=>setSettings({...settings, monoAccountId:e.target.value})} placeholder="Account ID" className="flex-1 bg-white/5 border border-white/10 p-4 rounded-2xl text-sm outline-none focus:border-brand-500 transition-all font-mono"/>
+                                    <button onClick={syncMono} className="bg-white text-black px-6 rounded-2xl font-black uppercase text-[10px] hover:bg-brand-500 hover:text-white transition-all shadow-xl active:scale-95 whitespace-nowrap">Fetch</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="mt-10 pt-6 border-t border-slate-100 flex justify-end">
-                         <button onClick={()=>saveSettings(settings)} className="bg-brand-500 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-brand-200 active:scale-95 transition flex items-center gap-3"><Icon name="save" size={20}/> Зберегти налаштування</button>
+                    <div className="mt-10 pt-8 border-t border-white/10 flex justify-end">
+                         <button onClick={()=>saveSettings(settings)} className="btn-primary text-white px-10 py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs flex items-center gap-4"><Icon name="save" size={18}/> Зберегти конфігурацію</button>
                     </div>
                 </div>
-                <div className="card-modern p-6 md:p-8 bg-red-50 border-red-100 text-center md:text-left">
-                    <h3 className="text-red-700 font-bold text-lg mb-2 flex items-center justify-center md:justify-start gap-2"><Icon name="alert-triangle"/> Небезпечна зона</h3>
-                    <p className="text-xs md:text-sm text-red-600 mb-6 font-medium">Видалення всіх операцій з бази Firestore неможливо скасувати.</p>
-                    <button onClick={deleteAllTransactions} className="w-full md:w-auto bg-white border-2 border-red-200 text-red-600 hover:bg-red-500 hover:text-white px-6 py-3 rounded-xl font-bold transition shadow-sm active:scale-95 flex items-center justify-center gap-2"><Icon name="trash-2" size={18}/> Очистити базу транзакцій</button>
-                </div>
-            </div>
-        );
-    };
 
-    const OpsView = ({ transactions, deleteTx, syncMono, canDelete, categories }) => {
-        const [currentPage, setCurrentPage] = useState(1);
-        const limit = 15;
-        const totalPages = Math.ceil(transactions.length / limit);
-        const currentData = transactions.slice((currentPage - 1) * limit, currentPage * limit);
-
-        return (
-            <div className="space-y-6 animate-fade-in">
-                <div className="card-modern p-4 flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-50/80">
-                    <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                        <select className="bg-white border border-slate-200 rounded-xl px-4 py-2 text-[10px] font-black uppercase outline-none"><option>Всі операції</option></select>
-                        <select className="bg-white border border-slate-200 rounded-xl px-4 py-2 text-[10px] font-black uppercase outline-none"><option>За місяць</option></select>
+                <div className="card-premium p-8 bg-red-50/50 border-red-100 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="text-center md:text-left">
+                        <h3 className="text-red-700 font-black text-lg flex items-center justify-center md:justify-start gap-3"><Icon name="flame" size={20}/> Небезпечна зона</h3>
+                        <p className="text-xs font-bold text-red-500 uppercase tracking-widest mt-1 opacity-70">Ця дія видалить всі дані назавжди</p>
                     </div>
-                    <button onClick={syncMono} className="w-full sm:w-auto bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition shadow-lg"><Icon name="refresh-cw" size={16}/> Синхро Mono</button>
-                </div>
-                
-                <div className="card-modern overflow-hidden relative">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200"></div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left min-w-[700px]">
-                            <thead>
-                                <tr className="text-slate-400 text-[10px] uppercase font-black tracking-widest border-b border-slate-100">
-                                    <th className="px-6 py-5">Дата</th>
-                                    <th className="px-6 py-5">Тип</th>
-                                    <th className="px-6 py-5 w-1/3">Опис</th>
-                                    <th className="px-6 py-5">Категорія</th>
-                                    <th className="px-6 py-5 text-right">Сума</th>
-                                    <th className="px-6 py-5"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {currentData.map(t => (
-                                    <tr key={t.id} className="table-row-modern group">
-                                        <td className="px-6 py-5 text-xs font-mono font-bold text-slate-500">{t.date}</td>
-                                        <td className="px-6 py-5">
-                                            <span className={`text-[10px] font-black px-2 py-1 rounded-md ${t.isDividend ? 'bg-purple-100 text-purple-700' : (t.type==='income'?'bg-emerald-100 text-emerald-700':'bg-orange-100 text-orange-700')}`}>
-                                                {t.isDividend ? 'ДИВ' : (t.type==='income'?'ВХІД':'ВИХІД')}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-5 font-bold text-slate-800 text-sm">{t.description}</td>
-                                        <td className="px-6 py-5"><span className="text-[10px] font-black bg-slate-100 px-2 py-1 rounded-md text-slate-500 border border-slate-200 uppercase tracking-tighter">{t.cat}</span></td>
-                                        <td className={`px-6 py-5 text-right font-mono font-bold text-lg ${t.type==='income'?'text-emerald-600':'text-slate-900'}`}>
-                                            {t.type==='income'?'+':'-'}{t.amount.toLocaleString()} ₴
-                                        </td>
-                                        <td className="px-6 py-5 text-right">{canDelete && <button onClick={()=>deleteTx(t.id)} className="text-slate-200 hover:text-red-500 transition opacity-0 group-hover:opacity-100"><Icon name="trash-2" size={16}/></button>}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    {totalPages > 1 && (
-                        <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-center gap-3">
-                            <button disabled={currentPage===1} onClick={()=>setCurrentPage(p=>p-1)} className="p-3 border rounded-xl bg-white disabled:opacity-30 shadow-sm"><Icon name="chevron-left" size={18}/></button>
-                            <span className="flex items-center px-6 font-bold text-sm text-slate-600 bg-white border rounded-xl shadow-sm tracking-widest">{currentPage} / {totalPages}</span>
-                            <button disabled={currentPage===totalPages} onClick={()=>setCurrentPage(p=>p+1)} className="p-3 border rounded-xl bg-white disabled:opacity-30 shadow-sm"><Icon name="chevron-right" size={18}/></button>
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
-    const AddManagerModal = ({ db, close }) => {
-        const [form, setForm] = useState({ name: '', email: '', password: '', permissions: ['dashboard', 'ops'] });
-        const togglePerm = (p) => setForm(prev => ({...prev, permissions: prev.permissions.includes(p) ? prev.permissions.filter(x => x !== p) : [...prev.permissions, p]}));
-        const submit = async () => { if(!form.name || !form.email || !form.password) return alert("Заповніть поля"); await addDoc(collection(db, "managers"), form); close(); };
-        return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={close}></div>
-                <div className="card-modern w-full max-w-lg p-6 md:p-8 shadow-2xl relative z-10 animate-fade-in">
-                    <h3 className="text-2xl font-black mb-6">Новий менеджер</h3>
-                    <div className="space-y-4">
-                        <input placeholder="Ім'я" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} className="w-full border p-4 rounded-xl font-bold bg-slate-50 outline-none focus:border-brand-500 transition"/>
-                        <input placeholder="Email (Логін)" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} className="w-full border p-4 rounded-xl font-bold bg-slate-50 outline-none focus:border-brand-500 transition"/>
-                        <input placeholder="Пароль" value={form.password} onChange={e=>setForm({...form, password:e.target.value})} className="w-full border p-4 rounded-xl font-bold bg-slate-50 outline-none focus:border-brand-500 transition"/>
-                        <div className="pt-4"><label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2 block">Доступи:</label>
-                        <div className="grid grid-cols-2 gap-2">
-                            {ALL_VIEWS.filter(v=>v.id!=='settings').map(v => (
-                                <label key={v.id} className="flex items-center gap-2 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
-                                    <input type="checkbox" checked={form.permissions.includes(v.id)} onChange={()=>togglePerm(v.id)}/>
-                                    <span className="text-xs font-bold">{v.label}</span>
-                                </label>
-                            ))}
-                        </div></div>
-                        <button onClick={submit} className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black uppercase mt-4">Створити</button>
-                    </div>
+                    <button onClick={deleteAllTransactions} className="bg-white border-2 border-red-200 text-red-600 hover:bg-red-500 hover:text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95 shadow-sm">Очистити всю базу</button>
                 </div>
             </div>
         );
@@ -581,14 +577,12 @@
             const cogs = transactions.filter(t => t.cat === 'Закупівля (COGS)').reduce((s,t)=>s+Number(t.amount),0);
             const cash = transactions.reduce((s,t)=>t.type==='income'?s+Number(t.amount):s-Number(t.amount),0);
             const div = transactions.filter(t=>t.isDividend).reduce((s,t)=>s+Number(t.amount),0);
-            
             const bals = { mono: 0, nova: 0, cash: 0 };
             transactions.forEach(t => {
                 const src = (t.source || '').toLowerCase();
                 const key = src.includes('mono') ? 'mono' : (src.includes('nova') ? 'nova' : 'cash');
                 bals[key] += (t.type==='income' ? Number(t.amount) : -Number(t.amount));
             });
-
             return { 
                 revenue: inc, cogs, opex: exp - cogs, totalExpense: exp, totalCash: cash, balances: bals, 
                 margin: inc ? (((inc-exp)/inc)*100).toFixed(0) : 0, net: inc - exp, dividends: div,
@@ -596,63 +590,81 @@
             };
         }, [transactions]);
 
+        const handleLogin = async (e) => { e.preventDefault(); setLoading(true); try { await signInWithEmailAndPassword(auth, email, pass); } catch(e) { alert("Помилка логіна"); setLoading(false); } };
+
         if (view === 'auth') return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 text-white text-center font-sans">
-                <div className="w-full max-w-sm space-y-8 relative z-10">
-                    <div className="w-20 h-20 bg-gradient-to-br from-brand-500 to-brand-600 rounded-[28px] mx-auto flex items-center justify-center shadow-2xl mb-8 transform rotate-3"><Icon name="flame" size={44} className="text-white"/></div>
-                    <h1 className="text-5xl font-black text-white tracking-tighter">Latiao</h1>
-                    <form onSubmit={async (e)=>{e.preventDefault(); try{await signInWithEmailAndPassword(auth, email, pass);}catch(e){alert("Помилка логіна");}}} className="space-y-4 pt-4">
-                        <input type="email" placeholder="Логін" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-800 border-none rounded-2xl p-5 text-white font-bold outline-none focus:ring-2 ring-brand-500 transition"/>
-                        <input type="password" placeholder="Пароль" value={pass} onChange={e=>setPass(e.target.value)} className="w-full bg-slate-800 border-none rounded-2xl p-5 text-white font-bold outline-none focus:ring-2 ring-brand-500 transition"/>
-                        <button type="submit" className="w-full bg-gradient-to-r from-brand-500 to-brand-600 text-white p-5 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition mt-4 shadow-lg shadow-brand-500/20">Увійти</button>
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 font-sans relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-500/20 rounded-full blur-[150px] animate-pulse"></div>
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[150px]"></div>
+                <div className="w-full max-w-sm space-y-12 text-center relative z-10 p-12 bg-white/5 backdrop-blur-3xl rounded-[48px] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)]">
+                    <div className="flex flex-col items-center">
+                        <div className="w-24 h-24 bg-gradient-to-br from-brand-500 to-brand-600 rounded-[32px] flex items-center justify-center shadow-glow-brand mb-8 transform rotate-6 border-[6px] border-slate-900"><Icon name="flame" size={48} className="text-white"/></div>
+                        <h1 className="text-5xl font-black text-white tracking-tighter mb-2">Latiao</h1>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Enterprise v12.6</p>
+                    </div>
+                    <form onSubmit={handleLogin} className="space-y-5 pt-4">
+                        <input type="email" placeholder="Логін" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-3xl p-5 text-white font-bold outline-none focus:ring-2 ring-brand-500 transition-all text-center placeholder-slate-600 shadow-inner"/>
+                        <input type="password" placeholder="Пароль" value={pass} onChange={e=>setPass(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-3xl p-5 text-white font-bold outline-none focus:ring-2 ring-brand-500 transition-all text-center placeholder-slate-600 shadow-inner"/>
+                        <button type="submit" className="w-full btn-primary text-white p-6 rounded-3xl font-black uppercase tracking-[0.2em] text-xs mt-6">Увійти в кабінет</button>
                     </form>
                 </div>
             </div>
         );
 
         return (
-            <div className="flex h-screen overflow-hidden bg-[#F8FAFC]">
+            <div className="flex h-screen overflow-hidden bg-[#F1F5F9]">
                 {/* Mobile Menu Overlay */}
-                {isSidebarOpen && <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden" onClick={()=>setSidebarOpen(false)}></div>}
+                {isSidebarOpen && <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[45] lg:hidden" onClick={()=>setSidebarOpen(false)}></div>}
 
                 {/* Sidebar */}
-                <aside className={`sidebar-nav ${isSidebarOpen ? 'open' : ''} fixed lg:relative inset-y-0 left-0 w-72 bg-white border-r border-slate-200/70 flex flex-col`}>
-                    <div className="p-8 flex items-center gap-3 border-b border-slate-50">
-                         <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/30"><Icon name="flame" size={24}/></div>
-                         <h1 className="text-xl font-black text-slate-900 tracking-tighter">Latiao <span className="text-brand-600">v12.6</span></h1>
+                <aside className={`sidebar-nav glass-sidebar ${isSidebarOpen ? 'open' : ''} fixed lg:relative inset-y-0 left-0 z-50 w-80 flex flex-col`}>
+                    <div className="p-10 flex items-center gap-4">
+                         <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-2xl transform hover:rotate-12 transition-transform"><Icon name="flame" size={28}/></div>
+                         <h1 className="text-2xl font-black text-slate-900 tracking-tighter">Latiao <span className="text-brand-500">v12.6</span></h1>
                     </div>
-                    <nav className="flex-1 px-4 space-y-1.5 mt-6 overflow-y-auto pb-8">
-                        <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest px-4 mb-4">Меню управління</div>
+                    <nav className="flex-1 px-6 space-y-2 mt-4 overflow-y-auto pb-8">
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] px-4 mb-6">Financial Suite</div>
                         {ALL_VIEWS.map(v => (
-                            <button key={v.id} onClick={()=>{setView(v.id); setSidebarOpen(false);}} className={`w-full flex items-center gap-3 p-4 text-sm font-bold transition-all sidebar-link group ${view===v.id ? 'active' : 'text-slate-500'}`}>
-                                <Icon name={v.icon} size={20}/> <span>{v.label}</span>
+                            <button key={v.id} onClick={()=>{setView(v.id); setSidebarOpen(false);}} className={`w-full flex items-center gap-4 p-5 text-sm font-bold sidebar-link group ${view===v.id ? 'active' : 'text-slate-500'}`}>
+                                <Icon name={v.icon} size={22}/> <span className="tracking-tight">{v.label}</span>
                             </button>
                         ))}
-                         <div className="p-4 opacity-40 flex items-center gap-3 grayscale pointer-events-none mt-4">
-                            <Icon name="shopping-cart" size={20}/> <span className="text-sm font-bold text-slate-400">Закупівля</span>
-                            <span className="bg-red-500 text-[8px] text-white px-2 rounded-full font-black">СКОРО</span>
+                         <div className="p-5 opacity-40 flex items-center gap-4 grayscale pointer-events-none mt-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                            <Icon name="shopping-cart" size={22}/> <span className="text-sm font-bold text-slate-400">Закупівля</span>
+                            <span className="bg-red-500 text-[8px] text-white px-2 py-0.5 rounded-full font-black tracking-widest ml-auto">СКОРО</span>
                         </div>
                     </nav>
-                    <div className="p-6 border-t border-slate-50">
-                        <button onClick={()=>signOut(auth)} className="w-full flex items-center gap-3 text-red-500 font-bold text-sm hover:bg-red-50 p-4 rounded-2xl transition"><Icon name="log-out" size={18}/> Вихід</button>
+                    <div className="p-8 mt-auto border-t border-slate-100">
+                        <button onClick={()=>signOut(auth)} className="w-full flex items-center gap-4 text-red-500 font-black text-xs uppercase tracking-widest hover:bg-red-50 p-5 rounded-2xl transition-all"><Icon name="log-out" size={20}/> Log Out</button>
                     </div>
                 </aside>
 
-                <main className="flex-1 overflow-y-auto relative scroll-smooth">
+                <main className="flex-1 overflow-y-auto relative scroll-smooth bg-[#F8FAFC]">
                     {/* Header */}
-                    <header className="h-16 md:h-20 bg-white/70 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <button onClick={()=>setSidebarOpen(true)} className="lg:hidden p-2 text-slate-600 active:bg-slate-100 rounded-lg"><Icon name="menu" size={24}/></button>
-                            <h2 className="text-lg md:text-2xl font-black text-slate-900 tracking-tight capitalize">{ALL_VIEWS.find(v=>v.id===view)?.label}</h2>
+                    <header className="h-20 md:h-24 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-[40] px-6 md:px-12 flex items-center justify-between shadow-sm">
+                        <div className="flex items-center gap-6">
+                            <button onClick={()=>setSidebarOpen(true)} className="lg:hidden p-3 bg-slate-100 text-slate-600 hover:bg-brand-500 hover:text-white rounded-2xl transition-all active:scale-90"><Icon name="menu" size={24}/></button>
+                            <div>
+                                <h2 className="text-xl md:text-3xl font-black text-slate-950 tracking-tighter capitalize">{ALL_VIEWS.find(v=>v.id===view)?.label}</h2>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden md:block">Latiao Finance Management System</p>
+                            </div>
                         </div>
-                        <div className="flex gap-2">
-                             <button onClick={()=>setModalType('income')} className="bg-emerald-500 text-white w-10 h-10 md:w-auto md:px-6 md:h-11 rounded-xl flex items-center justify-center gap-2 font-black shadow-lg shadow-emerald-200 active:scale-95 transition"><Icon name="plus" size={20}/><span className="hidden md:block text-[10px] uppercase tracking-widest font-black">Дохід</span></button>
-                             <button onClick={()=>setModalType('expense')} className="bg-brand-500 text-white w-10 h-10 md:w-auto md:px-6 md:h-11 rounded-xl flex items-center justify-center gap-2 font-black shadow-lg shadow-brand-200 active:scale-95 transition"><Icon name="minus" size={20}/><span className="hidden md:block text-[10px] uppercase tracking-widest font-black">Витрата</span></button>
+                        <div className="flex gap-3">
+                             <button onClick={()=>setModalType('income')} className="bg-emerald-500 hover:bg-emerald-600 text-white w-12 h-12 md:w-auto md:px-8 md:h-14 rounded-2xl flex items-center justify-center gap-3 font-black shadow-lg shadow-emerald-200 active:scale-95 transition-all"><Icon name="plus" size={22}/><span className="hidden md:block text-xs uppercase tracking-[0.2em]">Дохід</span></button>
+                             <button onClick={()=>setModalType('expense')} className="btn-primary text-white w-12 h-12 md:w-auto md:px-8 md:h-14 rounded-2xl flex items-center justify-center gap-3 font-black shadow-lg shadow-brand-200 active:scale-95 transition-all"><Icon name="minus" size={22}/><span className="hidden md:block text-xs uppercase tracking-[0.2em]">Витрата</span></button>
                         </div>
                     </header>
 
-                    <div className="p-4 md:p-8 pb-32">
-                        {loading ? <div className="text-center py-20 font-black text-slate-200 animate-pulse uppercase tracking-[0.2em] text-sm">З'єднання з сервером...</div> : (
+                    <div className="p-6 md:p-12 pb-40">
+                        {loading ? (
+                            <div className="flex flex-col items-center justify-center py-40 gap-8 animate-fade-in">
+                                <div className="relative w-20 h-20">
+                                    <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
+                                    <div className="absolute inset-0 border-4 border-brand-500 rounded-full border-t-transparent animate-spin"></div>
+                                </div>
+                                <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.5em]">Synchronizing Database</div>
+                            </div>
+                        ) : (
                             <div className="max-w-[1400px] mx-auto">
                                 {view==='dashboard' && <DashboardView metrics={metrics} transactions={transactions} setView={setView}/>}
                                 {view==='pnl' && <PnLView metrics={metrics} transactions={transactions}/>}
@@ -660,41 +672,58 @@
                                 {view==='dividends' && <DividendsView metrics={metrics} transactions={transactions} setModalType={setModalType}/>}
                                 {view==='ops' && <OpsView transactions={transactions} deleteTx={async (id)=>await deleteDoc(doc(db,"transactions",id))} canDelete={currentUser?.role==='admin'} syncMono={async ()=>alert("Mono API Sync...")}/>}
                                 {view==='managers' && <ManagersView db={db}/>}
-                                {view==='settings' && <SettingsView settings={settings} setSettings={setSettings} saveSettings={async (s)=>await setDoc(doc(db,"settings","global"),s)} syncMono={()=>alert("Sync Test")} deleteAllTransactions={()=>alert("Delete Test")} categories={categories} saveCategories={async (c)=>await setDoc(doc(db,"settings","categories"),c)}/>}
+                                {view==='settings' && <SettingsView settings={settings} setSettings={setSettings} saveSettings={async (s)=>await setDoc(doc(db,"settings","global"),s)} syncMono={()=>alert("Syncing...")} deleteAllTransactions={()=>alert("Safety lock active")} categories={categories} saveCategories={async (c)=>await setDoc(doc(db,"settings","categories"),c)}/>}
                             </div>
                         )}
                     </div>
                 </main>
 
-                {/* MODAL (Bottom sheet on mobile, centered on desktop) */}
+                {/* PREMIUM MODAL DESIGN */}
                 {modalType && (
-                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
-                        <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-md transition-opacity" onClick={()=>setModalType(null)}></div>
-                        <div className="bg-white w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] overflow-hidden shadow-2xl relative z-10 animate-fade-in">
-                            <div className={`p-6 text-white flex justify-between items-center shadow-lg ${modalType==='income'?'bg-emerald-500':'bg-brand-500'} ${modalType==='dividend'?'bg-indigo-600':''}`}>
-                                <h3 className="font-black text-lg md:text-xl uppercase tracking-[0.1em]">Нова транзакція</h3>
-                                <button onClick={()=>setModalType(null)} className="p-2 bg-black/10 rounded-full hover:bg-black/20 transition"><Icon name="x" size={20}/></button>
-                            </div>
-                            <div className="p-8 space-y-6">
-                                <div className="relative border-b-4 border-slate-100 py-2 focus-within:border-brand-500 transition-colors">
-                                    <span className="absolute left-0 bottom-4 text-3xl text-slate-300 font-mono font-black">₴</span>
-                                    <input id="mAmount" type="number" placeholder="0" className="w-full text-5xl md:text-6xl font-mono font-black pl-12 outline-none placeholder-slate-100" autoFocus/>
+                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 transition-all">
+                        <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl transition-opacity duration-500" onClick={()=>setModalType(null)}></div>
+                        <div className="bg-white w-full max-w-xl rounded-t-[48px] sm:rounded-[48px] overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.5)] relative z-10 animate-fade-in border border-white/20">
+                            <div className={`p-8 text-white flex justify-between items-center shadow-2xl ${modalType==='income'?'bg-emerald-500':'bg-brand-500'} ${modalType==='dividend'?'bg-slate-900':''}`}>
+                                <div>
+                                    <h3 className="font-black text-2xl uppercase tracking-tighter">New Transaction</h3>
+                                    <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest">{modalType} entry for Latiao</p>
                                 </div>
-                                <input id="mDesc" type="text" placeholder="Опис операції..." className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl font-bold outline-none focus:bg-white focus:border-brand-200 transition-all"/>
-                                <select id="mCat" className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl font-bold outline-none appearance-none">
-                                    {modalType==='income' ? categories.income.map(c=><option key={c}>{c}</option>) : categories.expense.map(c=><option key={c}>{c}</option>)}
-                                </select>
+                                <button onClick={()=>setModalType(null)} className="p-4 bg-black/10 hover:bg-black/20 rounded-full transition-all active:scale-90"><Icon name="x" size={24}/></button>
+                            </div>
+                            <div className="p-10 space-y-8 bg-gradient-to-b from-white to-slate-50">
+                                <div className="relative border-b-8 border-slate-100 py-4 focus-within:border-brand-500 transition-colors duration-500">
+                                    <span className="absolute left-0 bottom-6 text-4xl text-slate-300 font-mono font-black">₴</span>
+                                    <input id="mAmount" type="number" placeholder="0" className="w-full text-6xl md:text-8xl font-mono font-black pl-16 outline-none bg-transparent placeholder-slate-100 tracking-tighter" autoFocus/>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Description</label>
+                                    <input id="mDesc" type="text" placeholder="Що саме відбулося?" className="w-full bg-white border-2 border-slate-100 p-5 rounded-[24px] font-bold outline-none focus:border-brand-500 transition-all shadow-inner"/>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Category</label>
+                                        <select id="mCat" className="w-full bg-white border-2 border-slate-100 p-5 rounded-[24px] font-bold outline-none appearance-none cursor-pointer focus:border-brand-500 shadow-inner">
+                                            {modalType==='income' ? categories.income.map(c=><option key={c}>{c}</option>) : categories.expense.map(c=><option key={c}>{c}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Wallet</label>
+                                        <select id="mSource" className="w-full bg-white border-2 border-slate-100 p-5 rounded-[24px] font-bold outline-none appearance-none cursor-pointer focus:border-brand-500 shadow-inner">
+                                            <option>Monobank ФОП</option><option>NovaPay Бізнес</option><option>Готівкова каса</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <button onClick={async ()=>{
                                     const amount = document.getElementById('mAmount').value;
                                     if(!amount) return;
                                     await addDoc(collection(db, "transactions"), {
                                         amount: Number(amount), description: document.getElementById('mDesc').value,
-                                        cat: document.getElementById('mCat').value, source: 'Готівка',
+                                        cat: document.getElementById('mCat').value, source: document.getElementById('mSource').value,
                                         type: (modalType==='income'?'income':'expense'), isDividend: (modalType==='dividend'),
                                         createdAt: Date.now(), date: new Date().toLocaleDateString('uk-UA')
                                     });
                                     setModalType(null);
-                                }} className="w-full bg-slate-900 text-white p-6 rounded-[24px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-slate-300 active:scale-95 transition-transform">Зафіксувати</button>
+                                }} className="w-full btn-primary text-white p-7 rounded-[30px] font-black uppercase tracking-[0.3em] shadow-glow-brand active:scale-95 transition-all text-sm">Commit Transaction</button>
                             </div>
                         </div>
                     </div>
