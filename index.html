@@ -445,15 +445,32 @@
     const OpsView = ({ transactions, deleteTx, syncMono, canDelete, categories }) => {
         const [isSyncing, setIsSyncing] = useState(false);
         const [filters, setFilters] = useState({ date: '', source: 'all', type: 'all', min: '', max: '' });
+        
+        // --- Пагінація ---
+        const [currentPage, setCurrentPage] = useState(1);
+        const itemsPerPage = 15;
+
         const handleSync = async () => { setIsSyncing(true); await syncMono(); setIsSyncing(false); };
-        const filtered = transactions.filter(t => {
-            if (filters.date) { const [y, m, d] = filters.date.split('-'); if (t.date !== `${d}.${m}.${y}`) return false; }
-            if (filters.source !== 'all') { const src = t.source || ''; if (filters.source === 'mono' && !src.includes('Monobank')) return false; if (filters.source === 'nova' && !src.includes('Nova')) return false; if (filters.source === 'cash' && !src.includes('Готівка')) return false; }
-            if (filters.type !== 'all' && t.type !== filters.type) return false;
-            if (filters.min && Number(t.amount) < Number(filters.min)) return false;
-            if (filters.max && Number(t.amount) > Number(filters.max)) return false;
-            return true;
-        });
+
+        const filtered = useMemo(() => {
+            return transactions.filter(t => {
+                if (filters.date) { const [y, m, d] = filters.date.split('-'); if (t.date !== `${d}.${m}.${y}`) return false; }
+                if (filters.source !== 'all') { const src = t.source || ''; if (filters.source === 'mono' && !src.includes('Monobank')) return false; if (filters.source === 'nova' && !src.includes('Nova')) return false; if (filters.source === 'cash' && !src.includes('Готівка')) return false; }
+                if (filters.type !== 'all' && t.type !== filters.type) return false;
+                if (filters.min && Number(t.amount) < Number(filters.min)) return false;
+                if (filters.max && Number(t.amount) > Number(filters.max)) return false;
+                return true;
+            });
+        }, [transactions, filters]);
+
+        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+        const currentData = useMemo(() => {
+            const start = (currentPage - 1) * itemsPerPage;
+            return filtered.slice(start, start + itemsPerPage);
+        }, [filtered, currentPage]);
+
+        useEffect(() => { setCurrentPage(1); }, [filters]);
+
         return (
             <div className="space-y-6 animate-fade-in">
                 <div className="card-modern p-5 flex flex-wrap gap-4 items-center justify-between bg-slate-50/80">
@@ -488,8 +505,9 @@
                         {isSyncing ? "Синхронізація..." : "Синхронізувати банк"}
                     </button>
                 </div>
+
                 <div className="card-modern overflow-hidden relative">
-                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200"></div>
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200"></div>
                     {filtered.length === 0 ? 
                         <div className="p-16 text-center flex flex-col items-center justify-center text-slate-400">
                             <Icon name="search-x" size={64} className="mb-4 opacity-50"/>
@@ -511,7 +529,7 @@
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100/50">
-                                {filtered.map(t => (
+                                {currentData.map(t => (
                                     <tr key={t.id} className="table-row-modern group">
                                         <td className="px-6 py-5 text-sm font-mono font-bold text-slate-500">{t.date}</td>
                                         <td className="px-6 py-5">
@@ -539,6 +557,31 @@
                                 ))}
                             </tbody>
                         </table>
+                        
+                        {/* Пагінація UI */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-between items-center px-6 py-8 border-t border-slate-100 bg-slate-50/30">
+                                <div className="text-sm font-bold text-slate-500">
+                                    Сторінка {currentPage} з {totalPages} (Всього: {filtered.length})
+                                </div>
+                                <div className="flex gap-2">
+                                    <button 
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(p => p - 1)}
+                                        className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 transition shadow-sm active:scale-95"
+                                    >
+                                        <Icon name="chevron-left" />
+                                    </button>
+                                    <button 
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage(p => p + 1)}
+                                        className="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 transition shadow-sm active:scale-95"
+                                    >
+                                        <Icon name="chevron-right" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>}
                 </div>
             </div>
@@ -877,7 +920,6 @@
                             </button>
                         ))}
 
-                        {/* НОВА СТОРІНКА "ЗАКУПІВЛЯ" (СКОРО) */}
                         <div className="relative px-2 pointer-events-none opacity-50 grayscale select-none">
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-500 text-[9px] font-black text-white px-2 py-0.5 rounded-full z-10 shadow-sm animate-pulse">СКОРО</div>
                             <button className="w-full flex items-center gap-3 p-3.5 text-sm font-bold text-slate-400 sidebar-link">
