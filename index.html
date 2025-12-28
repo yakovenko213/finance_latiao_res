@@ -83,7 +83,7 @@
     const auth = getAuth(app);
     try { setPersistence(auth, browserLocalPersistence).catch(console.error); } catch(e) {}
 
-    const { useState, useEffect, useMemo } = React;
+    const { useState, useEffect, useMemo, memo } = React;
 
     const Icon = ({ name, size = 18, className }) => {
         useEffect(() => { try { if(window.lucide) window.lucide.createIcons(); } catch(e){} }, [name]);
@@ -107,7 +107,7 @@
 
     // --- REDESIGNED VIEW COMPONENTS ---
 
-    const DashboardView = ({ metrics, transactions, setView }) => {
+    const DashboardView = memo(({ metrics, transactions, setView }) => {
         const isHealthy = metrics.margin > 20;
         const healthStatus = isHealthy ? "Чудовий стан" : (metrics.margin > 0 ? "Нормальний стан" : "Критичний стан");
         
@@ -245,15 +245,15 @@
                 </div>
             </div>
         );
-    };
+    });
 
-    const PnLView = ({ metrics, transactions }) => {
+    const PnLView = memo(({ metrics, transactions }) => {
         const getPct = (val) => metrics.revenue ? ((val / metrics.revenue) * 100).toFixed(1) : 0;
         const getExpPct = (val) => metrics.totalExpense ? ((val / metrics.totalExpense) * 100).toFixed(1) : 0;
         
-        const allExpenses = transactions.filter(t => t.type === 'expense' && !t.isDividend).reduce((acc, t) => {
+        const allExpenses = useMemo(() => transactions.filter(t => t.type === 'expense' && !t.isDividend).reduce((acc, t) => {
              const existing = acc.find(i => i.cat === t.cat); if (existing) existing.val += Number(t.amount); else acc.push({ cat: t.cat, val: Number(t.amount) }); return acc;
-        }, []).sort((a, b) => b.val - a.val);
+        }, []).sort((a, b) => b.val - a.val), [transactions]);
 
         return (
             <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
@@ -348,9 +348,9 @@
                 </div>
             </div>
         );
-    };
+    });
 
-    const CashFlowView = ({ metrics }) => (
+    const CashFlowView = memo(({ metrics }) => (
         <div className="max-w-4xl mx-auto animate-fade-in space-y-8">
              <div className="card-modern bg-purple-50/80 border-purple-100 p-5 flex items-start gap-4">
                 <div className="bg-purple-100 p-3 rounded-xl text-purple-600"><Icon name="book-open" size={24}/></div>
@@ -416,9 +416,9 @@
                 </div>
             </div>
         </div>
-    );
+    ));
 
-    const DividendsView = ({ metrics, transactions, setModalType }) => (
+    const DividendsView = memo(({ metrics, transactions, setModalType }) => (
         <div className="max-w-4xl mx-auto animate-fade-in space-y-8">
              {/* Hero Section */}
             <div className="bg-gradient-to-br from-slate-800 to-indigo-950 text-white p-10 rounded-[32px] shadow-2xl relative overflow-hidden border border-indigo-900/50">
@@ -462,7 +462,7 @@
              {/* History Table */}
             <div className="card-modern overflow-hidden">
                  <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
-                     <div className="bg-purple-100 p-2 rounded-lg text-purple-600"><Icon name="history" size={20}/></div>
+                    <div className="bg-purple-100 p-2 rounded-lg text-purple-600"><Icon name="history" size={20}/></div>
                     <h3 className="font-bold text-lg text-slate-800">Історія виплат власнику</h3>
                 </div>
                 {transactions.filter(t=>t.isDividend).length === 0 ? 
@@ -492,22 +492,22 @@
                 </div>}
             </div>
         </div>
-    );
+    ));
 
-    const OpsView = ({ transactions, deleteTx, syncMono, canDelete, categories }) => {
+    const OpsView = memo(({ transactions, deleteTx, syncMono, canDelete, categories }) => {
         const [isSyncing, setIsSyncing] = useState(false);
         const [filters, setFilters] = useState({ date: '', source: 'all', type: 'all', min: '', max: '' });
 
         const handleSync = async () => { setIsSyncing(true); await syncMono(); setIsSyncing(false); };
 
-        const filtered = transactions.filter(t => {
+        const filtered = useMemo(() => transactions.filter(t => {
             if (filters.date) { const [y, m, d] = filters.date.split('-'); if (t.date !== `${d}.${m}.${y}`) return false; }
             if (filters.source !== 'all') { const src = t.source || ''; if (filters.source === 'mono' && !src.includes('Monobank')) return false; if (filters.source === 'nova' && !src.includes('Nova')) return false; if (filters.source === 'cash' && !src.includes('Готівка')) return false; }
             if (filters.type !== 'all' && t.type !== filters.type) return false;
             if (filters.min && Number(t.amount) < Number(filters.min)) return false;
             if (filters.max && Number(t.amount) > Number(filters.max)) return false;
             return true;
-        });
+        }), [transactions, filters]);
 
         return (
             <div className="space-y-6 animate-fade-in">
@@ -568,7 +568,7 @@
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100/50">
-                                {filtered.map(t => (
+                                {filtered.slice(0, 100).map(t => (
                                     <tr key={t.id} className="table-row-modern group">
                                         <td className="px-6 py-5 text-sm font-mono font-bold text-slate-500">{t.date}</td>
                                         <td className="px-6 py-5">
@@ -596,15 +596,14 @@
                                 ))}
                             </tbody>
                         </table>
+                        {filtered.length > 100 && <div className="p-4 text-center text-xs text-slate-400 font-bold uppercase tracking-widest">Показано перші 100 записів...</div>}
                     </div>}
                 </div>
             </div>
         );
-    };
+    });
 
-    // --- MANAGERS & SETTINGS (Redesigned) ---
-
-    const ManagersView = ({ db }) => {
+    const ManagersView = memo(({ db }) => {
         const [managers, setManagers] = useState([]);
         const [showModal, setShowModal] = useState(false);
         useEffect(() => { const q = query(collection(db, "managers")); const unsub = onSnapshot(q, (snap) => setManagers(snap.docs.map(d => ({ id: d.id, ...d.data() })))); return () => unsub(); }, []);
@@ -656,55 +655,9 @@
                 {showModal && <AddManagerModal db={db} close={()=>setShowModal(false)} />}
             </div>
         );
-    };
+    });
 
-    const AddManagerModal = ({ db, close }) => {
-        const [form, setForm] = useState({ name: '', email: '', password: '', permissions: ['dashboard', 'ops'] });
-        const togglePerm = (p) => setForm(prev => ({...prev, permissions: prev.permissions.includes(p) ? prev.permissions.filter(x => x !== p) : [...prev.permissions, p]}));
-        const submit = async () => { if(!form.name || !form.email || !form.password) return alert("Заповніть всі поля"); await addDoc(collection(db, "managers"), form); close(); };
-        const VIEWS_TO_SELECT = ALL_VIEWS.filter(v => v.id !== 'settings' && v.id !== 'managers');
-        return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={close}></div>
-                <div className="card-modern w-full max-w-lg p-8 shadow-2xl animate-fade-in relative z-10">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold text-2xl text-slate-800 flex items-center gap-3"><div className="bg-brand-100 p-2 rounded-xl text-brand-600"><Icon name="user-plus" size={24}/></div> Новий менеджер</h3>
-                        <button onClick={close} className="bg-slate-100 p-2 rounded-full hover:bg-slate-200 transition"><Icon name="x" size={20} className="text-slate-500"/></button>
-                    </div>
-                    
-                    <div className="space-y-5">
-                        <div className="space-y-4">
-                            <div className="relative"><Icon name="user" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"/><input placeholder="Ім'я співробітника" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} className="w-full border border-slate-200 bg-slate-50 pl-12 pr-4 py-3 rounded-xl text-sm outline-none focus:border-brand-500 focus:bg-white transition font-medium"/></div>
-                            <div className="relative"><Icon name="mail" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"/><input placeholder="Email (Логін для входу)" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} className="w-full border border-slate-200 bg-slate-50 pl-12 pr-4 py-3 rounded-xl text-sm outline-none focus:border-brand-500 focus:bg-white transition font-medium"/></div>
-                            <div className="relative"><Icon name="key" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"/><input placeholder="Пароль" value={form.password} onChange={e=>setForm({...form, password:e.target.value})} className="w-full border border-slate-200 bg-slate-50 pl-12 pr-4 py-3 rounded-xl text-sm outline-none focus:border-brand-500 focus:bg-white transition font-medium"/></div>
-                        </div>
-
-                        <div className="pt-4 border-t border-slate-100">
-                            <label className="text-xs font-bold uppercase text-slate-500 mb-4 block flex items-center gap-2"><Icon name="lock" size={14}/> Надати доступ до розділів:</label>
-                            <div className="grid grid-cols-2 gap-3">
-                                {VIEWS_TO_SELECT.map(v => (
-                                    <label key={v.id} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all ${form.permissions.includes(v.id) ? 'bg-brand-50 border-brand-500 shadow-sm' : 'bg-white border-slate-200 hover:bg-slate-50'}`}>
-                                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${form.permissions.includes(v.id) ? 'border-brand-500 bg-brand-500 text-white' : 'border-slate-300'}`}>
-                                            {form.permissions.includes(v.id) && <Icon name="check" size={14} strokeWidth={3}/>}
-                                        </div>
-                                        <input type="checkbox" className="hidden" checked={form.permissions.includes(v.id)} onChange={()=>togglePerm(v.id)} />
-                                        <span className={`text-sm font-bold flex items-center gap-2 ${form.permissions.includes(v.id) ? 'text-brand-700' : 'text-slate-600'}`}><Icon name={v.icon} size={16} className="opacity-70"/> {v.label}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-                        
-                        <div className="flex gap-4 pt-4">
-                             <button onClick={close} className="flex-1 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition">Скасувати</button>
-                             <button onClick={submit} className="flex-1 bg-brand-500 text-white py-3 rounded-xl font-bold hover:bg-brand-600 transition shadow-lg active:scale-95 flex items-center justify-center gap-2"><Icon name="check-circle" size={18}/> Створити менеджера</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const SettingsView = ({ settings, setSettings, saveSettings, syncMono, deleteAllTransactions, categories, saveCategories }) => {
+    const SettingsView = memo(({ settings, setSettings, saveSettings, syncMono, deleteAllTransactions, categories, saveCategories }) => {
         const [newCatIn, setNewCatIn] = useState(''); const [newCatOut, setNewCatOut] = useState('');
         const addCat = (t, v, setter) => { if(!v) return; saveCategories({...categories, [t]: [...categories[t], v]}); setter(''); };
         const removeCat = (t, v) => { if(confirm('Видалити?')) saveCategories({...categories, [t]: categories[t].filter(c=>c!==v)}); };
@@ -804,7 +757,7 @@
                 </div>
             </div>
         );
-    };
+    });
 
     const TransactionModal = ({ type, close, categories }) => {
         const [form, setForm] = useState({ amount: '', desc: '', cat: 'Інше', source: 'Monobank ФОП' });
@@ -877,13 +830,53 @@
         // --- AUTH & DATA LOADING ---
         useEffect(() => {
             const unsub = onAuthStateChanged(auth, async (u) => {
-                if (u) { setCurrentUser({ uid: u.uid, email: u.email, role: 'admin', permissions: ['all'] }); setView('dashboard'); loadData(); } 
-                else { try { const stored = localStorage.getItem('latiao_user'); if (stored) { setCurrentUser(JSON.parse(stored)); setView('dashboard'); loadData(); } else { setCurrentUser(null); setView('auth'); setLoading(false); } } catch (e) { localStorage.removeItem('latiao_user'); setView('auth'); setLoading(false); } }
+                if (u) { 
+                    setCurrentUser({ uid: u.uid, email: u.email, role: 'admin', permissions: ['all'] }); 
+                    setView('dashboard'); 
+                    loadData(); 
+                } 
+                else { 
+                    try { 
+                        const stored = localStorage.getItem('latiao_user'); 
+                        if (stored) { 
+                            const parsed = JSON.parse(stored);
+                            setCurrentUser(parsed); 
+                            setView('dashboard'); 
+                            loadData(); 
+                        } else { 
+                            setCurrentUser(null); 
+                            setView('auth'); 
+                            setLoading(false); 
+                        } 
+                    } catch (e) { 
+                        localStorage.removeItem('latiao_user'); 
+                        setView('auth'); 
+                        setLoading(false); 
+                    } 
+                }
             }); return () => unsub();
         }, []);
 
         const loadData = async () => {
-            setLoading(true); try { const sSnap = await getDoc(doc(db, "settings", "global")); if (sSnap.exists()) setSettings(sSnap.data()); const cSnap = await getDoc(doc(db, "settings", "categories")); if (cSnap.exists()) setCategories(cSnap.data()); else await setDoc(doc(db, "settings", "categories"), DEFAULT_CATEGORIES); const q = query(collection(db, "transactions")); onSnapshot(q, (snap) => { const list = snap.docs.map(d => ({ id: d.id, ...d.data() })); list.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)); setTransactions(list); setLoading(false); }); } catch (e) { console.error(e); setLoading(false); }
+            setLoading(true); 
+            try { 
+                const sSnap = await getDoc(doc(db, "settings", "global")); 
+                if (sSnap.exists()) setSettings(sSnap.data()); 
+                const cSnap = await getDoc(doc(db, "settings", "categories")); 
+                if (cSnap.exists()) setCategories(cSnap.data()); 
+                else await setDoc(doc(db, "settings", "categories"), DEFAULT_CATEGORIES); 
+                
+                const q = query(collection(db, "transactions")); 
+                onSnapshot(q, (snap) => { 
+                    const list = snap.docs.map(d => ({ id: d.id, ...d.data() })); 
+                    list.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)); 
+                    setTransactions(list); 
+                    setLoading(false); 
+                }); 
+            } catch (e) { 
+                console.error(e); 
+                setLoading(false); 
+            }
         };
 
         // --- CALCULATIONS ---
@@ -906,12 +899,33 @@
         // --- ACTIONS ---
         const handleLogin = async (e) => { e.preventDefault(); setLoading(true); try { await signInWithEmailAndPassword(auth, email, pass); } catch (authErr) { try { const q = query(collection(db, "managers"), where("email", "==", email), where("password", "==", pass)); const snapshot = await getDocs(q); if (!snapshot.empty) { const data = snapshot.docs[0].data(); const userObj = { uid: snapshot.docs[0].id, ...data, role: 'manager' }; localStorage.setItem('latiao_user', JSON.stringify(userObj)); setCurrentUser(userObj); setView(userObj.permissions?.[0] || 'dashboard'); loadData(); } else { alert("Невірний логін або пароль"); setLoading(false); } } catch (dbErr) { alert("Помилка: " + dbErr.message); setLoading(false); } } };
         const handleLogout = () => { signOut(auth); localStorage.removeItem('latiao_user'); setCurrentUser(null); setView('auth'); };
-        const canAccess = (viewId) => { if (!currentUser) return false; if (currentUser.role === 'admin') return true; return currentUser.permissions?.includes(viewId); };
+        
+        // Оптимізація: Мемоїзація індексу прав
+        const permissionsIndex = useMemo(() => {
+            if (!currentUser || !currentUser.permissions) return new Set();
+            return new Set(currentUser.permissions);
+        }, [currentUser]);
+
+        const canAccess = (viewId) => { 
+            if (!currentUser) return false; 
+            if (currentUser.role === 'admin' || permissionsIndex.has('all')) return true; 
+            return permissionsIndex.has(viewId); 
+        };
+
         const deleteTx = async (id) => { if(confirm('Видалити операцію?')) await deleteDoc(doc(db, "transactions", id)); };
         const saveS = async (d) => { await setDoc(doc(db, "settings", "global"), d); setSettings(d); alert('Налаштування збережено'); };
         const saveC = async (d) => { await setDoc(doc(db, "settings", "categories"), d); setCategories(d); };
         const syncM = async () => { if (!settings.monoKey || !settings.monoAccountId) return alert("Спочатку налаштуйте API Monobank в налаштуваннях"); setStatusMsg("Синхронізація з банком..."); try { const now = Math.floor(Date.now()/1000); const res = await fetch(`https://corsproxy.io/?https://api.monobank.ua/personal/statement/${settings.monoAccountId}/${now - 2678400}/${now}`, { headers: { 'X-Token': settings.monoKey } }); const data = await res.json(); if (!Array.isArray(data)) throw new Error("Помилка API банку"); const batch = writeBatch(db); let count=0; const ids = new Set(transactions.map(t=>t.bankId)); data.forEach(item => { if(!ids.has(item.id)) { let cat = 'Інше'; const d = (item.description||'').toLowerCase(); if(d.includes('nova')) cat='Логістика'; else if(d.includes('atb')||d.includes('silpo')) cat='Закупівля (COGS)'; batch.set(doc(collection(db,"transactions")), { amount: Math.abs(item.amount/100), description: item.description, cat, source: 'Monobank ФОП', type: item.amount>0?'income':'expense', isDividend: false, date: new Date(item.time*1000).toLocaleDateString('uk-UA'), createdAt: item.time*1000, bankId: item.id }); count++; } }); if(count>0) await batch.commit(); setStatusMsg(`Успішно додано: ${count} операцій`); setTimeout(()=>setStatusMsg(''), 3000); } catch(e) { setStatusMsg("Помилка синхронізації"); alert(e.message); } };
         const delAll = async () => { if(confirm("ВИДАЛИТИ ВСЮ БАЗУ ДАНИХ? Це неможливо відмінити.")) { const s = await getDocs(query(collection(db,"transactions"), limit(500))); const b = writeBatch(db); s.docs.forEach(d=>b.delete(d.ref)); await b.commit(); alert("Базу очищено."); } };
+
+        // Оптимізація: Мемоїзація компонентів для пришвидшення перемикання
+        const DashboardMemo = memo(DashboardView);
+        const PnLMemo = memo(PnLView);
+        const CashFlowMemo = memo(CashFlowView);
+        const DividendsMemo = memo(DividendsView);
+        const OpsMemo = memo(OpsView);
+        const ManagersMemo = memo(ManagersView);
+        const SettingsMemo = memo(SettingsView);
 
         // --- AUTH VIEW (Redesigned) ---
         if (view === 'auth') return (
@@ -979,7 +993,7 @@
                     <div className="flex justify-between items-center mb-8 fade-in sticky top-0 z-30 py-4 -mt-4 bg-transparent backdrop-blur-md">
                         <div>
                             <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight capitalize drop-shadow-sm">{ALL_VIEWS.find(v=>v.id===view)?.label}</h1>
-                            <p className="text-slate-500 font-medium mt-1 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> {currentUser?.email || user?.email} | {currentUser?.role === 'admin' ? 'Адміністратор' : 'Менеджер'}</p>
+                            <p className="text-slate-500 font-medium mt-1 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> {currentUser?.email} | {currentUser?.role === 'admin' ? 'Адміністратор' : 'Менеджер'}</p>
                         </div>
                         {(view==='dashboard'||view==='ops') && 
                         <div className="flex gap-4 shadow-soft p-1.5 bg-white rounded-2xl border border-slate-100">
@@ -994,13 +1008,13 @@
                     <div className="fade-in pb-16 relative z-10">
                         {loading && <div className="absolute inset-0 flex items-center justify-center bg-slate-50/50 backdrop-blur-sm z-20 rounded-3xl"><div className="flex flex-col items-center gap-3 text-brand-500 font-bold animate-pulse"><Icon name="loader" size={40} className="animate-spin"/>Завантаження даних...</div></div>}
                         <div className={loading ? 'opacity-50 pointer-events-none filter blur-sm transition-all duration-500' : 'transition-all duration-500'}>
-                            {view==='dashboard' && <DashboardView metrics={metrics} transactions={transactions} setView={setView}/>}
-                            {view==='pnl' && <PnLView metrics={metrics} transactions={transactions}/>}
-                            {view==='cashflow' && <CashFlowView metrics={metrics}/>}
-                            {view==='dividends' && <DividendsView metrics={metrics} transactions={transactions} setModalType={setModalType}/>}
-                            {view==='ops' && <OpsView transactions={transactions} deleteTx={deleteTx} syncMono={syncM} canDelete={currentUser?.role==='admin'} categories={categories}/>}
-                            {view==='settings' && <SettingsView settings={settings} setSettings={setSettings} saveSettings={saveS} syncMono={syncM} deleteAllTransactions={delAll} categories={categories} saveCategories={saveC}/>}
-                            {view==='managers' && <ManagersView db={db}/>}
+                            {view==='dashboard' && <DashboardMemo metrics={metrics} transactions={transactions} setView={setView}/>}
+                            {view==='pnl' && <PnLMemo metrics={metrics} transactions={transactions}/>}
+                            {view==='cashflow' && <CashFlowMemo metrics={metrics}/>}
+                            {view==='dividends' && <DividendsMemo metrics={metrics} transactions={transactions} setModalType={setModalType}/>}
+                            {view==='ops' && <OpsMemo transactions={transactions} deleteTx={deleteTx} syncMono={syncM} canDelete={currentUser?.role==='admin'} categories={categories}/>}
+                            {view==='settings' && <SettingsMemo settings={settings} setSettings={setSettings} saveSettings={saveS} syncMono={syncM} deleteAllTransactions={delAll} categories={categories} saveCategories={saveC}/>}
+                            {view==='managers' && <ManagersMemo db={db}/>}
                         </div>
                     </div>
                 </main>
@@ -1015,5 +1029,3 @@
 
 </body>
 </html>
-
-
